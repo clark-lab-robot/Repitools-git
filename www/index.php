@@ -43,7 +43,12 @@ echo $contents; } ?>
 
 <!-- end of project description -->
 
-<p> No content added. </p>
+<p> User's guide in PDF format can be downloaded <a href="http://129.94.136.7/file_dump/mark/RepitoolsManual.pdf">here</a>. </p>
+
+<p> 'RepitoolsExamples' package containing example data can be downloaded from here <a href="http://129.94.136.7/file_dump/mark/RepitoolsExamples_1.0.10.tar.gz">here</a>. </p>
+
+<p> The R package can be downloaded from <a href="http://r-forge.r-project.org/R/?group_id=716">here</a> or installed directly using: <br> 
+<code>install.packages("<i>packagename</i>",repos="http://r-forge.r-project.org")</code></p>
 
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
