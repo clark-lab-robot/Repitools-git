@@ -1,6 +1,6 @@
 Package: Repitools
-Version: 0.9.8
-Date: 2009/03/23
+Version: 1.0.0
+Date: 2010/03/11
 Title: Epigenomic tools
 Author: Mark Robinson <mrobinson@wehi.edu.au>
 Maintainer: Mark Robinson <mrobinson@wehi.edu.au>
