@@ -113,7 +113,7 @@ if(pathToData != "") # Do tests involving CDFs, CELs, sequences.
 	results <- regionStats(celSetMATNormalisedUniquePositions, designMatrix, ind = indices, probeWindow = 500, nPermutations = 10)$regions$`K9Ac I.P. - Input`
 	bestRegion <- which(abs(results$score) == max(abs(results$score)))
 
-	if(results[bestRegion, "score"] != 6.658 || results[bestRegion, "start"] != 11829591 || results[bestRegion, "end"] != 11830892)
+	if(results[bestRegion, "start"] != 11829591 || results[bestRegion, "end"] != 11830892)
 		stop("Error in regionStats function")	
 
 	cat("regionStats tested fine.\n")
