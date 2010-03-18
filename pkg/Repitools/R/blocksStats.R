@@ -103,7 +103,7 @@ setMethodS3("blocksStats", "AffymetrixCelSet", function(cs, coordinatesTable, an
   
 })
 
-setMethodS3("blocksStats", "GenomeDataList", function(cs, coordinatesTable, design, upStream=0, downStream=2000, verbose=TRUE, useAsRegions=FALSE, seqLen=NULL, libSize="ref", Acutoff=NULL, ...) {
+setMethodS3("blocksStats", "GenomeDataList", function(cs, coordinatesTable, design, upStream=0, downStream=2000, verbose=TRUE, useAsRegions=FALSE, seqLen=NULL, libSize="lane", Acutoff=NULL, ...) {
 	if(libSize == "ref" && is.null(Acutoff))
 		stop("Must give value of Acutoff if using \"ref\" normalisation.\n")
 	require(edgeR)
@@ -122,23 +122,22 @@ setMethodS3("blocksStats", "GenomeDataList", function(cs, coordinatesTable, desi
 	if(libSize == "ref")
 		lib.sizes <- colSums(dm) * calcNormFactors(dm, Acutoff=Acutoff)
 	
-	modCounts <- dmRes <- matrix(nrow = nrow(coordinatesTable), ncol = 0, dimnames = list(coordinatesTable$name, NULL))
+	dmRes <- cbind(coordinatesTable, dm)
 	for (i in 1:ncol(design)) {
 		if (verbose) cat("Processing column",i,"of design matrix\n")
 		stopifnot(sum(design[,i]==1)>0, sum(design[,i]==-1)>0, all(design[,i] %in% c(-1,0,1)))
-		d <- DGEList(counts=dm[,design[,i]!=0], group=as.character(design[design[,i]!=0,i]), lib.size=lib.sizes[design[,i]!=0])
+		thisCol <- design[,i]!=0
+		d <- DGEList(counts=dm[,thisCol], group=as.character(design[thisCol,i]), lib.size=lib.sizes[thisCol])
 		d.disp <- estimateCommonDisp(d)
-		modCounts <- merge(modCounts, d.disp$pseudo.alt, all.x = TRUE, by.x = "row.names", by.y = "row.names", sort = FALSE)
-		m <- match(modCounts[,"Row.names"], coordinatesTable$name)
-		modCounts <- modCounts[m, -1]
+		tmp <- d.disp$pseudo.alt
+		colnames(tmp) <- paste(colnames(tmp), "pseudo",sep="_")
+		dmRes <- merge(dmRes, tmp, all.x=TRUE, by.x="name", by.y="row.names")
 		deD <- exactTest(d.disp, pair = c("-1","1"))
 		de <- topTags(deD, n=nrow(deD$table))@.Data[[1]]
 		colnames(de) <- paste(colnames(de), colnames(design)[i], sep="_")
-		dmRes <- merge(dmRes, de, all.x = TRUE, by.x = "row.names", by.y = "row.names", sort = FALSE)
-		m <- match(dmRes[,"Row.names"], coordinatesTable$name)
-		dmRes <- dmRes[m, -1]
+		dmRes <- merge(dmRes, de, all.x = TRUE, by.x = "name", by.y = "row.names")
 	}
-	cbind(coordinatesTable, modCounts, dmRes)
+	dmRes[match(coordinatesTable$name, dmRes$name),]
 })
 
 

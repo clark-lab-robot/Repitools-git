@@ -9,7 +9,7 @@ For each region of interest or TSS, this routine interrogates probes or sequence
 }
 \usage{
 \method{blocksStats}{AffymetrixCelSet}(cs, coordinatesTable, annot = NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust = TRUE, useAsRegions=FALSE, ...)
-\method{blocksStats}{GenomeDataList}(cs, coordinatesTable, design, upStream = 0, downStream = 2000, verbose = TRUE, useAsRegions = FALSE, seqLen = NULL, libSize = "ref", Acutoff = NULL, ...)
+\method{blocksStats}{GenomeDataList}(cs, coordinatesTable, design, upStream = 0, downStream = 2000, verbose = TRUE, useAsRegions = FALSE, seqLen = NULL, libSize = "lane", Acutoff = NULL, ...)
 \method{blocksStats}{matrix}(cs, ndf, coordinatesTable, annot = NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust = TRUE, useAsRegions=FALSE, ...)
 } 
 %- maybe also 'usage' for other objects documented here.
@@ -28,7 +28,7 @@ For each region of interest or TSS, this routine interrogates probes or sequence
   \item{log2adjust}{whether to take log2 of array intensities.}
   \item{useAsRegions}{If true, the \code{start} and \code{end} columns of \code{coordinatesTable} will define the region to calculate statistics in.}
   \item{seqLen}{If sequencing reads need to be extended, the fragment size to be used}
-  \item{libSize}{A string that indicates whether to use the total lane count, total count within regions specified by \code{coordinatesTable}, or normalisation to a reference lane by the negative binomial quantile - to - quantile method, as the library size for each lane. For total lane count use \code{"lane"}, for region sums use \code{"inRegions"}, and for the normalisation use \code{"ref"} (which is the default).}
+  \item{libSize}{A string that indicates whether to use the total lane count, total count within regions specified by \code{coordinatesTable}, or normalisation to a reference lane by the negative binomial quantile - to - quantile method, as the library size for each lane. For total lane count use \code{"lane"}, for region sums use \code{"inRegions"}, and for the normalisation use \code{"ref"}.}
   \item{Acutoff}{If \code{libSize} is \code{"ref"}, this argument must be provided. Otherwise, it must not. Cutoff on the "A" values to take, before calculating trimmed mean.}
   \item{...}{Arguments passed to internal function for statistics calculations}
 }
