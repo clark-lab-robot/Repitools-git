@@ -89,7 +89,7 @@ if(pathToData != "") # Do tests involving CDFs, CELs, sequences.
 
 	GSTP1row <- grep("GSTP1", results$symbol)
 	KLK2row <- grep("KLK2", results$symbol)
-	if(results[GSTP1row, "start"] != 67107856 || results[GSTP1row, "end"] != 67110699 || results[GSTP1row, "df.2000.0"] != 11 || round(results[GSTP1row, 17], 3) != 0.744 || results[KLK2row, "start"] != 56068500 || results[KLK2row, "end"] != 56075635 || results[KLK2row, "df.2000.0"] != 35 || round(results[KLK2row, 17], 3) != 0)
+	if(results[GSTP1row, "start"] != 67107856 || results[GSTP1row, "end"] != 67110699 || results[GSTP1row, "df.2000.0"] != 11 || round(results[GSTP1row, 12], 3) != 0.744 || results[KLK2row, "start"] != 56068500 || results[KLK2row, "end"] != 56075635 || results[KLK2row, "df.2000.0"] != 35 || round(results[KLK2row, 12], 3) != 0)
 		stop("blocksStats giving unexpected results for acetylation arrays.")
 	
 	load(paste("rawData", "sequencing", "seq_data.Rdata", sep = .Platform$file.sep))
