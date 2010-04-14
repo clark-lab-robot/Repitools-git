@@ -47,6 +47,8 @@ echo $contents; } ?>
 
 <p> 'RepitoolsExamples' package containing example data can be downloaded from <a href="http://129.94.136.7/file_dump/mark/RepitoolsExamples_1.0.10.tar.gz">here</a>. </p>
 
+<p> Users can join the mailing list <a href="https://lists.r-forge.r-project.org/cgi-bin/mailman/listinfo/repitools-help">here</a>.
+
 <p> The R package can be downloaded from <a href="http://r-forge.r-project.org/R/?group_id=716">here</a> or installed directly using: <br> <br>
 <code>install.packages("Repitools",repos="http://r-forge.r-project.org")</code></p>
 
