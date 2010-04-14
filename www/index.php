@@ -43,7 +43,7 @@ echo $contents; } ?>
 
 <!-- end of project description -->
 
-<p> User's guide in PDF format can be downloaded <a href="http://129.94.136.7/file_dump/mark/RepitoolsManual.pdf">here</a>. </p>
+<p> User's guide in PDF format can be downloaded <a href="RepitoolsManual.pdf">here</a>. </p>
 
 <p> 'RepitoolsExamples' package containing example data can be downloaded from <a href="http://129.94.136.7/file_dump/mark/RepitoolsExamples_1.0.10.tar.gz">here</a>. </p>
 
