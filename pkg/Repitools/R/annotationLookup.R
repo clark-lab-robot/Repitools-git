@@ -106,7 +106,7 @@ annotationBlocksCounts <- function(rs, annotation, seqLen=NULL, verbose=TRUE) {
       if(verbose)
         cat(" ", chr, sep="")
 			which.anno <- annotation$chr==chr
-			if (is.null(rs[[i]][[chr]])) anno.counts[which.anno] <- 0 #no counts on that chr
+			if (is.null(rs[[i]][[chr]])) anno.counts[which.anno,i] <- 0 #no counts on that chr
 			else anno.counts[which.anno,i] <- IRanges::as.table(findOverlaps(anno.ranges[which.anno], rs[[i]][[chr]]))
 		}
     if(verbose)
