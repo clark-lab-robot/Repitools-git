@@ -66,9 +66,9 @@ findEADs <- function(statsTable, windowSize = 5, cutoff = 0.05, getFDRs = FALSE)
 				rightIndex <- indices[ceiling(windowSize / 2)]
 				for(tsIndex in 1:(windowSize / 2))
 				{
-					if(t[leftIndex - 1] > 0)
+					if(t[leftIndex - 1] > 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
 						leftIndex = leftIndex - 1
-					if(t[rightIndex + 1] > 0)
+					if(t[rightIndex + 1] > 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
 						rightIndex = rightIndex + 1
 				}
 				if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
@@ -86,9 +86,9 @@ findEADs <- function(statsTable, windowSize = 5, cutoff = 0.05, getFDRs = FALSE)
 				rightIndex <- indices[ceiling(windowSize / 2)]
 				for(tsIndex in 1:(windowSize / 2))
 				{
-					if(tRand[leftIndex - 1] > 0)
+					if(tRand[leftIndex - 1] > 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
 						leftIndex = leftIndex - 1
-					if(tRand[rightIndex + 1] > 0)
+					if(tRand[rightIndex + 1] > 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
 						rightIndex = rightIndex + 1
 				}
 				if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
@@ -134,9 +134,9 @@ findEADs <- function(statsTable, windowSize = 5, cutoff = 0.05, getFDRs = FALSE)
 			rightIndex <- indices[ceiling(windowSize / 2)]
 			for(tsIndex in 1:(windowSize / 2))
 			{
-				if(t[leftIndex - 1] > 0)
+				if(t[leftIndex - 1] > 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
 					leftIndex = leftIndex - 1
-				if(t[rightIndex + 1] > 0)
+				if(t[rightIndex + 1] > 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
 					rightIndex = rightIndex + 1
 			}
 			if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
@@ -155,7 +155,7 @@ findEADs <- function(statsTable, windowSize = 5, cutoff = 0.05, getFDRs = FALSE)
 		{
 			extIndex = rowIndex - 1
 			EADcode = EAD[rowIndex]
-			while(t[extIndex] > 0)
+			while(t[extIndex] > 0 && (statsTable[rowIndex, "chr"] == statsTable[extIndex, "chr"]))
 			{
 				EAD[extIndex] <- EADcode
 				extIndex <- extIndex - 1
@@ -166,7 +166,7 @@ findEADs <- function(statsTable, windowSize = 5, cutoff = 0.05, getFDRs = FALSE)
 		{
 			extIndex = rowIndex + 1
 			EADcode = EAD[rowIndex]
-			while(t[extIndex] > 0)
+			while(t[extIndex] > 0 && (statsTable[rowIndex, "chr"] == statsTable[extIndex, "chr"]))
 			{
 				EAD[extIndex] <- EADcode
 				extIndex <- extIndex + 1	
