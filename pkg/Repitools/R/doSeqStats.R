@@ -113,6 +113,8 @@ doSeqStats <- function(reads, whichInputs, whichControl, whichTreat, minCount, b
 	
 	resultsTable$adj.p.val <- p.adjust(resultsTable[, "p.value"], method = "BH")
 	resultsTable$zScore <- sign(resultsTable$logFC)*abs(qnorm(resultsTable$p.value/2))
+	resultsTable$zeroReads <- apply(resultsTable[, grep("Reads", colnames(resultsTable))], 1, function(aRow) length(which(aRow == 0)))
+	resultsTable$totalReads <- rowSums(resultsTable[, grep("Million", colnames(resultsTable))], na.rm = TRUE)
 
 	return(resultsTable)
 }
