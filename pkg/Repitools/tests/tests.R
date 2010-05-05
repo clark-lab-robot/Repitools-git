@@ -14,11 +14,11 @@ probes <- data.frame(chr = c("chr1", "chr9", "chrY", "chr1", "chr21", "chr6", "c
 genes <- data.frame(chr = c("chr1", "chr9", "chr11", "chr1", "chr11", "chr6", "chr6", "chr22", "chrY", "chr21"), position = c(10000, 9500, 1000000, 10500, 75000000, 500000, 9000000, 44000000, 1500, 10000000), strand = c('+', '-', '-', '+', '-', '-', '-', '+', '+', '-'), names = paste("Gene", 1:10), stringsAsFactors = FALSE)
 
 crossMatch <- annotationLookup(probes, genes, 5000, 5000)
-correctCrossMatch <- list(indexes = list(`Gene 1` = as.integer(c(1, 4)), `Gene 2` = as.integer(c(2)), `Gene 3` = integer(), `Gene 4` = as.integer(c(1, 4)), `Gene 5` = integer(), `Gene 6` = as.integer(c(6, 7)), `Gene 7` = integer(), `Gene 8` = NULL, `Gene 9` = integer(), `Gene 10` = integer()), offsets = list(`Gene 1` = as.integer(c(0, 1000)), `Gene 2` = as.integer(c(4000)), `Gene 3` = numeric(), `Gene 4` = as.integer(c(-500, 500)), `Gene 5` = numeric(), `Gene 6` = as.integer(c(-100, 100)), `Gene 7` = numeric(), `Gene 8` = numeric(), `Gene 9` = numeric(), `Gene 10` = numeric()))
+correctCrossMatch <- list(indexes = list(`Gene 1` = as.integer(c(1, 4)), `Gene 2` = as.integer(c(2)), `Gene 3` = integer(), `Gene 4` = as.integer(c(1, 4)), `Gene 5` = integer(), `Gene 6` = as.integer(c(7, 6)), `Gene 7` = integer(), `Gene 8` = NULL, `Gene 9` = integer(), `Gene 10` = integer()), offsets = list(`Gene 1` = as.integer(c(0, 1000)), `Gene 2` = as.integer(c(4000)), `Gene 3` = numeric(), `Gene 4` = as.integer(c(-500, 500)), `Gene 5` = numeric(), `Gene 6` = as.integer(c(100, -100)), `Gene 7` = numeric(), `Gene 8` = numeric(), `Gene 9` = numeric(), `Gene 10` = numeric()))
 names(correctCrossMatch$offsets$`Gene 1`) <- c(1, 4)
 names(correctCrossMatch$offsets$`Gene 2`) <- c(2)
 names(correctCrossMatch$offsets$`Gene 4`) <- c(1, 4)
-names(correctCrossMatch$offsets$`Gene 6`) <- c(6, 7)
+names(correctCrossMatch$offsets$`Gene 6`) <- c(7, 6)
 names(correctCrossMatch$offsets$`Gene 9`) <- character()
 
 if(!isTRUE(all.equal(crossMatch, correctCrossMatch))) 
@@ -32,7 +32,7 @@ correctLookupTable[1, c(60, 61)] <- 4
 correctLookupTable[2, c(90, 91)] <- 2
 correctLookupTable[4, c(45, 46)] <- 1
 correctLookupTable[4, c(55, 56)] <- 4
-correctLookupTable[6, 50] <- 6
+correctLookupTable[6, c(49, 50)] <- 6
 correctLookupTable[6, c(51, 52)] <- 7
 
 if(!all(lookupTable == correctLookupTable, na.rm = TRUE))

@@ -11,7 +11,7 @@ getCN <- function(regionsInfo, readsInputs)
 	cnObject <- cnObject[nonZero, ]
 	wts <- wts[nonZero]
 	cnObject <- segment(smooth.CNA(cnObject), weights = wts, p.method = "perm")
-	extends <- mapply(function(chr, end) {which(regionsInfo$inputs[, "chr"] == chr & regionsInfo$inputs[, "start"] == end)}, cnObject$out[, "chrom"], cnObject$out[, "loc.end"])
+	extends <- mapply(function(chr, end) {which(as.character(regionsInfo$inputs[, "chr"]) == as.character(chr) & regionsInfo$inputs[, "start"] == end)}, cnObject$out[, "chrom"], cnObject$out[, "loc.end"])
 	cnObject$out[, "loc.end"] <- regionsInfo$inputs[extends, "end"]   # Extend CNV region to the end of the interval, since all positions are starts.
 	
 	enrichRegionsRanges <- RangedData(IRanges(start = regionsInfo$enriched[, "start"], end = regionsInfo$enriched[, "end"]), space = regionsInfo$enriched[, "chr"])
@@ -20,10 +20,15 @@ getCN <- function(regionsInfo, readsInputs)
 							   
 	scaleFactors <- numeric()
 	cnPerChr <- split(cnObject$out, cnObject$out[, "chrom"])
-	for(chrIndex in 1:length(map))
-	{
+	for(chrIndex in 1:length(map))	
+	{	
 		whichCurrChr <- which(regionsInfo$enriched[ , "chr"] == names(map)[[chrIndex]])
-		scaleFactors[whichCurrChr] <- 2^(cnPerChr[[names(map)[chrIndex]]][map[[names(map)[chrIndex]]], "seg.mean"])
+		if(!is.null(cnPerChr[[names(map)[chrIndex]]]))
+		{
+			scaleFactors[whichCurrChr] <- 2^(cnPerChr[[names(map)[chrIndex]]][map[[names(map)[chrIndex]]], "seg.mean"])
+		} else {
+			scaleFactors[whichCurrChr] <- NA
+		}
 	}
 	
 	scaleFactors[which(is.na(scaleFactors))] <- 1 # Regions of no change.

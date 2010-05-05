@@ -51,7 +51,7 @@ doSeqStats <- function(reads, whichInputs, whichControl, whichTreat, minCount, b
 	} else {
 		if("strand" %in% colnames(blocksTable))
 		{
-		enrichedRegions <- data.frame(name = blocksTable$name, chr = blocksTable$chr, strand = blocksTable$strand, symbol = blocksTable$symbol, start = ifelse(blocksTable$strand == "+", blocksTable$start - 1000, blocksTable$end - 1000), end = ifelse(blocksTable$strand == "+", blocksTable$start + 1000, blocksTable$end + 1000), featureStart = blocksTable$start, featureEnd = blocksTable$end, stringsAsFactors = FALSE)
+			enrichedRegions <- data.frame(name = blocksTable$name, chr = blocksTable$chr, strand = blocksTable$strand, symbol = blocksTable$symbol, start = NA, end = NA, featureStart = blocksTable$start, featureEnd = blocksTable$end, stringsAsFactors = FALSE)
 			enrichedRegions$start <- ifelse(blocksTable$strand == "+", blocksTable$start - 1000, blocksTable$end - 1000)
 			enrichedRegions$end <- ifelse(blocksTable$strand == "+", blocksTable$start + 1000, blocksTable$end + 1000)
 		} else {
@@ -77,9 +77,8 @@ doSeqStats <- function(reads, whichInputs, whichControl, whichTreat, minCount, b
 	readsTotals <- colSums(enrichedRegionsReads)
 
 	groups <- character()
-	groups[whichTreat] <- "T"
-	groups[whichControl] <- "C"
-	groups <- groups[which(nchar(groups) == 1)]
+	groups[(length(whichControl)+1):(length(whichControl) + length(whichTreat))] <- "T"
+	groups[1:length(whichControl)] <- "C"
 	treatInSubset <- which(groups == "T")
 	controlInSubset <- which(groups == "C")
 	analysis <- mapply(function(tableForCN, cnLevel) {
