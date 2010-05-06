@@ -60,8 +60,6 @@ setMethodS3("blocksStats", "AffymetrixCelSet", function(cs, coordinatesTable, an
   if( nrow(design) != nbrOfArrays(cs) )
     stop("The number of rows in the design matrix does not equal the number of columns in the probes data matrix")
   
-  if(!all(c("chr", "name", "start", "end", "strand")  %in% colnames(coordinatesTable)))
-	stop("Incorrect column headings for coordinatesTable. Check documentation for details.")  
   
 	w <- which( rowSums(design != 0) > 0 )
 	cs <- extract(cs, w, verbose=verbose)
@@ -71,10 +69,14 @@ setMethodS3("blocksStats", "AffymetrixCelSet", function(cs, coordinatesTable, an
 	{
 		if(useAsRegions == TRUE)
 		{
+			if(!all(c("chr", "name", "start", "end")  %in% colnames(coordinatesTable)))
+				stop("Incorrect column headings for coordinatesTable. Check documentation for details.")  
 			annot <- annotationBlocksLookup(probePositions, coordinatesTable, verbose=verbose)
 		}
 		else
 		{
+			if(!all(c("chr", "name", "start", "end", "strand")  %in% colnames(coordinatesTable)))
+				stop("Incorrect column headings for coordinatesTable. Check documentation for details.")  
 			pos <- ifelse(coordinatesTable$strand=="+", coordinatesTable$start, coordinatesTable$end)
 			
 			genePositions <- data.frame(chr=coordinatesTable$chr, position=pos, 
@@ -145,10 +147,7 @@ setMethodS3("blocksStats", "matrix", function(cs, ndf, coordinatesTable, annot=N
 {
 	if( nrow(design) != ncol(cs) )
 		stop("The number of rows in the design matrix does not equal the number of columns in the probes data matrix.")
-	
-	if(!all(c("chr", "name", "start", "end", "strand")  %in% colnames(coordinatesTable)))
-		stop("Incorrect column headings for coordinatesTable. Check documentation for details.")
-	
+		
 	w <- which( rowSums(design != 0) > 0 )	
 	if(log2adjust == TRUE)
 	{						
@@ -163,10 +162,14 @@ setMethodS3("blocksStats", "matrix", function(cs, ndf, coordinatesTable, annot=N
 	
 		if(useAsRegions == TRUE)
 		{
+			if(!all(c("chr", "name", "start", "end")  %in% colnames(coordinatesTable)))
+				stop("Incorrect column headings for coordinatesTable. Check documentation for details.")
 			annot <- annotationBlocksLookup(probePositions, coordinatesTable)
 		}
 		else
 		{	
+			if(!all(c("chr", "name", "start", "end", "strand")  %in% colnames(coordinatesTable)))
+				stop("Incorrect column headings for coordinatesTable. Check documentation for details.")
 			pos <- rep(NA,nrow(coordinatesTable))
 			pos[coordinatesTable$strand=="+"] <- coordinatesTable$start[coordinatesTable$strand=="+"]
 			pos[coordinatesTable$strand=="-"] <- coordinatesTable$end[coordinatesTable$strand=="-"]
