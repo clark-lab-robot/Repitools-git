@@ -8,9 +8,9 @@
 For each region of interest or TSS, this routine interrogates probes or sequence data for either a high level of absolute signal or a change in signal for some specified contrast (i.e. difference) of interest.  Regions can be surroundings of TSSs, or can be a table of user - specified regions. The function determines if the \code{start} and \code{end} columns of the \code{coordinatesTable} should be used as regions or as TSSs, based on the \code{useAsRegions} flag.
 }
 \usage{
-\method{blocksStats}{AffymetrixCelSet}(cs, coordinatesTable, annot = NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust = TRUE, useAsRegions=FALSE, ...)
+\method{blocksStats}{AffymetrixCelSet}(cs, coordinatesTable, annot = NULL, probePositions = NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust = TRUE, useAsRegions=FALSE, ...)
 \method{blocksStats}{GenomeDataList}(cs, coordinatesTable, design, upStream = 0, downStream = 2000, verbose = TRUE, useAsRegions = FALSE, seqLen = NULL, libSize = "lane", Acutoff = NULL, ...)
-\method{blocksStats}{matrix}(cs, ndf, coordinatesTable, annot = NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust = TRUE, useAsRegions=FALSE, ...)
+\method{blocksStats}{matrix}(cs, ndf, coordinatesTable, annot = NULL, probePositions = NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust = TRUE, useAsRegions=FALSE, ...)
 } 
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -18,6 +18,7 @@ For each region of interest or TSS, this routine interrogates probes or sequence
   \item{ndf}{A \code{data.frame} with columns \code{chr}, \code{position}, and \code{index}}
   \item{coordinatesTable}{\code{data.frame} giving the gene coordinates or regions of interest. The column names of this are \code{chr}, \code{name}, \code{start}, \code{end}, \code{strand}.}
   \item{annot}{If a mapping with \code{annotationLookup} or \code{annotationBlocksLookup} has already been done, it can be passed in, and avoids re-conmputing of the mapping list within \code{blocksStats}.}
+   \item{probePositions}{Only include if specifying the \code{annot} argument. A \code{data.frame} with columns called \code{chr} and \code{position}.}
   \item{design}{design matrix specifying the contrast to compute (i.e. the samples to use and what differences to take)}
   \item{upStream}{number of bases upstream to consider in calculation of statistics}
   \item{downStream}{number of bases upstream to consider in calculation of statistics}

@@ -48,7 +48,7 @@
   cbind(coordinatesTable,xDf)
 }
 
-setMethodS3("blocksStats", "AffymetrixCelSet", function(cs, coordinatesTable, annot=NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust=TRUE, useAsRegions=FALSE, ...)
+setMethodS3("blocksStats", "AffymetrixCelSet", function(cs, coordinatesTable, annot=NULL, probePositions = NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust=TRUE, useAsRegions=FALSE, ...)
 {
 	require(aroma.affymetrix)
 
@@ -63,10 +63,10 @@ setMethodS3("blocksStats", "AffymetrixCelSet", function(cs, coordinatesTable, an
   
 	w <- which( rowSums(design != 0) > 0 )
 	cs <- extract(cs, w, verbose=verbose)
-	probePositions <- getProbePositionsDf( getCdf(cs), verbose=verbose )
 	
 	if(is.null(annot))
 	{
+		probePositions <- getProbePositionsDf( getCdf(cs), verbose=verbose )
 		if(useAsRegions == TRUE)
 		{
 			if(!all(c("chr", "name", "start", "end")  %in% colnames(coordinatesTable)))
@@ -143,18 +143,12 @@ setMethodS3("blocksStats", "GenomeDataList", function(cs, coordinatesTable, desi
 })
 
 
-setMethodS3("blocksStats", "matrix", function(cs, ndf, coordinatesTable, annot=NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust=TRUE, useAsRegions=FALSE, ...)
+setMethodS3("blocksStats", "matrix", function(cs, ndf, coordinatesTable, annot=NULL, probePositions=NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust=TRUE, useAsRegions=FALSE, ...)
 {
 	if( nrow(design) != ncol(cs) )
 		stop("The number of rows in the design matrix does not equal the number of columns in the probes data matrix.")
 		
-	w <- which( rowSums(design != 0) > 0 )	
-	if(log2adjust == TRUE)
-	{						
-		diffs <- log2(cs) %*% design[w,]
-	} else {
-		diffs <- cs %*% design[w,]
-	}
+	w <- which( rowSums(design != 0) > 0 )
 	
 	if(is.null(annot))
 	{
@@ -182,6 +176,13 @@ setMethodS3("blocksStats", "matrix", function(cs, ndf, coordinatesTable, annot=N
 			probePositions <- probePositions[pb,]
 			annot <- annotationLookup(probePositions, genePositions, upStream, downStream, verbose=verbose)
 		}
+	}
+
+	if(log2adjust == TRUE)
+	{						
+		diffs <- log2(cs[probePositions$index, ]) %*% design[w,]
+	} else {
+		diffs <- cs[probePositions$index, ] %*% design[w,]
 	}
 
 	return(.blocksStats(diffs, coordinatesTable, design, upStream, downStream, verbose, robust, minNRobust, adjustMethod, useAsRegions, annot))
