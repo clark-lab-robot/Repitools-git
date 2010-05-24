@@ -19,9 +19,7 @@ A \code{data.frame} with columns \code{feature}, \code{featureStart}, \code{feat
 }
 \author{Dario Strbenac}
 \examples{
-	require(ChIPpeakAnno)
-	require(Repitools)
 	peaksT <- data.frame(chr = c("chr1", "chr1", "chr1", "chr2", "chr2", "chr2"), start = c(2000010, 19000000, 30000000, 300, 5500, 100000), end = c(2000310, 19000300, 30000300, 600, 5800, 100300))
-	featuresT <- data.frame(chr = c("chr1", "chr1", "chr1", "chr2", "chr2", "chr2"), start = c(1000000, 10000000, 15000000, 1000, 6000, 10000), end = c(2000000, 20000000, 22000000, 5000, 7000, 15000), strand = c('+', '-', '+', '+', '-', '+'))
+	featuresT <- data.frame(name = c("gene1", "gene2", "gene4", "gene4", "gene5", "gene6"), chr = c("chr1", "chr1", "chr1", "chr2", "chr2", "chr2"), start = c(1000000, 10000000, 15000000, 1000, 6000, 10000), end = c(2000000, 20000000, 22000000, 5000, 7000, 15000), strand = c('+', '-', '+', '+', '-', '+'))
 	getNearestFeature(peaksT, featuresT)
 }
