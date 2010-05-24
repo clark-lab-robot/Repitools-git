@@ -90,30 +90,33 @@ annotationLookup <- function(probes, annotation, bpUp, bpDown, probeIndex=NULL, 
 
 
 annotationBlocksCounts <- function(rs, annotation, seqLen=NULL, verbose=TRUE) {
-	if (class(rs)=="GenomeData") rs <- GenomeDataList(list(rs))
-	anno.counts <- matrix(as.integer(NA), nrow=nrow(annotation), ncol=length(rs), dimnames=list(annotation$name, names(rs)))
-	anno.ranges <- IRanges(start=annotation$start, end=annotation$end)
-	
-	for (i in 1:length(rs)) {
-		if (!class(rs[[i]][[1]])=="IRanges") {
-			if (is.null(seqLen)) stop("If rs has not been extended, seqLen must be supplied")
-			rs[[i]] <- chipseq::extendReads(rs[[i]], seqLen=seqLen)
-		}
-    if(verbose)
-      cat(names(rs)[i], ":", sep="")
-
-		for (chr in unique(annotation$chr)) {
-      if(verbose)
-        cat(" ", chr, sep="")
-			which.anno <- annotation$chr==chr
-			if (is.null(rs[[i]][[chr]])) anno.counts[which.anno,i] <- 0 #no counts on that chr
-			else anno.counts[which.anno,i] <- IRanges::as.table(findOverlaps(anno.ranges[which.anno], rs[[i]][[chr]]))
-		}
-    if(verbose)
-      cat("\n")
-	}
-	anno.counts
-
+    if (class(rs)=="GenomeData") rs <- GenomeDataList(list(rs))
+    if (class(annotation)=="data.frame") {
+        annotation <- RangedData(Ranges=IRanges(start=annotation$start, end=annotation$end), space=annotation$chr)
+    } else stopifnot(class(annotation)=="RangedData") 
+    anno.counts <- matrix(as.integer(NA), nrow=nrow(annotation), ncol=length(rs), dimnames=list(annotation$name, names(rs)))
+    if (!class(rs[[1]][[1]])=="IRanges") {
+        if (is.null(seqLen)) stop("If rs has not been extended, seqLen must be supplied")
+        rs <- chipseq::extendReads(rs, seqLen=seqLen)
+    }
+    #convert rs to RangesList
+#    rs <- lapply(rs, function(x) RangesList(as.list(x)))
+    anno.chr <- names(annotation)
+    for (i in 1:length(rs)) {
+        
+        if(verbose)
+            cat(names(rs)[i], "\n", sep="")
+        #Handle missing chromosomes
+        rs.chr <- names(rs[[i]])
+        nochr <- which(!anno.chr %in% rs.chr)
+        nochr.list <- rep(list(IRanges()), length(nochr))
+        names(nochr.list) <- anno.chr[nochr]
+        rs[[i]] <- RangesList(c(as.list(rs[[i]]), nochr.list))
+        rs.chr <- names(rs[[i]])
+        both.chr <- intersect(anno.chr, rs.chr)
+        anno.counts[,i] <- unlist(countOverlaps(annotation[both.chr], rs[[i]][both.chr], type="any"))
+    }
+    anno.counts
 }
 
 annotationCounts <- function(rs, annotation, bpUp, bpDown, seqLen=NULL, verbose=TRUE) {

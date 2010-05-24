@@ -10,7 +10,7 @@ annotationBlocksCounts(rs, annotation, seqLen = NULL, verbose=TRUE)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{rs}{A \code{GenomeData} or \code{GenomeDataList} object}
-  \item{annotation}{a \code{data.frame} with required elements \code{chr} (character),  \code{start} (integer), \code{end} (integer) and optional elements \code{strand} ("+" or "-") and \code{name} (character)}
+  \item{annotation}{a RangedData object (preferable) or a \code{data.frame} with required elements \code{chr} (character),  \code{start} (integer), \code{end} (integer) and optional elements \code{strand} ("+" or "-") and \code{name} (character)}
   \item{seqLen}{If sequencing reads need to be extended, the fragment size to be used}
   \item{verbose}{logical, whether to print progress}
 }

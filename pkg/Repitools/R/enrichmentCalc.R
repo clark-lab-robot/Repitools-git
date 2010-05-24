@@ -17,7 +17,7 @@ setMethodS3("enrichmentCalc", "GenomeData", function(rs, organism, seqLen=NULL, 
 	max.cov <- max(sapply(rs, max))
 	cov.table <- numeric(max.cov+1)
 	names(cov.table) <- 0:max.cov
-	chr.lengths <- BSgenome::seqlengths(organism)
+	chr.lengths <- GenomicRanges::seqlengths(organism)
 	for (i in 1:length(rs)) {
 		temp <- IRanges::table(rs[[i]])
 		cov.table[names(temp)] <- cov.table[names(temp)]+temp
