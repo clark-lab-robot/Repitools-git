@@ -16,53 +16,7 @@ annotationCounts(rs, annotation, bpUp, bpDown, seqLen = NULL, verbose=TRUE)
   \item{seqLen}{If sequencing reads need to be extended, the fragment size to be used}
   \item{verbose}{logical, whether to print progress}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
-\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
-\references{
-%% ~put references to the literature/web site here ~
-}
-\author{
-%%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
-\examples{
-##---- Should be DIRECTLY executable !! ----
-##-- ==>  Define data, use random,
-##--	or do  help(data=index)  for the standard data sets.
-
-## The function is currently defined as
-function (rs, annotation, bpUp, bpDown, seqLen = NULL) 
-{
-    if (class(rs) == "GenomeData") 
-        rs <- GenomeDataList(list(rs))
-    anno.ranges <- IRanges(start = ifelse(annotation$strand == 
-        "+", annotation$position - bpUp, annotation$position - 
-        bpDown), end = ifelse(annotation$strand == "+", annotation$position + 
-        bpDown, annotation$position + bpUp))
-    anno <- data.frame(chr = annotation$chr, start = ifelse(annotation$strand == 
-        "+", annotation$position - bpUp, annotation$position - 
-        bpDown), end = ifelse(annotation$strand == "+", annotation$position + 
-        bpDown, annotation$position + bpUp), name = annotation$name)
-    annotationBlocksCounts(rs, anno, seqLen)
-  }
-}
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\value{A \code{matrix} of counts is returned, one column per \code{GenomeData} object supplied in \code{rs}, one row per \code{annotation} supplied}
+\author{Aaron Statham}
+\seealso{\code{\link{annotationBlocksCounts}}, \code{\link{genomeBlocks}}}
+\examples{#See the manual}

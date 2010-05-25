@@ -17,8 +17,6 @@ sequenceCalc(locations, window=500, organism, pattern, fixed=TRUE, Nmask=FALSE, 
   \item{verbose}{Print details of processing.}
   \item{chunkSize}{The number of basepairs to process in a chunk, lower amounts use less memory, higher amounts may be faster}
 }
-\details{
-  }
 \value{
   If \code{positions} is \code{TRUE}, a list of vectors of positions of matches in relation to the \code{locations}, otherwise a \code{vector} of the number of matches for each element of \code{locations}.
 }

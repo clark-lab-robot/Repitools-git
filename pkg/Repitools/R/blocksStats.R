@@ -116,7 +116,6 @@ setMethodS3("blocksStats", "GenomeDataList", function(cs, coordinatesTable, desi
 		coordinatesTable$position <- ifelse(coordinatesTable$strand=="+", coordinatesTable$start, coordinatesTable$end)
 		dm <- annotationCounts(cs, coordinatesTable, upStream, downStream, seqLen, verbose)
 	}
-
 	if (libSize == "lane")
 		lib.sizes <- laneCounts(cs)
 	if(libSize == "inRegions")
@@ -124,7 +123,6 @@ setMethodS3("blocksStats", "GenomeDataList", function(cs, coordinatesTable, desi
 	if(libSize == "ref")
 		lib.sizes <- colSums(dm) * calcNormFactors(dm, Acutoff=Acutoff)
 	
-	dmRes <- cbind(coordinatesTable, dm)
 	for (i in 1:ncol(design)) {
 		if (verbose) cat("Processing column",i,"of design matrix\n")
 		stopifnot(sum(design[,i]==1)>0, sum(design[,i]==-1)>0, all(design[,i] %in% c(-1,0,1)))

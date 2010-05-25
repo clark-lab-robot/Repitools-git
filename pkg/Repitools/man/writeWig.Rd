@@ -25,25 +25,9 @@ is created for each array/lane of sequencing). The filenames are given by the co
 matrix, and if ending in "gz" will be written out as a gzfile. 
 }
 \value{Wiggle file(s) are created}
-\references{
-%% ~put references to the literature/web site here ~
-}
 \author{
 Aaron Statham
-}
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 #See examples in the manual
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line

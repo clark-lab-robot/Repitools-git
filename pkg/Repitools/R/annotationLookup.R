@@ -91,32 +91,36 @@ annotationLookup <- function(probes, annotation, bpUp, bpDown, probeIndex=NULL, 
 
 annotationBlocksCounts <- function(rs, annotation, seqLen=NULL, verbose=TRUE) {
     if (class(rs)=="GenomeData") rs <- GenomeDataList(list(rs))
+    if (is.null(annotation$name)) annotation$name <- 1:nrow(annotation)
     if (class(annotation)=="data.frame") {
-        annotation <- RangedData(Ranges=IRanges(start=annotation$start, end=annotation$end), space=annotation$chr)
+        anno.names <- annotation$name
+        annotation <- RangedData(IRanges(start=annotation$start, end=annotation$end), space=annotation$chr, name=annotation$name)
+        annotation$order <- match(anno.names, annotation$name)
+        rm(anno.names)
     } else stopifnot(class(annotation)=="RangedData") 
     anno.counts <- matrix(as.integer(NA), nrow=nrow(annotation), ncol=length(rs), dimnames=list(annotation$name, names(rs)))
     if (!class(rs[[1]][[1]])=="IRanges") {
         if (is.null(seqLen)) stop("If rs has not been extended, seqLen must be supplied")
         rs <- chipseq::extendReads(rs, seqLen=seqLen)
     }
-    #convert rs to RangesList
-#    rs <- lapply(rs, function(x) RangesList(as.list(x)))
     anno.chr <- names(annotation)
     for (i in 1:length(rs)) {
-        
-        if(verbose)
-            cat(names(rs)[i], "\n", sep="")
-        #Handle missing chromosomes
+        if(verbose) cat(names(rs)[i], " ", sep="")
+
+        #Find chromosomes in annotation but not in rs
         rs.chr <- names(rs[[i]])
         nochr <- which(!anno.chr %in% rs.chr)
         nochr.list <- rep(list(IRanges()), length(nochr))
         names(nochr.list) <- anno.chr[nochr]
+
+        #convert rs to RangesList, inserting empty chromosomes if needed
         rs[[i]] <- RangesList(c(as.list(rs[[i]]), nochr.list))
         rs.chr <- names(rs[[i]])
         both.chr <- intersect(anno.chr, rs.chr)
         anno.counts[,i] <- unlist(countOverlaps(annotation[both.chr], rs[[i]][both.chr], type="any"))
     }
-    anno.counts
+    if(verbose) cat("\n")
+    if (is.null(annotation$order)) anno.counts else anno.counts[annotation$order,]
 }
 
 annotationCounts <- function(rs, annotation, bpUp, bpDown, seqLen=NULL, verbose=TRUE) {
@@ -124,10 +128,10 @@ annotationCounts <- function(rs, annotation, bpUp, bpDown, seqLen=NULL, verbose=
 	if (class(rs)=="GenomeData") rs <- GenomeDataList(list(rs))
 	if (is.null(annotation$strand)) annotation$strand <- "+"
 	if (is.null(annotation$name)) annotation$name <- 1:nrow(annotation)
-	anno <- data.frame(chr=annotation$chr,
-                     start=ifelse(annotation$strand=="+", annotation$position-bpUp, annotation$position-bpDown), 
-                       end=ifelse(annotation$strand=="+", annotation$position+bpDown, annotation$position+bpUp),
-                      name=annotation$name)
+    anno <- RangedData(IRanges(start=ifelse(annotation$strand=="+", annotation$position-bpUp, annotation$position-bpDown), 
+                                 end=ifelse(annotation$strand=="+", annotation$position+bpDown, annotation$position+bpUp)),
+                       space=annotation$chr, name=annotation$name)
+    anno$order <- match(annotation$name, anno$name)
 	annotationBlocksCounts(rs, anno, seqLen, verbose)
 }
 
