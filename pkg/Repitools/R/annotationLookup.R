@@ -91,8 +91,8 @@ annotationLookup <- function(probes, annotation, bpUp, bpDown, probeIndex=NULL, 
 
 annotationBlocksCounts <- function(rs, annotation, seqLen=NULL, verbose=TRUE) {
     if (class(rs)=="GenomeData") rs <- GenomeDataList(list(rs))
-    if (is.null(annotation$name)) annotation$name <- 1:nrow(annotation)
     if (class(annotation)=="data.frame") {
+        if (is.null(annotation$name)) annotation$name <- 1:nrow(annotation)
         anno.names <- annotation$name
         annotation <- RangedData(IRanges(start=annotation$start, end=annotation$end), space=annotation$chr, name=annotation$name)
         annotation$order <- match(anno.names, annotation$name)
