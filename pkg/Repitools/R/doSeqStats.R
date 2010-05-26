@@ -3,32 +3,7 @@ doSeqStats <- function(reads, whichInputs, whichControl, whichTreat, minCount, b
 	require(edgeR)
 	require(BSgenome.Hsapiens.UCSC.hg18)
 
-	chrNames <- paste("chr", c(1:22, "X", "Y"), sep = "")
-	chrLengths <- seqlengths(Hsapiens)[chrNames]
-	if(is.null(blocksTable))
-	{
-		intervals <- lapply(chrLengths, function(chrLength) {
-		                                                    segs <- data.frame(start = seq(1, chrLength - blockSize[1] + 1, blockSize[1]), end = seq(blockSize[1], chrLength, blockSize[1]))
-		                                                    segs[nrow(segs), "end"] <- chrLength; return(segs)
-								    }
-			   )
-		for(index in 1:length(intervals))
-		{
-			intervals[[index]] <- cbind(chr = seqnames(Hsapiens)[index], intervals[[index]])
-		}
-	} else {
-		intervals <- mapply(function(chr, start, end) {
-							      	segs <- data.frame(start = seq(start - blockSize[1], end + blockSize[1] + 1, blockSize[1]), end = seq(start - 1, end + 2 * blockSize[1], blockSize[1]), stringsAsFactors = FALSE)
-								segs <- cbind(chr, segs, stringsAsFactors = FALSE)
-								return(segs)
-							      },
-						              blocksTable$chr, blocksTable$start, blocksTable$end, SIMPLIFY = FALSE)
-	}
-
-	inputRegions <- do.call(rbind, intervals)
-	inputRegions <- inputRegions[!duplicated(inputRegions), ]
-	rm(intervals)
-
+	inputRegions <- genomeBlocks(Hsapiens, 1:25, blockSize[1])
 	inputRegionsReads <- annotationBlocksCounts(reads[whichInputs], inputRegions, seqLen = 300, verbose = FALSE)
 	keepRegions <- rowSums(inputRegionsReads) >= minCount[1]
 	rownames(inputRegionsReads) <- rownames(inputRegions)
@@ -37,28 +12,21 @@ doSeqStats <- function(reads, whichInputs, whichControl, whichTreat, minCount, b
 
 	if(is.null(blocksTable))
 	{
-		enrichedIntervals <-  lapply(chrLengths, function(chrLength) {
-                                                                             segs <- data.frame(start = seq(1, chrLength - blockSize[2] + 1, blockSize[2]), end = seq(blockSize[2], chrLength, blockSize[2]))
-                                                                             return(segs)
-                                                                             }
-                                            )
-		for(index in 1:length(enrichedIntervals))
-		{
-			enrichedIntervals[[index]] <- cbind(chr = seqnames(Hsapiens)[index], enrichedIntervals[[index]], stringsAsFactors = FALSE)
-		}	
-		enrichedRegions <- do.call(rbind, enrichedIntervals)
-		rm(enrichedIntervals)
+		enrichedRegions <- as.data.frame(genomeBlocks(Hsapiens, 1:25, blockSize[2]))
 	} else {
 		if("strand" %in% colnames(blocksTable))
 		{
 			enrichedRegions <- data.frame(name = blocksTable$name, chr = blocksTable$chr, strand = blocksTable$strand, symbol = blocksTable$symbol, start = NA, end = NA, featureStart = blocksTable$start, featureEnd = blocksTable$end, stringsAsFactors = FALSE)
 			enrichedRegions$start <- ifelse(blocksTable$strand == "+", blocksTable$start - 1000, blocksTable$end - 1000)
 			enrichedRegions$end <- ifelse(blocksTable$strand == "+", blocksTable$start + 1000, blocksTable$end + 1000)
+			enrichedRegions <- RangedData(name = enrichedRegions$name, space = enrichedRegions$chr, strand = enrichedRegions$strand, ranges = IRanges(start = enrichedRegions$start, end = enrichedRegions$end))
+			
 		} else {
 			enrichedRegions <- data.frame(name = blocksTable$name, chr = blocksTable$chr, start = NA, end = NA, featureStart = blocksTable$start, featureEnd = blocksTable$end, stringsAsFactors = FALSE)
 			positions <- round((blocksTable$start + blocksTable$end) / 2)
 			enrichedRegions$start <- positions - 500
 			enrichedRegions$end <- positions + 500
+			enrichedRegions <- RangedData(name = enrichedRegions$name, space = enrichedRegions$chr, ranges = IRanges(start = enrichedRegions$start, end = enrichedRegions$end))
 		}
 	 }
 
@@ -102,7 +70,7 @@ doSeqStats <- function(reads, whichInputs, whichControl, whichTreat, minCount, b
 	for(CNindex in 1:length(analysis))
 	{
 		analysisSmall <- analysis[[CNindex]]
-		analysisExpanded <- matrix(nrow = nrow(enrichedRegions[indicesByCN[[CNindex]], ]), ncol = 4, dimnames = list(rownames(enrichedRegions[indicesByCN[[CNindex]], ]), colnames(analysisSmall)))
+		analysisExpanded <- matrix(nrow = length(indicesByCN[[CNindex]]), ncol = 4, dimnames = list(rownames(enrichedRegions[indicesByCN[[CNindex]], ]), colnames(analysisSmall)))
 		map <- match(rownames(analysisSmall), rownames(analysisExpanded))
 		analysisExpanded[map, ] <- as.matrix(analysisSmall)
 

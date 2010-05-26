@@ -1,6 +1,8 @@
 getNearestFeature <- function(peaksTable, featuresTable)
 {
 	require(ChIPpeakAnno)
+	if(packageDescription("ChIPpeakAnno")$Version < 1.5.3)
+		warning("Your version of ChIPpeakAnno is not 1.5.3 or greater. Versions before this had bugs in them.")
 	
 	if("strand" %in% colnames(peaksTable))
 	{

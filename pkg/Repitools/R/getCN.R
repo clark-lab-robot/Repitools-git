@@ -40,3 +40,4 @@ getCN <- function(regionsInfo, readsInputs)
 	rownames(factorMatrix) <- rownames(regionsInfo$enriched)
 	return(factorMatrix)
 }
+
