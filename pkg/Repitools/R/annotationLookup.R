@@ -98,13 +98,7 @@ annotationBlocksCounts <- function(rs, annotation, seqLen=NULL, verbose=TRUE) {
         annotation$order <- match(anno.names, annotation$name)
         rm(anno.names)
     } else stopifnot(class(annotation)=="RangedData") 
-    if(is.null(annotation$name))
-    {
-        rNames <- rownames(annotation)
-    } else {
-        rNames <- annotation$name
-    }
-    anno.counts <- matrix(as.integer(NA), nrow=nrow(annotation), ncol=length(rs), dimnames=list(rNames, names(rs)))
+    anno.counts <- matrix(as.integer(NA), nrow=nrow(annotation), ncol=length(rs), dimnames=list(if(is.null(annotation$name)) rownames(annotation) else annotation$name, names(rs)))
     if (!class(rs[[1]][[1]])=="IRanges") {
         if (is.null(seqLen)) stop("If rs has not been extended, seqLen must be supplied")
         rs <- chipseq::extendReads(rs, seqLen=seqLen)

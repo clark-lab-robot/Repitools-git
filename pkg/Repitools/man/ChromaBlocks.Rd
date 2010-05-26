@@ -5,7 +5,7 @@
 For each region of interest or TSS, this routine interrogates probes or sequence data for either a high level of absolute signal or a change in signal for some specified contrast (i.e. difference) of interest.  Regions can be surroundings of TSSs, or can be a table of user - specified regions. The function determines if the \code{start} and \code{end} columns of the \code{coordinatesTable} should be used as regions or as TSSs, based on the \code{useAsRegions} flag.
 }
 \usage{
-ChromaBlocks(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidth=500, preset=NULL, blockWidth=NULL, cutoff=NULL, minBlocks=NULL, extend=NULL, verbose=TRUE, seqLen=NULL)
+ChromaBlocks(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidth=500, preset=NULL, blockWidth=NULL, minBlocks=NULL, extend=NULL, cutoff=NULL, FDR=0.01, nPermutations=5, nCutoffs=20, cutoffQuantile=0.98, verbose=TRUE, seqLen=NULL)
 }
 \arguments{
   \item{rs.ip}{A \code{GenomeDataList} object containing reads from the Immunoprecipited sample}
@@ -16,9 +16,13 @@ ChromaBlocks(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidth=500, prese
   \item{inputWidth}{Size in basepairs of the windows to use for the Input samples}
   \item{preset}{Either "small", "large" to use cutoffs described in Hawkins et al or \code{NULL} (where \code{blockWidth}, \code{cutoff} and \code{minBlocks} must be specified)}
   \item{blockWidth}{Number of adjacent blocks to consider at once}
-  \item{cutoff}{The minimum average RPKM of \code{blockWidth} adjacent blocks}
   \item{minBlocks}{The minimum number of blocks required above \code{cutoff}}
   \item{extend}{Optional: whether to extend significant blocks until adjacent blocks are less than this value}
+  \item{cutoff}{Optional: the cutoff to use to call regions. If left as \code{NULL} a cutoff will be chosen which satisfied the specified FDR}
+  \item{FDR}{The target False Discovery Rate; If \code{cutoff} is not supplied, one will be chosen to satisfy this value}
+  \item{nPermutations}{The number of permutations of the data to determine the \code{cutoff} at the supplied \code{FDR}}
+  \item{nCutoffs}{The number of different cutoffs to try to satisfy the \code{FDR}, a higher value will give finer resolution but longer processing time}
+  \item{cutoffQuantile}{The quantile of the RPKM to use as the maximum cutoff tried; a higher value will give lower resolution but may be needed if a \code{cutoff} satisfying the \code{FDR} cannot be determined with the default value}
   \item{verbose}{logical, whether to output commments of the processing}
   \item{seqLen}{If sequencing reads need to be extended, the fragment size to be used}
 }
