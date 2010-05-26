@@ -11,9 +11,6 @@ getNearestFeature(peaksTable, featuresTable)
   \item{peaksTable}{A data frame with (at least) \code{chr}, \code{start}, and \code{end} columns.}
   \item{featuresTable}{A data frame with (at least) \code{chr}, \code{start}, and \code{end} columns.}
 }
-\details{
-  
-}
 \value{
 A \code{data.frame} with columns \code{feature}, \code{featureStart}, \code{featureEnd} \code{peakLocation}, and \code{distance}. The data frame is sorted to be in the same order as the \code{peaksTable} 
 }
