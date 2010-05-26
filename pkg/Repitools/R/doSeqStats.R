@@ -12,7 +12,8 @@ doSeqStats <- function(reads, whichInputs, whichControl, whichTreat, minCount, b
 
 	if(is.null(blocksTable))
 	{
-		enrichedRegions <- as.data.frame(genomeBlocks(Hsapiens, 1:25, blockSize[2]))
+		enrichedRegions <- as.data.frame(genomeBlocks(Hsapiens, 1:25, blockSize[2]))[, 1:3]
+		colnames(enrichedRegions)[1] <- "chr"
 	} else {
 		if("strand" %in% colnames(blocksTable))
 		{
