@@ -1,4 +1,14 @@
 ChromaBlocks <- function(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidth=500, preset=NULL, blockWidth=NULL, minBlocks=NULL, extend=NULL, cutoff=NULL, FDR=0.01, nPermutations=5, nCutoffs=20, cutoffQuantile=0.98, verbose=TRUE, seqLen=NULL) {
+
+    mergeOverlaps <- function (query, subject) {
+        ov <- matchMatrix(findOverlaps(query, subject, select="all"))
+        query.ov <- unique(ov[,1])
+        subjectStarts <- tapply(ov[,2], ov[,1], function(x) min(start(subject[x])))
+        subjectEnds <- tapply(ov[,2], ov[,1], function(x) max(end(subject[x])))
+        start(query)[query.ov] <- ifelse(start(query[query.ov])>subjectStarts, subjectStarts, start(query[query.ov]))
+        end(query)[query.ov] <- ifelse(end(query[query.ov])<subjectEnds, subjectEnds, end(query[query.ov]))
+        query
+    }
     
     callRegions <- function(bins, RPKM=NULL, cutoffs) {
         callCutoff <- function(dat, cutoff) {
@@ -14,8 +24,8 @@ ChromaBlocks <- function(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidt
             tempEnds <- end(tempRle)[runValue(tempRle)==TRUE]
             if (!is.null(extend)){
                 extendRle <- Rle(dat$extend)
-                extendRanges <- IRanges(start(extendRle)[runValue(extendRle)==TRUE], end(extendRle)[runValue(extendRle)==TRUE])
-                extendRanges[countOverlaps(extendRanges, IRanges(dat$position[tempStarts], dat$position[tempEnds]))>0]                
+                extendRanges <- IRanges(dat$position[start(extendRle)[runValue(extendRle)==TRUE]], dat$position[end(extendRle)[runValue(extendRle)==TRUE]])
+                mergeOverlaps(IRanges(dat$position[tempStarts], dat$position[tempEnds]), extendRanges)
             } else IRanges(dat$position[tempStarts], dat$position[tempEnds])
         }
         
@@ -43,12 +53,12 @@ ChromaBlocks <- function(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidt
     if (verbose) cat("Creating bins\n")
     IPbins <- genomeBlocks(organism, chrs, ipWidth)
     InputBins <- genomeBlocks(organism, chrs, inputWidth, ipWidth)
-    if (verbose) cat("Counting IP lanes\n")
+    if (verbose) cat("Counting IP lanes: ")
     ipCounts <- annotationBlocksCounts(rs.ip, IPbins, seqLen=seqLen, verbose=verbose)
     #pool & normalise IP lanes & turn into RPKM - reads per kb (ipWidth/1000) per million (/lanecounts*1000000)
     ipCounts <- rowSums(ipCounts)/sum(laneCounts(rs.ip))*1000000/(ipWidth/1000)
     
-    if (verbose) cat("Counting Input lanes\n")
+    if (verbose) cat("Counting Input lanes: ")
     inputCounts <- annotationBlocksCounts(rs.input, InputBins, seqLen=seqLen, verbose=verbose)
     #pool & normalise Input lanes
     inputCounts <- rowSums(inputCounts)/sum(laneCounts(rs.input))*1000000/(inputWidth/1000)

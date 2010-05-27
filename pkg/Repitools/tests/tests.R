@@ -110,7 +110,9 @@ if(pathToData != "") # Do tests involving CDFs, CELs, sequences.
 
 	units <- indexOf(cdfFile, "chrY")
 	indices <- getCellIndices(cdfTableUniquePositions, units = units, stratifyBy = "pm", unlist = TRUE, useNames = FALSE)
-	results <- regionStats(celSetMATNormalisedUniquePositions, designMatrix, ind = indices, probeWindow = 500, nPermutations = 10)$regions$`K9Ac I.P. - Input`
+    #set random number seed so results will be the same in every test
+    set.seed(27) #my lucky number
+    results <- regionStats(celSetMATNormalisedUniquePositions, designMatrix, ind = indices, probeWindow = 500, nPermutations = 10)$regions$`K9Ac I.P. - Input`
 	bestRegion <- which(abs(results$score) == max(abs(results$score)))
 
 	if(results[bestRegion, "start"] != 11829591 || results[bestRegion, "end"] != 11830892)
