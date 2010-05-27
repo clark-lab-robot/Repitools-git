@@ -16,7 +16,7 @@ getCN <- function(regionsInfo, readsInputs)
 	
 	enrichRegionsRanges <- RangedData(IRanges(start = regionsInfo$enriched[, "start"], end = regionsInfo$enriched[, "end"]), space = regionsInfo$enriched[, "chr"])
 	copyRanges <- RangedData(IRanges(start = cnObject$out[, "loc.start"], end = cnObject$out[, "loc.end"]), space = cnObject$out[, "chrom"])
-	map <- findOverlaps(enrichRegionsRanges, copyRanges, multiple = FALSE)
+	map <- findOverlaps(enrichRegionsRanges, copyRanges, select = "first")
 							   
 	scaleFactors <- numeric()
 	cnPerChr <- split(cnObject$out, cnObject$out[, "chrom"])
