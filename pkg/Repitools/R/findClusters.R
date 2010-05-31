@@ -17,67 +17,67 @@
 	return(regionCol)	
 }
 
-findClusters <- function(statsTable, windowSize = 5, cutoff = 0.05, trend = c("down", "up"), getFDRs = FALSE)
+findClusters <- function(statsTable, scoreCol, windowSize = 5, cutoff = 0.05, trend = c("down", "up"), getFDRs = FALSE)
 {
 	trend <- match.arg(trend)
 	
 	statsTable <- statsTable[order(statsTable$chr, (statsTable$start + statsTable$end) / 2), ]
 
-	tMed <- rep(NA, nrow(statsTable))
-	t <- statsTable$t
+	scoreMed <- rep(NA, nrow(statsTable))
+	score <- statsTable[, scoreCol]
 	chrs <- statsTable$chr
 
 	for(index in 1 : (nrow(statsTable) - (windowSize - 1)))
 	{
 		if(length(unique(chrs[index:(index + windowSize - 1)])) == 1) # all in window on same chromosome.
 		{
-			tMed[index + floor(windowSize / 2)] = median(t[index:(index + (windowSize - 1))])
+			scoreMed[index + floor(windowSize / 2)] = median(score[index:(index + (windowSize - 1))])
 		}
 	}
-	statsTable$tMed <- tMed
+	statsTable$scoreMed <- scoreMed
 
 	statsTableRand <- statsTable
-	whichNotNAs <- which(!is.na(tMed))
+	whichNotNAs <- which(!is.na(scoreMed))
 	statsTableRand[whichNotNAs, ] <- statsTable[sample(whichNotNAs), ]
-	tMedRand = rep(NA, nrow(statsTableRand))
-	tRand <- statsTableRand$t
+	scoreMedRand = rep(NA, nrow(statsTableRand))
+	scoreRand <- statsTableRand[, scoreCol]
 	for(index in 1:(nrow(statsTableRand) - (windowSize - 1)))
 	{
 		if(length(unique(chrs[index:(index + windowSize - 1)])) == 1) # Just assume same chrs as real table.
 		{
-			tMedRand[index + floor(windowSize / 2)] = median(tRand[index:(index + (windowSize - 1))])
+			scoreMedRand[index + floor(windowSize / 2)] = median(scoreRand[index:(index + (windowSize - 1))])
 		}
 	}
 	
 	if(trend == "down")
 	{
-		tMedCutoffs <- seq(-1, -10, -0.05)	
+		scoreMedCutoffs <- seq(-1, -10, -0.05)	
 	} else {
-		tMedCutoffs <- seq(1, 10, 0.05)
+		scoreMedCutoffs <- seq(1, 10, 0.05)
 	}
-	cutoffFDR <- data.frame(cutoff = tMedCutoffs, FDR = NA)
-	for(cutoffIndex in 1:length(tMedCutoffs))
+	cutoffFDR <- data.frame(cutoff = scoreMedCutoffs, FDR = NA)
+	for(cutoffIndex in 1:length(scoreMedCutoffs))
 	{
-		tMedCutoff = tMedCutoffs[cutoffIndex]
-		cluster <- rep(0, length(t))
-		clusterRand <- rep(0, length(tRand))
+		scoreMedCutoff = scoreMedCutoffs[cutoffIndex]
+		cluster <- rep(0, length(score))
+		clusterRand <- rep(0, length(scoreRand))
 		count = 1
 		countRand = 1
 		for(index in 1:(nrow(statsTable) - (windowSize - 1)))
 		{
 			if(trend == "down")
 			{
-				if(!any(is.na(tMed[index:(index + windowSize - 1)])) && t[index + floor(windowSize / 2)] < 0 && tMed[index + floor(windowSize / 2)] < tMedCutoff && length(which(tMed[index : (index + windowSize - 1)] < tMedCutoff)) >= 2)
+				if(!any(is.na(scoreMed[index:(index + windowSize - 1)])) && score[index + floor(windowSize / 2)] < 0 && scoreMed[index + floor(windowSize / 2)] < scoreMedCutoff && length(which(scoreMed[index : (index + windowSize - 1)] < scoreMedCutoff)) >= 2)
 				{
 					indices <- index:(index + windowSize - 1)
 					centreIndex <- indices[ceiling(windowSize / 2)]
 					leftIndex <- indices[ceiling(windowSize / 2)]
 					rightIndex <- indices[ceiling(windowSize / 2)]
-					for(tsIndex in 1:(windowSize / 2))
+					for(scoresIndex in 1:(windowSize / 2))
 					{
-						if(t[leftIndex - 1] < 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
+						if(score[leftIndex - 1] < 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
 							leftIndex = leftIndex - 1
-						if(t[rightIndex + 1] < 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
+						if(score[rightIndex + 1] < 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
 							rightIndex = rightIndex + 1
 					}
 					if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
@@ -87,17 +87,17 @@ findClusters <- function(statsTable, windowSize = 5, cutoff = 0.05, trend = c("d
 					}
 				}
 
-				if(!any(is.na(tMedRand[index:(index + windowSize - 1)])) && tRand[index + floor(windowSize / 2)] < 0 && tMedRand[index + floor(windowSize / 2)] < tMedCutoff && length(which(tMedRand[index : (index + windowSize - 1)] < tMedCutoff)) >= 2)
+				if(!any(is.na(scoreMedRand[index:(index + windowSize - 1)])) && scoreRand[index + floor(windowSize / 2)] < 0 && scoreMedRand[index + floor(windowSize / 2)] < scoreMedCutoff && length(which(scoreMedRand[index : (index + windowSize - 1)] < scoreMedCutoff)) >= 2)
 				{
 					indices <- index:(index + windowSize - 1)
 					centreIndex <- indices[ceiling(windowSize / 2)]
 					leftIndex <- indices[ceiling(windowSize / 2)]
 					rightIndex <- indices[ceiling(windowSize / 2)]
-					for(tsIndex in 1:(windowSize / 2))
+					for(scoresIndex in 1:(windowSize / 2))
 					{
-						if(tRand[leftIndex - 1] < 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
+						if(scoreRand[leftIndex - 1] < 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
 							leftIndex = leftIndex - 1
-						if(tRand[rightIndex + 1] < 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
+						if(scoreRand[rightIndex + 1] < 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
 							rightIndex = rightIndex + 1
 					}
 					if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
@@ -107,17 +107,17 @@ findClusters <- function(statsTable, windowSize = 5, cutoff = 0.05, trend = c("d
 					}
 				}
 			} else {
-				if(!any(is.na(tMed[index:(index + windowSize - 1)])) && t[index + floor(windowSize / 2)] > 0 && tMed[index + floor(windowSize / 2)] > tMedCutoff && length(which(tMed[index : (index + windowSize - 1)] > tMedCutoff)) >= 2)
+				if(!any(is.na(scoreMed[index:(index + windowSize - 1)])) && score[index + floor(windowSize / 2)] > 0 && scoreMed[index + floor(windowSize / 2)] > scoreMedCutoff && length(which(scoreMed[index : (index + windowSize - 1)] > scoreMedCutoff)) >= 2)
 				{
 					indices <- index:(index + windowSize - 1)
 					centreIndex <- indices[ceiling(windowSize / 2)]
 					leftIndex <- indices[ceiling(windowSize / 2)]
 					rightIndex <- indices[ceiling(windowSize / 2)]
-					for(tsIndex in 1:(windowSize / 2))
+					for(scoresIndex in 1:(windowSize / 2))
 					{
-						if(t[leftIndex - 1] > 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
+						if(score[leftIndex - 1] > 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
 							leftIndex = leftIndex - 1
-						if(t[rightIndex + 1] > 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
+						if(score[rightIndex + 1] > 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
 							rightIndex = rightIndex + 1
 					}
 					if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
@@ -127,17 +127,17 @@ findClusters <- function(statsTable, windowSize = 5, cutoff = 0.05, trend = c("d
 					}
 				}
 
-				if(!any(is.na(tMedRand[index:(index + windowSize - 1)])) && tRand[index + floor(windowSize / 2)] > 0 && tMedRand[index + floor(windowSize / 2)] > tMedCutoff && length(which(tMedRand[index : (index + windowSize - 1)] > tMedCutoff)) >= 2)
+				if(!any(is.na(scoreMedRand[index:(index + windowSize - 1)])) && scoreRand[index + floor(windowSize / 2)] > 0 && scoreMedRand[index + floor(windowSize / 2)] > scoreMedCutoff && length(which(scoreMedRand[index : (index + windowSize - 1)] > scoreMedCutoff)) >= 2)
 				{
 					indices <- index:(index + windowSize - 1)
 					centreIndex <- indices[ceiling(windowSize / 2)]
 					leftIndex <- indices[ceiling(windowSize / 2)]
 					rightIndex <- indices[ceiling(windowSize / 2)]
-					for(tsIndex in 1:(windowSize / 2))
+					for(scoresIndex in 1:(windowSize / 2))
 					{
-						if(tRand[leftIndex - 1] > 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
+						if(scoreRand[leftIndex - 1] > 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
 							leftIndex = leftIndex - 1
-						if(tRand[rightIndex + 1] > 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
+						if(scoreRand[rightIndex + 1] > 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
 							rightIndex = rightIndex + 1
 					}
 					if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
@@ -169,16 +169,16 @@ findClusters <- function(statsTable, windowSize = 5, cutoff = 0.05, trend = c("d
 		}
 	}
 	
-	tMedCutoff <- cutoffFDR[cutIndex, "cutoff"]
-	cat("Using the cutoff", tMedCutoff, "for a FDR of", cutoffFDR[cutIndex, "FDR"], '\n')
+	scoreMedCutoff <- cutoffFDR[cutIndex, "cutoff"]
+	cat("Using the cutoff", scoreMedCutoff, "for a FDR of", cutoffFDR[cutIndex, "FDR"], '\n')
 
-	cluster <- rep(0, length(t))
+	cluster <- rep(0, length(score))
 	count = 1
 	for(index in 1:(nrow(statsTable) - (windowSize - 1)))
 	{
 		if(trend == "down")
 		{
-			if(!any(is.na(tMed[index:(index+(windowSize - 1))])) && t[index + floor(windowSize / 2)] < 0 && tMed[index + floor(windowSize / 2)] < tMedCutoff && length(which(tMed[index : (index + windowSize - 1)] < tMedCutoff)) >= 2)
+			if(!any(is.na(scoreMed[index:(index+(windowSize - 1))])) && score[index + floor(windowSize / 2)] < 0 && scoreMed[index + floor(windowSize / 2)] < scoreMedCutoff && length(which(scoreMed[index : (index + windowSize - 1)] < scoreMedCutoff)) >= 2)
 			{
 				indices <- index:(index + windowSize - 1)
 				centreIndex <- indices[ceiling(windowSize / 2)]
@@ -186,9 +186,9 @@ findClusters <- function(statsTable, windowSize = 5, cutoff = 0.05, trend = c("d
 				rightIndex <- indices[ceiling(windowSize / 2)]
 				for(tsIndex in 1:(windowSize / 2))
 				{
-					if(t[leftIndex - 1] < 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
+					if(score[leftIndex - 1] < 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
 						leftIndex = leftIndex - 1
-					if(t[rightIndex + 1] < 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
+					if(score[rightIndex + 1] < 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
 						rightIndex = rightIndex + 1
 				}
 				if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
@@ -198,7 +198,7 @@ findClusters <- function(statsTable, windowSize = 5, cutoff = 0.05, trend = c("d
 				}
 			}
 		} else {
-			if(!any(is.na(tMed[index:(index+(windowSize - 1))])) && t[index + floor(windowSize / 2)] > 0 && tMed[index + floor(windowSize / 2)] > tMedCutoff && length(which(tMed[index : (index + windowSize - 1)] > tMedCutoff)) >= 2)
+			if(!any(is.na(scoreMed[index:(index+(windowSize - 1))])) && score[index + floor(windowSize / 2)] > 0 && scoreMed[index + floor(windowSize / 2)] > scoreMedCutoff && length(which(scoreMed[index : (index + windowSize - 1)] > scoreMedCutoff)) >= 2)
 			{
 				indices <- index:(index + windowSize - 1)
 				centreIndex <- indices[ceiling(windowSize / 2)]
@@ -206,9 +206,9 @@ findClusters <- function(statsTable, windowSize = 5, cutoff = 0.05, trend = c("d
 				rightIndex <- indices[ceiling(windowSize / 2)]
 				for(tsIndex in 1:(windowSize / 2))
 				{
-					if(t[leftIndex - 1] > 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
+					if(score[leftIndex - 1] > 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
 						leftIndex = leftIndex - 1
-					if(t[rightIndex + 1] > 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
+					if(score[rightIndex + 1] > 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
 						rightIndex = rightIndex + 1
 				}
 				if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
@@ -230,7 +230,7 @@ findClusters <- function(statsTable, windowSize = 5, cutoff = 0.05, trend = c("d
 			{
 				extIndex = rowIndex - 1
 				clusterCode = cluster[rowIndex]
-				while(t[extIndex] < 0 && (statsTable[rowIndex, "chr"] == statsTable[extIndex, "chr"]))
+				while(score[extIndex] < 0 && (statsTable[rowIndex, "chr"] == statsTable[extIndex, "chr"]))
 				{
 					cluster[extIndex] <- clusterCode
 					extIndex <- extIndex - 1
@@ -241,7 +241,7 @@ findClusters <- function(statsTable, windowSize = 5, cutoff = 0.05, trend = c("d
 			{
 				extIndex = rowIndex + 1
 				clusterCode = cluster[rowIndex]
-				while(t[extIndex] < 0 && (statsTable[rowIndex, "chr"] == statsTable[extIndex, "chr"]))
+				while(score[extIndex] < 0 && (statsTable[rowIndex, "chr"] == statsTable[extIndex, "chr"]))
 				{
 					cluster[extIndex] <- clusterCode
 					extIndex <- extIndex + 1	
@@ -253,7 +253,7 @@ findClusters <- function(statsTable, windowSize = 5, cutoff = 0.05, trend = c("d
 			{
 				extIndex = rowIndex - 1
 				clusterCode = cluster[rowIndex]
-				while(t[extIndex] > 0 && (statsTable[rowIndex, "chr"] == statsTable[extIndex, "chr"]))
+				while(score[extIndex] > 0 && (statsTable[rowIndex, "chr"] == statsTable[extIndex, "chr"]))
 				{
 					cluster[extIndex] <- clusterCode
 					extIndex <- extIndex - 1
@@ -264,7 +264,7 @@ findClusters <- function(statsTable, windowSize = 5, cutoff = 0.05, trend = c("d
 			{
 				extIndex = rowIndex + 1
 				clusterCode = cluster[rowIndex]
-				while(t[extIndex] > 0 && (statsTable[rowIndex, "chr"] == statsTable[extIndex, "chr"]))
+				while(score[extIndex] > 0 && (statsTable[rowIndex, "chr"] == statsTable[extIndex, "chr"]))
 				{
 					cluster[extIndex] <- clusterCode
 					extIndex <- extIndex + 1	
