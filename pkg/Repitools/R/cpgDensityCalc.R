@@ -1,9 +1,11 @@
 setMethodS3("cpgDensityCalc", "GenomeDataList", function(rs, seqLen, ...) {
+	require(BSgenome.Hsapiens.UCSC.hg18)
 	return(lapply(IRanges::as.list(rs), cpgDensityCalc, seqLen, ...))
 })
 
 
 setMethodS3("cpgDensityCalc", "GenomeData", function(rs, seqLen, ...) {
+	require(BSgenome.Hsapiens.UCSC.hg18)
 	rs.midpt <- vector(mode='list', length=length(rs))
 	names(rs.midpt) <- names(rs)
 	
@@ -17,6 +19,7 @@ setMethodS3("cpgDensityCalc", "GenomeData", function(rs, seqLen, ...) {
 })
 
 setMethodS3("cpgDensityCalc", "data.frame", function(locations, window=500, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...) {
+	require(BSgenome.Hsapiens.UCSC.hg18)
 	wFunction <- match.arg(wFunction)
 
 	if(wFunction == "none") {
