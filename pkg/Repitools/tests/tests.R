@@ -95,18 +95,11 @@ if(pathToData != "") # Do tests involving CDFs, CELs, sequences.
 	load(paste("rawData", "sequencing", "seq_data.Rdata", sep = .Platform$file.sep))
 	annotationTable$position <- ifelse(annotationTable$strand == '+', annotationTable$start, annotationTable$end)
 	results <- annotationCounts(rs, annotationTable, 1000, 1000, seqLen=300)
-	rownames(results) <- annotationTable$name
+    if(!all(results[100,]==c(8,6,1,4)) || !all(results[5000,]==c(0,0,50,52))) stop("annotationCounts giving unexpected results.")
 
-	factorsPt1 <- calcNormFactors(results[, c(1, 3)], Acutoff=-13)
-	factorsPt2 <- calcNormFactors(results[, c(2, 4)], Acutoff=-13)
-	patient1DGEList <- estimateCommonDisp(DGEList(counts = results[, c(1, 3)], group = factor(c("PrEC", "LNCaP")), lib.size = colSums(results)[c(1, 3)] * factorsPt1))
-	patient2DGEList <- estimateCommonDisp(DGEList(counts = results[, c(2, 4)], group = factor(c("PrEC", "LNCaP")), lib.size = colSums(results)[c(2, 4)] * factorsPt2))
-	pt1Test <- exactTest(patient1DGEList, pair = c("PrEC", "LNCaP"))
-	pt2Test <- exactTest(patient1DGEList, pair = c("PrEC", "LNCaP"))
-	top10pt1 <- topTags(pt1Test)
-	top10pt2 <- topTags(pt2Test)
-	if(rownames(top10pt1$table) != c("8019804", "8015802", "8015798", "7904877", "8091422", "8135015", "8082465", "8115391", "8138799", "7917697") || round(top10pt1$table$logFC, 3) != c(-3.847, 2.578, 2.423, 3.648, 38.677, -4.353, 6.559, 4.682, 5.559, 38.438) || rownames(top10pt2$table) != c("8019804", "8015802", "8015798", "7904877", "8091422", "8135015", "8082465", "8115391", "8138799", "7917697") || round(top10pt2$table$logFC, 3) != c(-3.847, 2.578, 2.423, 3.648, 38.677, -4.353, 6.559, 4.682, 5.559, 38.438))
-		stop("blocksStats giving unexpected results for sequence data.")
+    results <- blocksStats(rs, annotationTable, cbind(test=c(1,1,-1,-1)), 1000, 1000, seqLen=300, verbose=FALSE)
+    if (!all(round(results$FDR_test[1:10],3)==c(0.825,0.000,1.000,0.239,0.405,0.752,0.001,0.037,0.118,0.217))||!all(round(results$logFC_test[5000:5010],3)==c(-32.974,-0.701,-1.444,0.304,0.112,1.181,0.786,-1.025,-2.327,-0.018,-0.086)))
+        stop("blocksStats giving unexpected results for sequence data.")
 
 	units <- indexOf(cdfFile, "chrY")
 	indices <- getCellIndices(cdfTableUniquePositions, units = units, stratifyBy = "pm", unlist = TRUE, useNames = FALSE)

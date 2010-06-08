@@ -47,7 +47,7 @@ setMethodS3("writeWig", "AffymetrixCelSet", function(rs, design=NULL, log2adjust
 	options(scipen=100)
 	if (is.null(design)) {
 		if (verbose) cat("Default design matrix\n")
-		design <- matrix(0, nrow=length(rs), ncol=length(rs), dimnames=list(NULL, paste(names(rs), ".wig.gz", sep="")))
+		design <- matrix(0, nrow=length(rs), ncol=length(rs), dimnames=list(NULL, paste(getNames(rs), ".wig.gz", sep="")))
 		for (i in 1:length(rs)) design[i,i] <- 1
 	}
 
