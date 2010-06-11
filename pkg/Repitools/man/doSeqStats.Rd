@@ -18,7 +18,7 @@ doSeqStats(reads, whichInputs, whichControl, whichTreat, minCount, blockSize, bl
   \item{blocksTable}{A data frame with four columns: \code{name}, \code{chr}, \code{start}, \code{end}.}
 }
 \details{
-	All arguments except \code{blocksTable} and \code{useAsRegions} are mandatory. Regions that do not meet any of the cutoffs speicified in minCount are eliminated from further analysis. The input fold changes calculated and grouped together by using the function \code{getCN()}. If \code{blocksTable} is given, only one number needs to be passed as \code{blockSize}. As described, the first number is the size of the regions on the input dataset to consider, and it is ensured for short blocks that at least two copy number blocks cover a block, by making the first copy number block start at \code{blockSize} elements to the left of the block and the last block can end upto \code{blockSize} bases to the right of the right end of a block.
+	All arguments except \code{blocksTable} are mandatory. Regions that do not meet any of the cutoffs speicified in minCount are eliminated from further analysis. The input fold changes calculated and grouped together by using the function \code{getCN()}. If \code{blocksTable} is given, only one number needs to be passed as \code{blockSize}. As described, the first number is the size of the regions on the input dataset to consider, and it is ensured for short blocks that at least two copy number blocks cover a block, by making the first copy number block start at \code{blockSize} elements to the left of the block and the last block can end upto \code{blockSize} bases to the right of the right end of a block.
 }
 \value{
 	A \code{data.frame} of statistics for each of the enriched regions.

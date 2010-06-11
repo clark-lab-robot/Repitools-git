@@ -17,11 +17,11 @@
 	return(regionCol)	
 }
 
-findClusters <- function(statsTable, scoreCol, windowSize = 5, cutoff = 0.05, trend = c("down", "up"), getFDRs = FALSE)
+findClusters <- function(statsTable, posCol, scoreCol, windowSize = 5, cutoff = 0.05, trend = c("down", "up"), getFDRs = FALSE)
 {
 	trend <- match.arg(trend)
 	
-	statsTable <- statsTable[order(statsTable$chr, (statsTable$start + statsTable$end) / 2), ]
+	statsTable <- statsTable[order(statsTable$chr, statsTable[, posCol]), ]
 
 	scoreMed <- rep(NA, nrow(statsTable))
 	score <- statsTable[, scoreCol]
@@ -282,5 +282,3 @@ findClusters <- function(statsTable, scoreCol, windowSize = 5, cutoff = 0.05, tr
 		return(statsTable)
 	}
 }
-
-

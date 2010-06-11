@@ -4,11 +4,12 @@
 \description{Given a table of gene positions that has a score column, the function will find sort the genes into positional order and find consecutive windows of high or low scores.
 }
 \usage{
-findClusters(statsTable, scoreCol, windowSize = 5, cutoff = 0.05, trend = c("down", "up"), getFDRs = FALSE)
+findClusters(statsTable, posCol, scoreCol, windowSize = 5, cutoff = 0.05, trend = c("down", "up"), getFDRs = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{statsTable}{A \code{data.frame} with (at least) columns \code{chr}, \code{start}, \code{end}, and a column of scores.}
+  \item{posCol}{A number that gives the column in \code{statsTable} which contains the representative positions of the genes.}
   \item{scoreCol}{A number that gives the column in \code{statsTable} which contains the scores.}
   \item{windowSize}{The number of consecutive genes to consider windows over.}
   \item{cutoff}{The FDR level.}
@@ -35,6 +36,7 @@ The first score cutoff to give an FDR below \code{cutoff} is chosen as the cutof
 	chrs <- paste("chr", c(1:22, "X", "Y"), sep = "")
 	starts <- sample(1:10000000, 25000, replace = TRUE)
 	ends <- starts + 10000
-	genes <- data.frame(chr = sample(chrs, 25000, replace = TRUE), start = starts, end = ends, t = rnorm(100, 0, 2))	
-	findClusters(genes, 4, trend = "up")
+	strands <- rep('+', 25000)
+	genes <- data.frame(chr = sample(chrs, 25000, replace = TRUE), start = starts, end = ends, strand = '+', t = rnorm(100, 0, 2))
+	findClusters(genes, 2, 5, trend = "up")
 }
