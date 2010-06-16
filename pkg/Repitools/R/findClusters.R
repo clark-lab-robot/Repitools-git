@@ -1,3 +1,56 @@
+.getMedians <- function(sTable, sCol, wSize)
+{
+	chrs <- sTable$chr
+	scoreMed <- rep(NA, nrow(sTable))
+	score <- sTable[, sCol]
+	for(index in 1 : (nrow(sTable) - (wSize - 1)))
+	{
+		if(length(unique(chrs[index:(index + wSize - 1)])) == 1) # all in window on same chromosome.
+		{
+			scoreMed[index + floor(wSize / 2)] = median(score[index:(index + (wSize - 1))])
+		}
+	}
+	return(scoreMed)
+}
+
+.makeClusters <- function(aTable, sCol, medCol, wSize, cut, cType)
+{
+	score <- aTable[, sCol]
+	scoreMed <- aTable[, medCol]
+	cluster <- rep(0, length(score))
+	count = 1
+	for(index in 1:(nrow(aTable) - (wSize - 1)))
+	{
+		if(!any(is.na(scoreMed[index:(index + wSize - 1)])) && ifelse(cType == "down", score[index + floor(wSize / 2)] < 0, score[index + floor(wSize / 2)] > 0) && ifelse(cType == "down", scoreMed[index + floor(wSize / 2)] < cut, scoreMed[index + floor(wSize / 2)] > cut) && length(which(scoreMed[index : (index + wSize - 1)] > cut)) >= 2)
+		{
+			indices <- index:(index + wSize - 1)
+			leftIndex <- indices[ceiling(wSize / 2)]
+			rightIndex <- indices[ceiling(wSize / 2)]
+			for(scoresIndex in 1:(wSize / 2))
+			{
+				if(cType == "down")
+				{
+					if(score[leftIndex - 1]  < 0 && (aTable[leftIndex, "chr"] == aTable[leftIndex - 1, "chr"]))
+						leftIndex = leftIndex - 1
+					if(score[rightIndex + 1] < 0 && (aTable[rightIndex, "chr"] == aTable[rightIndex + 1, "chr"]))
+						rightIndex = rightIndex + 1
+				} else {
+					if(score[leftIndex - 1] > 0 && (aTable[leftIndex, "chr"] == aTable[leftIndex - 1, "chr"]))
+						leftIndex = leftIndex - 1
+					if(score[rightIndex + 1] > 0 && (aTable[rightIndex, "chr"] == aTable[rightIndex + 1, "chr"]))
+						rightIndex = rightIndex + 1
+				}
+			}
+			if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
+			{
+				cluster[leftIndex:rightIndex] = count
+				count = count + 1
+			}
+		}
+	}
+	return(cluster)
+}
+
 .makeBlocks <- function(regionCol)
 {
 	clusterNum = 1
@@ -17,37 +70,63 @@
 	return(regionCol)	
 }
 
-findClusters <- function(statsTable, posCol, scoreCol, windowSize = 5, cutoff = 0.05, trend = c("down", "up"), getFDRs = FALSE)
+.extendLeft <- function(cluster, sTable, sCol, cType)
 {
+	score <- sTable[, sCol]
+	for(index in 2:(nrow(sTable) - 1))
+	{
+		if(cluster[index - 1] == 0 && cluster[index] > 0)
+		{
+			extIndex = index - 1
+			clusterCode = cluster[index]
+			while(ifelse(cType == "down", score[extIndex] < 0, score[extIndex] > 0) && (sTable[index, "chr"] == sTable[extIndex, "chr"]))
+			{
+				cluster[extIndex] <- clusterCode
+				extIndex <- extIndex - 1	
+			}
+		}
+	}
+	return(cluster)
+}
+
+.extendRight <- function(cluster, sTable, sCol, cType)
+{
+	score <- sTable[, sCol]
+	for(index in 2:(nrow(sTable) - 1))
+	{
+		if(cluster[index] > 0 && cluster[index + 1] == 0)
+		{
+			extIndex = index + 1
+			clusterCode = cluster[index]
+			while(ifelse(cType == "down", score[extIndex] < 0, score[extIndex] > 0) && (sTable[index, "chr"] == sTable[extIndex, "chr"]))
+			{
+				cluster[extIndex] <- clusterCode
+				extIndex <- extIndex + 1	
+			}
+		}
+	}
+	return(cluster)
+}
+
+findClusters <- function(statsTable, posCol, scoreCol, windowSize = 5, cutoff = 0.05, trend = c("down", "up"), nPermutations = 10, getFDRs = FALSE, verbose = TRUE)
+{
+	require(multicore)
 	trend <- match.arg(trend)
 	
 	statsTable <- statsTable[order(statsTable$chr, statsTable[, posCol]), ]
+	statsTable$scoreMed <- .getMedians(statsTable, scoreCol, windowSize)
 
-	scoreMed <- rep(NA, nrow(statsTable))
-	score <- statsTable[, scoreCol]
-	chrs <- statsTable$chr
-
-	for(index in 1 : (nrow(statsTable) - (windowSize - 1)))
+	perms <- 1:nPermutations
+	if(verbose == TRUE)
+		cat("Generating", nPermutations, "sets of random scores and calculating medians.")
+	randTables <- mclapply(perms, function(iteration)
 	{
-		if(length(unique(chrs[index:(index + windowSize - 1)])) == 1) # all in window on same chromosome.
-		{
-			scoreMed[index + floor(windowSize / 2)] = median(score[index:(index + (windowSize - 1))])
-		}
-	}
-	statsTable$scoreMed <- scoreMed
-
-	statsTableRand <- statsTable
-	whichNotNAs <- which(!is.na(scoreMed))
-	statsTableRand[whichNotNAs, ] <- statsTable[sample(whichNotNAs), ]
-	scoreMedRand = rep(NA, nrow(statsTableRand))
-	scoreRand <- statsTableRand[, scoreCol]
-	for(index in 1:(nrow(statsTableRand) - (windowSize - 1)))
-	{
-		if(length(unique(chrs[index:(index + windowSize - 1)])) == 1) # Just assume same chrs as real table.
-		{
-			scoreMedRand[index + floor(windowSize / 2)] = median(scoreRand[index:(index + (windowSize - 1))])
-		}
-	}
+		statsTableRand <- statsTable[, -ncol(statsTable)]
+		statsTableRand[, scoreCol] <- statsTable[sample(1:nrow(statsTable)), scoreCol]
+		statsTableRand$scoreMedRand <- .getMedians(statsTableRand, scoreCol, windowSize)
+		return(statsTableRand)
+	}, mc.cores = 5
+	)
 	
 	if(trend == "down")
 	{
@@ -55,229 +134,77 @@ findClusters <- function(statsTable, posCol, scoreCol, windowSize = 5, cutoff = 
 	} else {
 		scoreMedCutoffs <- seq(1, 10, 0.05)
 	}
-	cutoffFDR <- data.frame(cutoff = scoreMedCutoffs, FDR = NA)
-	for(cutoffIndex in 1:length(scoreMedCutoffs))
+
+	clustersAtCutoffs <- mclapply(scoreMedCutoffs, function(aCutoff)
 	{
-		scoreMedCutoff = scoreMedCutoffs[cutoffIndex]
-		cluster <- rep(0, length(score))
-		clusterRand <- rep(0, length(scoreRand))
-		count = 1
-		countRand = 1
-		for(index in 1:(nrow(statsTable) - (windowSize - 1)))
-		{
-			if(trend == "down")
-			{
-				if(!any(is.na(scoreMed[index:(index + windowSize - 1)])) && score[index + floor(windowSize / 2)] < 0 && scoreMed[index + floor(windowSize / 2)] < scoreMedCutoff && length(which(scoreMed[index : (index + windowSize - 1)] < scoreMedCutoff)) >= 2)
-				{
-					indices <- index:(index + windowSize - 1)
-					centreIndex <- indices[ceiling(windowSize / 2)]
-					leftIndex <- indices[ceiling(windowSize / 2)]
-					rightIndex <- indices[ceiling(windowSize / 2)]
-					for(scoresIndex in 1:(windowSize / 2))
-					{
-						if(score[leftIndex - 1] < 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
-							leftIndex = leftIndex - 1
-						if(score[rightIndex + 1] < 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
-							rightIndex = rightIndex + 1
-					}
-					if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
-					{
-						cluster[leftIndex:rightIndex] = count
-						count = count + 1
-					}
-				}
-
-				if(!any(is.na(scoreMedRand[index:(index + windowSize - 1)])) && scoreRand[index + floor(windowSize / 2)] < 0 && scoreMedRand[index + floor(windowSize / 2)] < scoreMedCutoff && length(which(scoreMedRand[index : (index + windowSize - 1)] < scoreMedCutoff)) >= 2)
-				{
-					indices <- index:(index + windowSize - 1)
-					centreIndex <- indices[ceiling(windowSize / 2)]
-					leftIndex <- indices[ceiling(windowSize / 2)]
-					rightIndex <- indices[ceiling(windowSize / 2)]
-					for(scoresIndex in 1:(windowSize / 2))
-					{
-						if(scoreRand[leftIndex - 1] < 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
-							leftIndex = leftIndex - 1
-						if(scoreRand[rightIndex + 1] < 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
-							rightIndex = rightIndex + 1
-					}
-					if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
-					{
-						clusterRand[leftIndex:rightIndex] = count
-						countRand = countRand + 1
-					}
-				}
-			} else {
-				if(!any(is.na(scoreMed[index:(index + windowSize - 1)])) && score[index + floor(windowSize / 2)] > 0 && scoreMed[index + floor(windowSize / 2)] > scoreMedCutoff && length(which(scoreMed[index : (index + windowSize - 1)] > scoreMedCutoff)) >= 2)
-				{
-					indices <- index:(index + windowSize - 1)
-					centreIndex <- indices[ceiling(windowSize / 2)]
-					leftIndex <- indices[ceiling(windowSize / 2)]
-					rightIndex <- indices[ceiling(windowSize / 2)]
-					for(scoresIndex in 1:(windowSize / 2))
-					{
-						if(score[leftIndex - 1] > 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
-							leftIndex = leftIndex - 1
-						if(score[rightIndex + 1] > 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
-							rightIndex = rightIndex + 1
-					}
-					if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
-					{
-						cluster[leftIndex:rightIndex] = count
-						count = count + 1
-					}
-				}
-
-				if(!any(is.na(scoreMedRand[index:(index + windowSize - 1)])) && scoreRand[index + floor(windowSize / 2)] > 0 && scoreMedRand[index + floor(windowSize / 2)] > scoreMedCutoff && length(which(scoreMedRand[index : (index + windowSize - 1)] > scoreMedCutoff)) >= 2)
-				{
-					indices <- index:(index + windowSize - 1)
-					centreIndex <- indices[ceiling(windowSize / 2)]
-					leftIndex <- indices[ceiling(windowSize / 2)]
-					rightIndex <- indices[ceiling(windowSize / 2)]
-					for(scoresIndex in 1:(windowSize / 2))
-					{
-						if(scoreRand[leftIndex - 1] > 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
-							leftIndex = leftIndex - 1
-						if(scoreRand[rightIndex + 1] > 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
-							rightIndex = rightIndex + 1
-					}
-					if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
-					{
-						clusterRand[leftIndex:rightIndex] = count
-						countRand = countRand + 1
-					}
-				}
-			}
-		}
-
-		cluster <- .makeBlocks(cluster)
-		clusterRand <- .makeBlocks(clusterRand)
-
-		currFDR <- max(clusterRand) / max(cluster) # max region number equivalent to total count 
-		if((is.nan(currFDR))) # 0 / 0 case
-			currFDR = 0
+		if(verbose == TRUE)
+			cat("Processing real scores at", aCutoff, '\n')
+		return(.makeBlocks(.makeClusters(statsTable, scoreCol, ncol(statsTable), windowSize, aCutoff, cType = trend)))
+	}, mc.cores = 6
+	)
 		
-		cutoffFDR[cutoffIndex, "FDR"] <- currFDR
-	}
-	
-	cutIndex <- numeric()
-	for(index in 1:length(cutoffFDR$FDR))
+	randTablesClusters <- mclapply(randTables, function(rTable)
 	{
-		if(cutoffFDR$FDR[index] < cutoff)
+		if(verbose == TRUE)
+			cat("Processing a set of random scores.\n")
+		clusts <- mclapply(scoreMedCutoffs, function(aCutoff)
 		{
-			cutIndex = index
-			break
-		}
-	}
-	
-	scoreMedCutoff <- cutoffFDR[cutIndex, "cutoff"]
-	cat("Using the cutoff", scoreMedCutoff, "for a FDR of", cutoffFDR[cutIndex, "FDR"], '\n')
+			if(verbose == TRUE)	
+				cat("Processing randomised scores at", aCutoff, '\n')
+			return(.makeBlocks(.makeClusters(rTable, scoreCol, ncol(rTable), windowSize, aCutoff, cType = trend)))
+		}, mc.cores = 2
+		)
+		if(verbose == TRUE)
+			cat("Finishing processing a set of random scores.\n")
+		return(clusts)
 
-	cluster <- rep(0, length(score))
-	count = 1
-	for(index in 1:(nrow(statsTable) - (windowSize - 1)))
-	{
-		if(trend == "down")
-		{
-			if(!any(is.na(scoreMed[index:(index+(windowSize - 1))])) && score[index + floor(windowSize / 2)] < 0 && scoreMed[index + floor(windowSize / 2)] < scoreMedCutoff && length(which(scoreMed[index : (index + windowSize - 1)] < scoreMedCutoff)) >= 2)
-			{
-				indices <- index:(index + windowSize - 1)
-				centreIndex <- indices[ceiling(windowSize / 2)]
-				leftIndex <- indices[ceiling(windowSize / 2)]
-				rightIndex <- indices[ceiling(windowSize / 2)]
-				for(tsIndex in 1:(windowSize / 2))
-				{
-					if(score[leftIndex - 1] < 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
-						leftIndex = leftIndex - 1
-					if(score[rightIndex + 1] < 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
-						rightIndex = rightIndex + 1
-				}
-				if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
-				{
-					cluster[leftIndex:rightIndex] = count
-					count = count + 1
-				}
-			}
-		} else {
-			if(!any(is.na(scoreMed[index:(index+(windowSize - 1))])) && score[index + floor(windowSize / 2)] > 0 && scoreMed[index + floor(windowSize / 2)] > scoreMedCutoff && length(which(scoreMed[index : (index + windowSize - 1)] > scoreMedCutoff)) >= 2)
-			{
-				indices <- index:(index + windowSize - 1)
-				centreIndex <- indices[ceiling(windowSize / 2)]
-				leftIndex <- indices[ceiling(windowSize / 2)]
-				rightIndex <- indices[ceiling(windowSize / 2)]
-				for(tsIndex in 1:(windowSize / 2))
-				{
-					if(score[leftIndex - 1] > 0 && (statsTable[leftIndex, "chr"] == statsTable[leftIndex - 1, "chr"]))
-						leftIndex = leftIndex - 1
-					if(score[rightIndex + 1] > 0 && (statsTable[rightIndex, "chr"] == statsTable[rightIndex + 1, "chr"]))
-						rightIndex = rightIndex + 1
-				}
-				if(leftIndex < rightIndex - 1) # Make sure at least 3 genes in region.
-				{
-					cluster[leftIndex:rightIndex] = count
-					count = count + 1
-				}
-			}
-		}
-	}
+	}, mc.cores = 4
+	)
 
-	cluster <- .makeBlocks(cluster)
-	
-	for(rowIndex in 2:(nrow(statsTable) - 1))
+	FDRtables <- mclapply(randTablesClusters, function(randTableClusters)
 	{
-		if(trend == "down")
+		cutoffFDR <- data.frame(cutoff = scoreMedCutoffs, FDR = NA)
+		fdr <- mapply(function(real, rand) {
+		                                    currFDR <- max(rand) / max(real)
+		                                    if((is.nan(currFDR))) # 0 / 0 case
+		                                    	currFDR = 0
+		                                    return(currFDR)
+					           }, clustersAtCutoffs, randTableClusters)
+	        cutoffFDR$FDR = fdr
+		return(cutoffFDR)
+		if(verbose == TRUE)
+			cat("Finished FDRs for one random table.")
+	}, mc.cores = 4
+	)
+	
+	cutoffs <- sapply(FDRtables, function(aTable)
+	{
+		for(index in 1:nrow(aTable))
 		{
-			if(cluster[rowIndex - 1] == 0 && cluster[rowIndex] > 0)
+			if(aTable$FDR[index] < cutoff)
 			{
-				extIndex = rowIndex - 1
-				clusterCode = cluster[rowIndex]
-				while(score[extIndex] < 0 && (statsTable[rowIndex, "chr"] == statsTable[extIndex, "chr"]))
-				{
-					cluster[extIndex] <- clusterCode
-					extIndex <- extIndex - 1
-				}
-			}
-		
-			if(cluster[rowIndex] > 0 && cluster[rowIndex + 1] == 0)
-			{
-				extIndex = rowIndex + 1
-				clusterCode = cluster[rowIndex]
-				while(score[extIndex] < 0 && (statsTable[rowIndex, "chr"] == statsTable[extIndex, "chr"]))
-				{
-					cluster[extIndex] <- clusterCode
-					extIndex <- extIndex + 1	
-				}
+				break
 			}
 		}
-		else {
-			if(cluster[rowIndex - 1] == 0 && cluster[rowIndex] > 0)
-			{
-				extIndex = rowIndex - 1
-				clusterCode = cluster[rowIndex]
-				while(score[extIndex] > 0 && (statsTable[rowIndex, "chr"] == statsTable[extIndex, "chr"]))
-				{
-					cluster[extIndex] <- clusterCode
-					extIndex <- extIndex - 1
-				}
-			}
-		
-			if(cluster[rowIndex] > 0 && cluster[rowIndex + 1] == 0)
-			{
-				extIndex = rowIndex + 1
-				clusterCode = cluster[rowIndex]
-				while(score[extIndex] > 0 && (statsTable[rowIndex, "chr"] == statsTable[extIndex, "chr"]))
-				{
-					cluster[extIndex] <- clusterCode
-					extIndex <- extIndex + 1	
-				}
-			}
-		}
+		return(scoreMedCutoffs[index])
 	}
+	)
+
+	chosenCutoff <- mean(cutoffs)
+	
+	if(verbose == TRUE)
+		cat("Using the cutoff", chosenCutoff, "for a FDR of <", cutoff, "\n")
+
+	cluster <- .makeBlocks(.makeClusters(statsTable, scoreCol, ncol(statsTable), windowSize, chosenCutoff, cType = trend))
+	
+	cluster <- .extendLeft(cluster, statsTable, scoreCol, cType = trend)
+	cluster <- .makeBlocks(.extendRight(cluster, statsTable, scoreCol, cType = trend))
 
 	statsTable$cluster <- cluster
 
 	if(getFDRs == TRUE)
 	{
-		return(list(table = statsTable, FDRs = cutoffFDR))
+		return(list(table = statsTable, FDRs = FDRtables))
 	} else {
 		return(statsTable)
 	}
