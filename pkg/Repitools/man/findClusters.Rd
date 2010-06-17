@@ -8,7 +8,7 @@ findClusters(statsTable, posCol, scoreCol, windowSize = 5, cutoff = 0.05, trend 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{statsTable}{A \code{data.frame} with (at least) columns \code{chr}, \code{start}, \code{end}, and a column of scores.}
+  \item{statsTable}{A \code{data.frame} with (at least) column \code{chr}, a column of positions, and a column of scores.}
   \item{posCol}{A number that gives the column in \code{statsTable} which contains the representative positions of the genes.}
   \item{scoreCol}{A number that gives the column in \code{statsTable} which contains the scores.}
   \item{windowSize}{The number of consecutive genes to consider windows over.}
