@@ -79,7 +79,7 @@
 		{
 			extIndex = index - 1
 			clusterCode = cluster[index]
-			while(ifelse(cType == "down", score[extIndex] < 0, score[extIndex] > 0) && (sTable[index, "chr"] == sTable[extIndex, "chr"]))
+			while(extIndex > 0 && ifelse(cType == "down", score[extIndex] < 0, score[extIndex] > 0) && (sTable[index, "chr"] == sTable[extIndex, "chr"]))
 			{
 				cluster[extIndex] <- clusterCode
 				extIndex <- extIndex - 1	
@@ -98,7 +98,7 @@
 		{
 			extIndex = index + 1
 			clusterCode = cluster[index]
-			while(ifelse(cType == "down", score[extIndex] < 0, score[extIndex] > 0) && (sTable[index, "chr"] == sTable[extIndex, "chr"]))
+			while(extIndex <= length(cluster) && ifelse(cType == "down", score[extIndex] < 0, score[extIndex] > 0) && (sTable[index, "chr"] == sTable[extIndex, "chr"]))
 			{
 				cluster[extIndex] <- clusterCode
 				extIndex <- extIndex + 1	
@@ -112,6 +112,9 @@ findClusters <- function(statsTable, posCol, scoreCol, windowSize = 5, cutoff = 
 {
 	require(multicore)
 	trend <- match.arg(trend)
+
+	# Do check in case users pass in some rows with NA scores. For biological meaningfulness.
+	statsTable <- statsTable[!is.na(statsTable[, scoreCol]), ]
 	
 	statsTable <- statsTable[order(statsTable$chr, statsTable[, posCol]), ]
 	statsTable$scoreMed <- .getMedians(statsTable, scoreCol, windowSize)
