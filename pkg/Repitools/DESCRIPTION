@@ -1,12 +1,12 @@
 Package: Repitools
-Version: 1.25
-Date: 2010/06/18
+Version: 1.26
+Date: 2010/06/25
 Title: Epigenomic tools
 Author: Mark Robinson <mrobinson@wehi.edu.au>
 Maintainer: Mark Robinson <mrobinson@wehi.edu.au>
 Depends: R (>= 2.11.0), methods, R.methodsS3, IRanges, GenomicRanges, BSgenome
 Imports: IRanges, BSgenome
-Suggests: gplots, grid, MASS, ShortRead, gsmoothr, BSgenome.Hsapiens.UCSC.hg18, edgeR, chipseq, DNAcopy, ChIPpeakAnno, Ringo, aroma.affymetrix, multicore
+Suggests: gplots, grid, MASS, ShortRead, gsmoothr, BSgenome.Hsapiens.UCSC.hg18, edgeR, chipseq, DNAcopy, ChIPpeakAnno, Ringo, aroma.affymetrix, multicore, zoo
 Description: Tools that we made for looking at epigenomic data
 License: LGPL version 2 or newer
 Packaged: 2009-05-20 22:31:28 UTC; mrobinson
