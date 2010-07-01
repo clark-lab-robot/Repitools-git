@@ -1,13 +1,15 @@
 \name{sequenceCalc}
 \alias{sequenceCalc}
-%- Also NEED an '\alias' for EACH other topic documented here.
+\alias{sequenceCalc.RangedData}
+\alias{sequenceCalc.data.frame}
 \title{Find occurences of a DNA pattern}
 \description{Function to find all occurrences of a DNA pattern in given locations.}
 \usage{
-sequenceCalc(locations, window=500, organism, pattern, fixed=TRUE, Nmask=FALSE, positions=FALSE, verbose=FALSE, chunkSize=10000000)
+\method{sequenceCalc}{RangedData}(locations, organism, pattern, fixed=TRUE, Nmask=FALSE, positions=FALSE, verbose=FALSE, chunkSize=10000000, ...)
+\method{sequenceCalc}{data.frame}(locations, window=500, organism, pattern, fixed=TRUE, Nmask=FALSE, positions=FALSE, verbose=FALSE, chunkSize=10000000, ...)
 }
 \arguments{
-  \item{locations}{A \code{data.frame}, with columns \code{chr} and \code{position}.}
+  \item{locations}{A \code{data.frame}, with columns \code{chr} and \code{position}, or a \code{RangedData} object og the regions.}
   \item{window}{Bases around the locations that are in the window. Calculation will consider \code{windowSize / 2 - 1} bases upstream, and \code{windowSize / 2} bases downstream.}
   \item{organism}{The \code{BSgenome} object to calculate CpG density upon.}
   \item{pattern}{The \code{DNAString} to search for.}
@@ -15,7 +17,8 @@ sequenceCalc(locations, window=500, organism, pattern, fixed=TRUE, Nmask=FALSE, 
   \item{Nmask}{Whether to mask out Ns in the \code{organism} sequence before searching - recommended when \code{fixed=FALSE}.} 
   \item{positions}{If \code{TRUE}  \code{FALSE}}
   \item{verbose}{Print details of processing.}
-  \item{chunkSize}{The number of basepairs to process in a chunk, lower amounts use less memory, higher amounts may be faster}
+  \item{chunkSize}{The number of basepairs to process in a chunk, lower amounts use less memory, higher amounts may be faster.}
+  \item{...}{Not used.}
 }
 \value{
   If \code{positions} is \code{TRUE}, a list of vectors of positions of matches in relation to the \code{locations}, otherwise a \code{vector} of the number of matches for each element of \code{locations}.

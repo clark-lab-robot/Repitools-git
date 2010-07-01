@@ -1,4 +1,36 @@
-sequenceCalc <- function(locations, window=500, organism, pattern, fixed=TRUE, Nmask=FALSE, positions=FALSE, verbose=FALSE, chunkSize=10000000) {	
+setMethodS3("sequenceCalc", "RangedData", function(locations, organism, pattern, fixed=TRUE, Nmask=FALSE, positions=FALSE, verbose=FALSE, chunkSize=10000000, ...) {	
+	chr.length <- seqlengths(organism)
+	locations$chunk <- paste(space(locations), trunc(start(locations)/chunkSize), sep="/")
+	scores <- if (positions) vector(mode='list', length=nrow(locations)) else numeric(nrow(locations))
+	for(chunk in unique(locations$chunk)) {		
+		if (verbose) cat(chunk, " ")
+		chr <- gsub("/.*", "", chunk)
+		thisChunk <- which(locations$chunk==chunk)
+		#Grab the smallest chunk of the chromosome possible
+		chrStart <- max(1, min(start(locations)[thisChunk]))
+		chrEnd <- min(chr.length[chr], max(end(locations)[thisChunk]))
+		if (verbose) cat(chrStart, chrEnd, "\n")
+		chrseq <- subseq(organism[[chr]], chrStart, chrEnd)
+		if (Nmask) chrseq <- mask(chrseq, pattern=pattern) 
+		matches <- start(matchPattern(pattern, chrseq, fixed=fixed))
+		if (length(matches)==0) next
+		matches.IRanges <- IRanges(start=matches, width=1)
+		loc.IRanges <- IRanges(start = start(locations)[thisChunk] - chrStart + 1, end = end(locations)[thisChunk] - chrStart + 1)
+		loc.overlaps <- findOverlaps(query=matches.IRanges, subject=loc.IRanges)
+		loc.overlaps <- tapply(loc.overlaps@matchMatrix[,1], loc.overlaps@matchMatrix[,2], list)
+		if (length(loc.overlaps)==0) next
+		thisChunk2 <- thisChunk[as.integer(names(loc.overlaps))]
+		if (positions) {
+			locations$position <- round((start(locations) + end(locations)) / 2)
+			temp <- mapply(function(x,y) matches[x]-y+chrStart-1, loc.overlaps, locations$position[thisChunk2], SIMPLIFY=FALSE)
+			scores[thisChunk2] <- temp
+		} else scores[thisChunk2] <- sapply(loc.overlaps, length)
+	}
+	if (verbose) cat("\n")
+	return(scores)
+})
+
+setMethodS3("sequenceCalc", "data.frame", function(locations, window=500, organism, pattern, fixed=TRUE, Nmask=FALSE, positions=FALSE, verbose=FALSE, chunkSize=10000000, ...) {	
 	chr.length <- seqlengths(organism)
 	if (any((locations$position<window/2) | (locations$position+window/2>chr.length[locations$chr])))
 		warning("Not all locations' windows are within chromosome boundaries.")
@@ -29,4 +61,4 @@ sequenceCalc <- function(locations, window=500, organism, pattern, fixed=TRUE, N
 	}
 	if (verbose) cat("\n")
 	return(scores)
-}
+})

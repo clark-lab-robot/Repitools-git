@@ -16,6 +16,26 @@ setMethodS3("cpgDensityCalc", "GenomeData", function(rs, seqLen, ...) {
             
         })
 
+setMethodS3("cpgDensityCalc", "RangedData", function(locations, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...) {
+            wFunction <- match.arg(wFunction)
+            if(wFunction == "none") {
+                cpgDensity <- sequenceCalc(locations, organism, DNAString("CG"), verbose=verbose, chunkSize=chunkSize)
+            } else {
+                CGfinds <- sequenceCalc(locations, organism, DNAString("CG"), verbose=verbose, positions=TRUE)
+                distances <- lapply(CGfinds, function(positionsInRegion) {if(!is.null(positionsInRegion)) abs(positionsInRegion)})
+                if(wFunction == "linear") {
+                    cpgDensity <- mapply(function(dists, aSpan) sum(1 - (dists / (aSpan / 2))), distances, width(locations))
+                } else if(wFunction == "log") {
+                    cpgDensity <- mapply(function(dists, aSpan) sum(log2(2 - (dists / (aSpan / 2)))), distances, width(locations))
+                } else { # Exponential decay was requested.
+                    cpgDensity <- mapply(function(dists, aSpan) sum(exp(-5 * dists / (aSpan / 2))), distances, width(locations))	
+                }
+                rm(CGfinds)
+            }
+            gc()
+            return(cpgDensity)
+        })
+
 setMethodS3("cpgDensityCalc", "data.frame", function(locations, window=500, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...) {
             wFunction <- match.arg(wFunction)
             

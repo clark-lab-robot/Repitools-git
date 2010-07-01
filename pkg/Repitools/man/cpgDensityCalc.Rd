@@ -2,8 +2,8 @@
 \alias{cpgDensityCalc}
 \alias{cpgDensityCalc.GenomeDataList}
 \alias{cpgDensityCalc.GenomeData}
+\alias{cpgDensityCalc.RangedData}
 \alias{cpgDensityCalc.data.frame}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{Calculate CpG Density in a Window}
 \description{Function to calculate CpG density around a position.
 }
@@ -11,10 +11,11 @@
 \method{cpgDensityCalc}{GenomeDataList}(rs, seqLen, ...)
 \method{cpgDensityCalc}{GenomeData}(rs, seqLen, ...)
 \method{cpgDensityCalc}{data.frame}(locations, window=500, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...)
+\method{cpgDensityCalc}{RangedData}(locations, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{locations}{A \code{data.frame}, with columns \code{chr} and \code{position}.}
+  \item{locations}{A \code{data.frame}, with columns \code{chr} and \code{position}, or a GenomeData object, or a RangedData object.}
   \item{window}{Bases around the locations that are in the window. Calculation will consider \code{windowSize / 2 - 1} bases upstream, and \code{windowSize / 2} bases downstream.}
   \item{wFunction}{Weighting function to use. Can be \code{none}, \code{linear}, \code{log}, or \code{exp}}
   \item{organism}{The \code{BSgenome} object to calculate CpG density upon.}
@@ -25,6 +26,8 @@
   \item{...}{Arguments passed into the \code{data.frame} method}
 }
 \details{
+  The GenomeData and GenomeDataList function signatures are used when looking at the CpG density of sequencing reads. The RangedData function signature is used when the regions of interest are already described as a set or ranges.
+  
   For weighting scheme \code{none}, this is equivalent to the number of CG matches in the region. For \code{linear} weighting, each match is given a score \code{1/x} where \code{x} is the number of bases from the postition that the match occurred, and the scores are summed. For exponential weighting and logarithmic weighting, the idea is similar, but the scores decay exponentially (\code{exp^-5x/windowSize}) and logarithmically (\code{log2(2 - (distancesForRegion / windowSize)}).
 }
 \value{
