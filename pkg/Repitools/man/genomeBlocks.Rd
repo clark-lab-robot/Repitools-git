@@ -16,7 +16,7 @@ genomeBlocks(organism, chrs, width, spacing = width)
   which gives non-overlapping bins. Values larger than \code{spacing} will give overlapping bins, and values smaller than 
   \code{spacing} will give gaps between each bin.}
 }
-\value{Returns a \code{RangedData} object, compatible with direct usage in \code{annotationBlocksCounts}}
+\value{Returns a \code{GRanges} object, compatible with direct usage in \code{annotationBlocksCounts}}
 \author{Aaron Statham}
 \seealso{\code{\link{annotationBlocksCounts}}}
 \examples{
@@ -25,14 +25,10 @@ genomeBlocks(organism, chrs, width, spacing = width)
 ##--	or do  help(data=index)  for the standard data sets.
 
 ## The function is currently defined as
-function (organism, chrs, width, spacing = width) 
-{
+genomeBlocks <- function(organism, chrs, width, spacing=width) {
     chr.length <- seqlengths(organism)[chrs]
-    temp <- lapply(names(chr.length), function(x) IRanges(start = seq.int(spacing/2, 
-        chr.length[x], spacing) - width/2 + 1, end = seq.int(spacing/2, 
-        chr.length[x], spacing) + width/2))
-    names(temp) <- names(chr.length)
-    RangedData(RangesList(temp))
-  }
+    windows <- do.call(c, lapply(names(chr.length), function(x) GRanges(seqnames = x, ranges = IRanges(start=seq.int(spacing/2, chr.length[x], spacing)-width/2+1, end=seq.int(spacing/2, chr.length[x], spacing)+width/2))))
+    return(windows)
 }
-	
+
+}

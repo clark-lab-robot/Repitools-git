@@ -26,12 +26,12 @@ makeWindowLookupTable(indexes, offsets, starts, ends)
 \examples{
 
 # create example set of probes and gene start sites
-probeTab <- data.frame(position=seq(1000,3000,by=200), chr="chrX")
-geneTSS <- data.frame(chr="chrX", position=c(2100,2200), strand=c("+","-"))
-rownames(geneTSS) <- paste("gene",1:2,sep="")
+probeTab <- data.frame(position=seq(1000,3000,by=200), chr="chrX", strand = '-')
+genes <- data.frame(chr="chrX", start=c(2100, 1000), end = c(3000, 2200), strand=c("+","-"))
+rownames(genes) <- paste("gene",1:2,sep="")
 
 # Call annotationLookup() and look at output
-aL <- annotationLookup(probeTab, geneTSS, 500, 500)
+aL <- annotationLookup(probeTab, genes, 500, 500)
 print(aL)
 
 # Store the results of annotationLookup() in a convenient tabular format

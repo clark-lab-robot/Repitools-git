@@ -1,17 +1,5 @@
-setMethodS3("cpgDensityCalc", "GenomeDataList", function(rs, seqLen, ...) {
-            return(lapply(IRanges::as.list(rs), cpgDensityCalc, seqLen, ...))
-        })
-
-
-setMethodS3("cpgDensityCalc", "GenomeData", function(rs, seqLen, ...) {
-            require(chipseq)
-
-	    rs <- extendReads(rs, seqLen = seqLen)
-	    rs <- as(rs, "RangedData")
-            return(cpgDensityCalc(rs, window=seqLen, ...))
-        })
-
-setMethodS3("cpgDensityCalc", "RangedData", function(locations, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...) {
+setMethodS3("cpgDensityCalc", "GRanges", function(locations, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...)
+{
             wFunction <- match.arg(wFunction)
             if(wFunction == "none") {
                 cpgDensity <- sequenceCalc(locations, organism, DNAString("CG"), verbose=verbose, chunkSize=chunkSize)
@@ -29,9 +17,10 @@ setMethodS3("cpgDensityCalc", "RangedData", function(locations, wFunction=c("lin
             }
             gc()
             return(cpgDensity)
-        })
+})
 
-setMethodS3("cpgDensityCalc", "data.frame", function(locations, window=500, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...) {
+setMethodS3("cpgDensityCalc", "data.frame", function(locations, window=500, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...)
+{
             wFunction <- match.arg(wFunction)
             
             if(wFunction == "none") {
@@ -50,4 +39,4 @@ setMethodS3("cpgDensityCalc", "data.frame", function(locations, window=500, wFun
             }
             gc()
             return(cpgDensity)
-        })
+})

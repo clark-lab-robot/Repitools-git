@@ -9,15 +9,15 @@ annotationLookup(probes, annotation, bpUp, bpDown, probeIndex = NULL, verbose=TR
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{probes}{probe genomic locations, a \code{data.frame} with required elements \code{chr} (character) and \code{position} (integer)}
-  \item{annotation}{a \code{data.frame} with required elements \code{chr} (character) and \code{position} (integer) and optional elements \code{strand} ("+" or "-") and \code{name} (character)}
+  \item{probes}{probe genomic locations, a \code{data.frame} with required elements \code{chr} (character), \code{position} (integer)}
+  \item{annotation}{a \code{data.frame} with required elements \code{chr} (character), \code{start} (integer), \code{end} (integer), and optional elements \code{strand} ("+" or "-" or "*") and \code{name} (character). If column \code{strand} is not present, the region is treated as being on both strands (e.g. CpG islands.)}
   \item{bpUp}{The number of bases upstream to look}
   \item{bpDown}{The number of bases downstream to look}
   \item{probeIndex}{a probe index, default \code{NULL}}
   \item{verbose}{whether to print progress to screen}
 }
 \details{
-This function is a wrapper for the generic function \code{annotationBlocksLookup} which can handle annotations of varying sizes. \code{annotationLookup} is appropriate where you wish to map probes that are within a fixed distance of points of annotation e.g gene transcription start sites.
+This function is a wrapper for the generic function \code{annotationBlocksLookup} which can handle annotations of varying sizes. \code{annotationLookup} is appropriate where you wish to map probes that are within a fixed distance of points of annotation e.g gene transcription start sites. Even if strand information is given for probes, it is ignored.
 }
 \value{
   A list with elements
@@ -29,16 +29,10 @@ This function is a wrapper for the generic function \code{annotationBlocksLookup
 \examples{
 
 # create example set of probes and gene start sites
-probeTab <- data.frame(position=seq(1000,3000,by=200), chr="chrX")
-geneTSS <- data.frame(chr="chrX", position=c(2100,2200), strand=c("+","-"))
-rownames(geneTSS) <- paste("gene",1:2,sep="")
+probeTab <- data.frame(position=seq(1000,3000,by=200), chr="chrX", strand = '-')
+genes <- data.frame(chr="chrX", start=c(2100, 1000), end = c(3000, 2200), strand=c("+","-"))
+rownames(genes) <- paste("gene",1:2,sep="")
 
 # Call annotationLookup() and look at output
-aL <- annotationLookup(probeTab, geneTSS, 500, 500)
-print(aL)
-
-# Store the results of annotationLookup() in a convenient tabular format
-lookupTab <- makeWindowLookupTable(aL$indexes, aL$offsets, starts=seq(-400,200,by=200), ends=seq(-200,400,by=200))
-print(lookupTab)
-
+annotationLookup(probeTab, genes, 500, 500)
 }
