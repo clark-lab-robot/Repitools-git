@@ -1,15 +1,15 @@
 \name{writeWig}
 \alias{writeWig}
 \alias{writeWig.AffymetrixCelSet}
-\alias{writeWig.GenomeDataList}
+\alias{writeWig.GRangesList}
 \title{Writes sequencing data out into a wiggle files}
 \description{Writes sequencing data out into a wiggle files}
 \usage{
 \method{writeWig}{AffymetrixCelSet}(rs, design=NULL, log2adjust=TRUE, verbose=TRUE, ...)
-\method{writeWig}{GenomeDataList}(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE, ...)
+\method{writeWig}{GRangesList}(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE, ...)
 }
 \arguments{
-  \item{rs}{The data to be written, must be a \code{GenomeData} object which \code{coverage} has been called upon}
+  \item{rs}{The sequencing or array data.}
   \item{design}{design matrix specifying the contrast to compute (i.e. the samples to use and what differences to take)}
   \item{log2adjust}{whether to take log2 of array intensities.}
   \item{verbose}{Whether to write progress to screen}

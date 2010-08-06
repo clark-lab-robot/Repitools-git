@@ -1,13 +1,15 @@
-setMethodS3("writeWig", "GenomeDataList", function(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE, ...) {
+setMethodS3("writeWig", "GRangesList", function(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE, ...) {
+	require(GenomicRanges)	
+
 	scipen <- getOption("scipen")
 	options(scipen=100)
 	if (verbose) cat("Extending the reads by ", seqLen,"bp\n", sep="" )
-	rs.ext <- extendReads(rs, seqLen)
+	rs.ext <- endoapply(rs, resize, seqLen)
 	if (verbose) cat("Creating coverage objects\n")
-	rs.cov <- gdapply(rs.ext, coverage)
+	rs.cov <- IRanges::lapply(rs.ext, coverage)
 	if (normalise) {
 		if (verbose) cat("Calculating normalisation counts\n")
-		norm <- laneCounts(rs)/1000000
+		norm <- elementLengths(rs)/1000000
 	}
 	if (is.null(design)) {
 		if (verbose) cat("Default design matrix\n")

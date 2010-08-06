@@ -8,13 +8,13 @@
 Creates a plot where the average signal across a promoter of supplied gene lists is compared to random samplings of all genes, with a shaded confidence area.
 }
 \usage{
-\method{significancePlots}{GenomeDataList}(rs, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, total.lib.size=TRUE, seqLen=NULL, verbose=FALSE, ...)
+\method{significancePlots}{GRangesList}(rs, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, total.lib.size=TRUE, seqLen=NULL, verbose=FALSE, ...)
 \method{significancePlots}{AffymetrixCelSet}(cs, probeMap=NULL, coordinatesTable=NULL, upStream=7500, downStream=2500, by=100, bw=300, log2adjust=TRUE, verbose=FALSE, ...)
 \method{significancePlots}{matrix}(dataMatrix, lookupTable, geneList, titles, nSamples=1000, confidence=0.975, legend.plot="topleft", cols=rainbow(length(geneList)), removeZeros=TRUE, useMean=FALSE, ...)
 }
 \arguments{
   \item{dataMatrix}{\code{matrix} of data to use}
-  \item{rs}{\code{GenomeDataList} of sequencing data to use}
+  \item{rs}{\code{GRangesList} of sequencing data to use}
   \item{probeMap}{A pre-made mapping of probes to a coordinatesTable}
   \item{cs}{\code{AffymetrixCelSet} of array data to use}
   \item{lookupTable}{\code{matrix}, e.g. from \code{makeWindowLookupTable}}

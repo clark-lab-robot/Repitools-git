@@ -114,7 +114,7 @@ setMethodS3("blocksStats", "GRangesList", function(cs, coordinatesTable, design,
 	if (verbose) cat("Generating table of counts\n")
 	if (useAsRegions) dm <- annotationBlocksCounts(cs, coordinatesTable, seqLen, verbose) else dm <- annotationCounts(cs, coordinatesTable, upStream, downStream, seqLen, verbose)
 	if (libSize == "lane")
-		lib.sizes <- laneCounts(cs)
+		lib.sizes <- elementLengths(cs)
 	if(libSize == "inRegions")
 		lib.sizes <- colSums(dm)
 	if(libSize == "ref")

@@ -1,6 +1,6 @@
 \name{binPlots}
 \alias{binPlots}
-\alias{binPlots.GenomeDataList}
+\alias{binPlots.GRangesList}
 \alias{binPlots.AffymetrixCelSet}
 \alias{binPlots.matrix}
 \title{Create line plots of averaged signal across a promoter}
@@ -8,14 +8,14 @@
 Using a specified ordering of genes, they are split into multiple bins.  In each bin, the signal across is summarized and displayed visually.  The plots are created in an array, one row for each column of the data matrix and one column for each ordering specified.
 }
 \usage{
-\method{binPlots}{GenomeDataList}(rs, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, libSize="lane", seqLen=NULL, verbose=FALSE, Acutoff=NULL, ...)
+\method{binPlots}{GRangesList}(rs, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, libSize="lane", seqLen=NULL, verbose=FALSE, Acutoff=NULL, ...)
 \method{binPlots}{AffymetrixCelSet}(cs, probeMap=NULL, coordinatesTable=NULL, upStream=7500, downStream=2500, by=100, bw=300, log2adjust=TRUE, verbose=FALSE, ...)
 \method{binPlots}{matrix}(dataMatrix, lookupTable, ordering, plotType = c("line", "heatmap", "terrain", "boxplot"), nbins = 10, cols = NULL, lwd = 3, lty = 1, sameScale = TRUE, symmScale = FALSE, verbose = FALSE, removeZeros=TRUE, useMean=FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{dataMatrix}{\code{matrix} of data to use}
-  \item{rs}{\code{GenomeDataList} of sequencing data to use}
+  \item{rs}{\code{GRangesList} of sequencing data to use}
   \item{cs}{\code{AffymetrixCelSet} of array data to use}
   \item{probeMap}{A pre-made mapping of probes to a coordinatesTable}
   \item{coordinatesTable}{\code{data.frame} giving the gene coordinates or regions of interest. The column names of this are \code{chr}, \code{name}, \code{start}, \code{end}, \code{strand}.}

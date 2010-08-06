@@ -56,12 +56,12 @@ ChromaBlocks <- function(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidt
     if (verbose) cat("Counting IP lanes: ")
     ipCounts <- annotationBlocksCounts(rs.ip, IPbins, seqLen=seqLen, verbose=verbose)
     #pool & normalise IP lanes & turn into RPKM - reads per kb (ipWidth/1000) per million (/lanecounts*1000000)
-    ipCounts <- rowSums(ipCounts)/sum(laneCounts(rs.ip))*1000000/(ipWidth/1000)
+    ipCounts <- rowSums(ipCounts)/sum(elementLengths(rs.ip))*1000000/(ipWidth/1000)
     
     if (verbose) cat("Counting Input lanes: ")
     inputCounts <- annotationBlocksCounts(rs.input, InputBins, seqLen=seqLen, verbose=verbose)
     #pool & normalise Input lanes
-    inputCounts <- rowSums(inputCounts)/sum(laneCounts(rs.input))*1000000/(inputWidth/1000)
+    inputCounts <- rowSums(inputCounts)/sum(elementLengths(rs.input))*1000000/(inputWidth/1000)
     
     IPbins$RPKM <- ipCounts-inputCounts
     rm(ipCounts, inputCounts)
