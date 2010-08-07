@@ -1,7 +1,7 @@
 \name{blocksStats}
 \alias{blocksStats}
 \alias{blocksStats.AffymetrixCelSet}
-\alias{blocksStats.GenomeDataList}
+\alias{blocksStats.GRangesList}
 \alias{blocksStats.matrix}
 \title{A routine to calculate statistics for regions in the genome}
 \description{

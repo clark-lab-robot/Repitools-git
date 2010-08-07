@@ -6,7 +6,7 @@
 \description{Function to calculate CpG density around a position.
 }
 \usage{
-\method{cpgDensityCalc}{GRanges}(locations, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...)
+\method{cpgDensityCalc}{GRanges}(rs, seqLen, ...)
 \method{cpgDensityCalc}{data.frame}(locations, window=500, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...)
 }
 %- maybe also 'usage' for other objects documented here.

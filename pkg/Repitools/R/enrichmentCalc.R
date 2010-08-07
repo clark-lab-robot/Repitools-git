@@ -1,7 +1,7 @@
 enrichmentCalc <- function(rs, organism, chrs, seqLen=NULL) {
 	require(GenomicRanges)
 
-	if (class(rs) != "GRanges") {
+	if (class(rs) != "GRanges")
 		stop("rs must be a GRanges object.")
 
 	seqlengths(rs) <- seqlengths(organism)[chrs]

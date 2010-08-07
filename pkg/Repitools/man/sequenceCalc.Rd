@@ -1,6 +1,6 @@
 \name{sequenceCalc}
 \alias{sequenceCalc}
-\alias{sequenceCalc.RangedData}
+\alias{sequenceCalc.GRanges}
 \alias{sequenceCalc.data.frame}
 \title{Find occurences of a DNA pattern}
 \description{Function to find all occurrences of a DNA pattern in given locations.}

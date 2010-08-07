@@ -1,15 +1,14 @@
 \name{enrichmentPlot}
 \alias{enrichmentPlot}
-\alias{enrichmentPlot.GenomeDataList}
+\alias{enrichmentPlot.GRangesList}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Plot the distribution of sequencing enrichment.}
 \description{Function to generate a plot of the distribution of sequencing reads enrichments.}
-\usage{
-\method{enrichmentPlot}{GenomeDataList}(rs, organism, seqLen, cols=rainbow(length(rs)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE, ...)
+\usage{enrichmentPlot(rs, organism, seqLen, cols=rainbow(length(rs)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{rs}{A \code{GenomeDataList} object of reads to plot enrichment of.}
+  \item{rs}{A \code{GRangesList} object of reads to plot enrichment of.}
   \item{organism}{The \code{BSgenome} object to calculate enrichment upon - only used to extract chromosome lengths.}
   \item{seqLen}{The fragment size to be used for extending the sequencing reads.}
   \item{cols}{The line colour for each element of \code{rs}}

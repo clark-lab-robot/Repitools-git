@@ -1,6 +1,6 @@
 \name{significancePlots}
 \alias{significancePlots}
-\alias{significancePlots.GenomeDataList}
+\alias{significancePlots.GRangesList}
 \alias{significancePlots.AffymetrixCelSet}
 \alias{significancePlots.matrix}
 \title{Create line plots of averaged signal across a promoter compared to random sampling}
