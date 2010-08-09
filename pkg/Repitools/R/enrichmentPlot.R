@@ -1,11 +1,7 @@
-enrichmentPlot <- function(rs, organism, seqLen, cols=rainbow(length(rs)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE, ...) {
+enrichmentPlot <- function(rs, organism, seqLen, cols=rainbow(length(rs)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE) {
 	if (length(cols)!=length(rs)) stop("rs and cols must have the same number of elements.")
-	if (verbose) cat("Extending reads\n")
-	rs.ext <- endoapply(rs, resize, seqLen)
-	if (verbose) cat("Creating coverage object\n")
-	rs.cov <- IRanges::lapply(rs.ext, coverage)
 	if (verbose) cat("Calculating enrichment\n")
-	rs.enrich <- enrichmentCalc(rs.cov, organism, ...)
+	rs.enrich <- lapply(rs, enrichmentCalc, organism, seqLen)
 	if (total.lib.size) {
 		if (verbose) cat("Normalising to reads per lane\n")
 		rs.counts <- elementLengths(rs)

@@ -3,6 +3,8 @@ enrichmentCalc <- function(rs, organism, seqLen=NULL) {
 
 	if (class(rs) != "GRanges")
 		stop("rs must be a GRanges object.")
+	
+	rs <- endoapply(rs, resize, seqLen)
 	chrs <- levels(seqnames(rs))
 	seqlengths(rs) <- seqlengths(organism)[chrs]
 	coverage <- colSums(table(coverage(resize(rs, seqLen))))

@@ -4,7 +4,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Plot the distribution of sequencing enrichment.}
 \description{Function to generate a plot of the distribution of sequencing reads enrichments.}
-\usage{enrichmentPlot(rs, organism, seqLen, cols=rainbow(length(rs)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE, ...)
+\usage{enrichmentPlot(rs, organism, seqLen, cols=rainbow(length(rs)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -16,7 +16,6 @@
   \item{main}{\code{main} parameter passed to \code{plot}}
   \item{total.lib.size}{Whether to normalise enrichment values to the total number of reads per lane.}
   \item{verbose}{Print details of processing.}
-  \item{...}{Additional arguments passed to \code{enrichmentCalc}}
 }
 \details{
   See \code{enrichmentCalc} for details of how the results are determined.
