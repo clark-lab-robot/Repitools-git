@@ -5,13 +5,12 @@
 \description{Function to calculate enrichment over the whole genome of sequencing reads.
 }
 \usage{
-enrichmentCalc(rs, organism, chrs, seqLen=NULL)
+enrichmentCalc(rs, organism, seqLen=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{rs}{A \code{GRanges} object.}
   \item{organism}{The \code{BSgenome} object to calculate enrichment upon - only used to extract chromosome lengths.}
-  \item{chrs}{The names of chromosomes that make up the genome. i.e. Allows exclusion of rand and hap chromosomes from the \code{organism} object.}
   \item{seqLen}{If sequencing reads need to be extended, the fragment size to be used}
 }
 \details{
