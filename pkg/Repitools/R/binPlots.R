@@ -1,4 +1,4 @@
-setMethodS3("binPlots", "GRangesList", function(rs, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, libSize="lane", seqLen=NULL, verbose=FALSE, Acutoff=NULL, ...) {
+setMethodS3("binPlots", "default", function(rs, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, libSize="lane", seqLen=NULL, verbose=FALSE, Acutoff=NULL, ...) {
 	coordinatesTable$position <- ifelse(coordinatesTable$strand=="+", coordinatesTable$start, coordinatesTable$end)
 	rownames(coordinatesTable) <- coordinatesTable$name
 	if(libSize == "ref" && is.null(Acutoff))
@@ -26,7 +26,8 @@ setMethodS3("binPlots", "GRangesList", function(rs, coordinatesTable, design=NUL
 		
 	} else { # libSize = "lane"
 		if (verbose) cat("normalising to total library sizes\n")
-		annoCounts <- t(t(annoCounts)/elementLengths(rs[inUse]))*1000000	
+		totalReads <- if(class(rs) == "GenomeDataList") laneCounts(rs) else elementLengths(rs[inUse])
+		annoCounts <- t(t(annoCounts)/totalReads)*1000000	
 	}
 	if (verbose) cat("made annoCounts\n")
 	if (!is.null(design)) {

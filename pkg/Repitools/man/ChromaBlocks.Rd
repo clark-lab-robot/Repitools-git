@@ -8,8 +8,8 @@ For each region of interest or TSS, this routine interrogates probes or sequence
 ChromaBlocks(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidth=500, preset=NULL, blockWidth=NULL, minBlocks=NULL, extend=NULL, cutoff=NULL, FDR=0.01, nPermutations=5, nCutoffs=20, cutoffQuantile=0.98, verbose=TRUE, seqLen=NULL)
 }
 \arguments{
-  \item{rs.ip}{A \code{GenomeDataList} object containing reads from the Immunoprecipited sample}
-  \item{rs.input}{A \code{GenomeDataList} object containing reads from the Input (unenriched) sample}
+  \item{rs.ip}{A \code{GenomeDataList} or \code{GRangesList} object containing reads from the Immunoprecipited sample}
+  \item{rs.input}{A \code{GenomeDataList} or \code{GRangesList} object containing reads from the Input (unenriched) sample}
   \item{organism}{The \code{BSgenome} object to calculate CpG density upon.}
   \item{chrs}{An \code{integer vector} with the indicies of the chromosomes of the \code{organism} object to analyse}
   \item{ipWidth}{Size in basepairs of the windows to use for the IP samples}

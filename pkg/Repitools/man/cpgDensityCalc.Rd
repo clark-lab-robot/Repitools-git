@@ -1,5 +1,7 @@
 \name{cpgDensityCalc}
 \alias{cpgDensityCalc}
+\alias{cpgDensityCalc.GenomeDataList}
+\alias{cpgDensityCalc.GenomeData}
 \alias{cpgDensityCalc.GRanges}
 \alias{cpgDensityCalc.data.frame}
 \title{Calculate CpG Density in a Window}

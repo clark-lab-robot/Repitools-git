@@ -65,7 +65,42 @@ annotationLookup <- function(probes, annotation, bpUp, bpDown, probeIndex=NULL, 
 	return(annot)
 }
 
-annotationBlocksCounts <- function(rs, annotation, seqLen=NULL, verbose=TRUE) {
+setMethodS3("annotationBlocksCounts", "GenomeDataList", function(rs, annotation, seqLen=NULL, verbose=TRUE, ...) {
+    require(chipseq)
+    if (class(rs)=="GenomeData") rs <- GenomeDataList(list(rs))
+    if (class(annotation)=="data.frame") {
+        if (is.null(annotation$name)) annotation$name <- 1:nrow(annotation)
+        anno.names <- annotation$name
+        annotation <- RangedData(IRanges(start=annotation$start, end=annotation$end), space=annotation$chr, name=annotation$name)
+        annotation$order <- match(anno.names, annotation$name)
+        rm(anno.names)
+    } else stopifnot(class(annotation)=="RangedData") 
+    anno.counts <- matrix(as.integer(NA), nrow=nrow(annotation), ncol=length(rs), dimnames=list(annotation$name, names(rs)))
+    if (!class(rs[[1]][[1]])=="IRanges") {
+        if (is.null(seqLen)) stop("If rs has not been extended, seqLen must be supplied")
+        rs <- extendReads(rs, seqLen=seqLen)
+    }
+    anno.chr <- names(annotation)
+    for (i in 1:length(rs)) {
+        if(verbose) cat(names(rs)[i], " ", sep="")
+
+        #Find chromosomes in annotation but not in rs
+        rs.chr <- names(rs[[i]])
+        nochr <- which(!anno.chr %in% rs.chr)
+        nochr.list <- rep(list(IRanges()), length(nochr))
+        names(nochr.list) <- anno.chr[nochr]
+
+        #convert rs to RangesList, inserting empty chromosomes if needed
+        rs[[i]] <- RangesList(c(as.list(rs[[i]]), nochr.list))
+        rs.chr <- names(rs[[i]])
+        both.chr <- intersect(anno.chr, rs.chr)
+        anno.counts[,i] <- unlist(countOverlaps(annotation[both.chr], rs[[i]][both.chr], type="any"))
+    }
+    if(verbose) cat("\n")
+    if (is.null(annotation$order)) anno.counts else anno.counts[annotation$order,]
+})
+
+setMethodS3("annotationBlocksCounts", "GRangesList", function(rs, annotation, seqLen=NULL, verbose=TRUE, ...) {
     require(GenomicRanges)
     if (!class(rs) == "GRangesList")
     		stop("rs must be a GRangesList")
@@ -81,20 +116,20 @@ annotationBlocksCounts <- function(rs, annotation, seqLen=NULL, verbose=TRUE) {
     rs <- endoapply(rs, resize, seqLen)
     for (i in 1:length(rs)) {
         if(verbose) cat("Counting in", names(rs)[i], "\n")
-	anno.counts[, i] <- countOverlaps(annotation, rs[i])
+	anno.counts[, i] <- countOverlaps(annotation, rs[[i]])
     }
     if(verbose)
     	cat("Counting successful.\n")
     return(anno.counts)
-}
+})
 
 annotationCounts <- function(rs, annotation, bpUp, bpDown, seqLen=NULL, verbose=TRUE) {
 	require(GenomicRanges)
-	if (!class(rs) == "GRangesList")
-		stop("rs must be a GRangesList")
+	if (!class(rs) == "GenomeDataList" && !class(rs) == "GRangesList")
+		stop("rs must be a GRangesList or GenomeDataList")
 	anno = annotation
 	if (is.null(anno$strand)) anno$strand <- "*"
-	anno$position <- if(anno$strand == '+') anno$start else if(anno$strand == '-') anno$end else round((anno$start + anno$end) / 2)
+	anno$position <- mapply(function(aStrand, aStart, aEnd) {if(aStrand == '+') aStart else if(aStrand == '-') aEnd else round((aStart + aEnd) / 2)}, anno$strand, anno$start, anno$end)
 	if (is.null(anno$name)) anno$name <- 1:nrow(annotation)
 	anno$start=ifelse(anno$strand=="+", anno$position-bpUp, anno$position-bpDown)
         anno$end=ifelse(anno$strand=="+", anno$position+bpDown, anno$position+bpUp)

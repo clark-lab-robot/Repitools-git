@@ -1,3 +1,21 @@
+setMethodS3("cpgDensityCalc", "GenomeDataList", function(rs, seqLen, ...) {
+            return(lapply(IRanges::as.list(rs), cpgDensityCalc, seqLen, ...))
+        })
+
+
+setMethodS3("cpgDensityCalc", "GenomeData", function(rs, seqLen, ...) {
+            rs.midpt <- vector(mode='list', length=length(rs))
+            names(rs.midpt) <- names(rs)
+            
+            for (chr in names(rs)) if (length(rs[[chr]][["+"]])+length(rs[[chr]][["+"]])>0) {
+                    rs.midpt[[chr]] <- data.frame(chr=chr, position=c(rs[[chr]][["+"]]+seqLen/2, rs[[chr]][["-"]]-seqLen/2), stringsAsFactors=FALSE)
+                }
+            rs.midpt <- do.call(rbind, rs.midpt)
+            
+            return(cpgDensityCalc(rs.midpt, window=seqLen, ...))
+            
+        })
+
 setMethodS3("cpgDensityCalc", "GRanges", function(rs, seqLen = width(rs[1]), ...)
 {
 	    rs <- resize(rs, seqLen)

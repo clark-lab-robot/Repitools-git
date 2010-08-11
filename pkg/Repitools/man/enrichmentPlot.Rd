@@ -8,7 +8,7 @@
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{rs}{A \code{GRangesList} object of reads to plot enrichment of.}
+  \item{rs}{A \code{GRangesList} or \code{GenomeDataList} object of reads to plot enrichment of.}
   \item{organism}{The \code{BSgenome} object to calculate enrichment upon - only used to extract chromosome lengths.}
   \item{seqLen}{The fragment size to be used for extending the sequencing reads.}
   \item{cols}{The line colour for each element of \code{rs}}

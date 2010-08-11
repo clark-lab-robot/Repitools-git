@@ -1,6 +1,5 @@
 \name{cpgDensityPlot}
 \alias{cpgDensityPlot}
-\alias{cpgDensityPlot.GRangesList}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Plot the distribution of sequencing reads CpG densities.}
 \description{Function to generate a plot of the distribution of sequencing reads CpG densities.}
@@ -8,7 +7,7 @@
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{rs}{A \code{GRangesList} object of reads to plot CpG density of}
+  \item{rs}{A \code{GenomeDataList} or \code{GRangesList} object of reads to plot CpG density of}
   \item{cols}{The line colour for each element of \code{rs}}
   \item{xlim}{\code{xlim} parameter passed to \code{plot}, the default is appropriate for \code{linear} \code{cpgDensityCalc} weighting.}
   \item{main}{\code{main} parameter passed to \code{plot}}

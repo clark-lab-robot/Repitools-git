@@ -105,16 +105,16 @@ setMethodS3("blocksStats", "AffymetrixCelSet", function(cs, coordinatesTable, an
   
 })
 
-setMethodS3("blocksStats", "GRangesList", function(cs, coordinatesTable, design, upStream=0, downStream=2000, verbose=TRUE, useAsRegions=FALSE, seqLen=NULL, libSize="lane", Acutoff=NULL, ...) {
+setMethodS3("blocksStats", "default", function(rs, coordinatesTable, design, upStream=0, downStream=2000, verbose=TRUE, useAsRegions=FALSE, seqLen=NULL, libSize="lane", Acutoff=NULL, ...) {
 	if(libSize == "ref" && is.null(Acutoff))
 		stop("Must give value of Acutoff if using \"ref\" normalisation.\n")
 	require(edgeR)
 	if(!all(c("chr", "name", "start", "end")  %in% colnames(coordinatesTable)))
 		stop("Incorrect column headings for coordinatesTable. Check documentation for details.")
 	if (verbose) cat("Generating table of counts\n")
-	if (useAsRegions) dm <- annotationBlocksCounts(cs, coordinatesTable, seqLen, verbose) else dm <- annotationCounts(cs, coordinatesTable, upStream, downStream, seqLen, verbose)
+	if (useAsRegions) dm <- annotationBlocksCounts(rs, coordinatesTable, seqLen, verbose) else dm <- annotationCounts(rs, coordinatesTable, upStream, downStream, seqLen, verbose)
 	if (libSize == "lane")
-		lib.sizes <- elementLengths(cs)
+		lib.sizes <- if(class(rs) == "GenomeDataList") laneCounts(rs) else elementLengths(rs)
 	if(libSize == "inRegions")
 		lib.sizes <- colSums(dm)
 	if(libSize == "ref")

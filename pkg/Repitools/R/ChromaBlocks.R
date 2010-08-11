@@ -61,7 +61,7 @@ ChromaBlocks <- function(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidt
     if (verbose) cat("Counting Input lanes: ")
     inputCounts <- annotationBlocksCounts(rs.input, InputBins, seqLen=seqLen, verbose=verbose)
     #pool & normalise Input lanes
-    inputCounts <- rowSums(inputCounts)/sum(elementLengths(rs.input))*1000000/(inputWidth/1000)
+    inputCounts <- rowSums(inputCounts)/sum(if(class(rs.input) == "GenomeDataList") laneCounts(rs.input) else elementLengths(rs.input))*1000000/(inputWidth/1000)
     
     IPbins$RPKM <- ipCounts-inputCounts
     rm(ipCounts, inputCounts)

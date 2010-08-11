@@ -61,7 +61,7 @@ doSeqStats <- function(reads, whichInputs, whichControl, whichTreat, minCount, b
                                                          }, tables, CNlevels, SIMPLIFY = FALSE
                           )
 
-	normTo10mFs <- 1/(elementLengths(reads[c(whichControl, whichTreat)])/10000000)
+	normTo10mFs <- 1/(if(class(reads) == "GenomeDataList") laneCounts(reads) / 10000000 else elementLengths(reads[c(whichControl, whichTreat)]) / 10000000)
 	ERRTo10M <- matrix(nrow = nrow(enrichedRegionsReads), ncol = ncol(enrichedRegionsReads), dimnames = dimnames(enrichedRegionsReads))
 	colnames(ERRTo10M) <- paste(colnames(ERRTo10M), "Per 10 Million Reads")
 	for(colIndex in 1:ncol(ERRTo10M))

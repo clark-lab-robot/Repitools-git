@@ -4,7 +4,7 @@ enrichmentPlot <- function(rs, organism, seqLen, cols=rainbow(length(rs)), xlim=
 	rs.enrich <- lapply(rs, enrichmentCalc, organism, seqLen)
 	if (total.lib.size) {
 		if (verbose) cat("Normalising to reads per lane\n")
-		rs.counts <- elementLengths(rs)
+		rs.counts <- if(class(rs) == "GenomeDataList") laneCounts(rs) else elementLengths(rs)
 		for (i in 1:length(rs)) rs.enrich[[i]]$coverage <- rs.enrich[[i]]$coverage/(rs.counts[[i]]/1000000)
 	}
 	plot(x=rs.enrich[[1]]$coverage, y=rs.enrich[[1]]$bases, type="l", col=cols[1], xlim=xlim, main=main, ylab="Frequency", log="y",

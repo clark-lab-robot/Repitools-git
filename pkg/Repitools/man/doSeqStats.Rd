@@ -9,7 +9,7 @@ doSeqStats(reads, whichInputs, whichControl, whichTreat, minCount, blockSize, bl
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{reads}{A \code{GRangesList} of the sequencing data.}
+  \item{reads}{A \code{GenomeDataList} or \code{GRangesList} of the sequencing data.}
   \item{whichInputs}{A vector of length 2, containing indices for \code{reads} that contain the inputs. First element is the index of the control input, and the second index is of the treatment input}
   \item{whichControl}{A vector of indicies for \code{reads} for the enriched controls.}
   \item{whichTreat}{A vector of indices for \code{reads} for the enriched treatments.}

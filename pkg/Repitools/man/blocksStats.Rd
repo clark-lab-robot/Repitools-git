@@ -1,7 +1,7 @@
 \name{blocksStats}
 \alias{blocksStats}
 \alias{blocksStats.AffymetrixCelSet}
-\alias{blocksStats.GRangesList}
+\alias{blocksStats.default}
 \alias{blocksStats.matrix}
 \title{A routine to calculate statistics for regions in the genome}
 \description{
@@ -9,12 +9,13 @@ For each region of interest or TSS, this routine interrogates probes or sequence
 }
 \usage{
 \method{blocksStats}{AffymetrixCelSet}(cs, coordinatesTable, annot = NULL, probePositions = NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust = TRUE, useAsRegions=FALSE, ...)
-\method{blocksStats}{GRangesList}(cs, coordinatesTable, design, upStream = 0, downStream = 2000, verbose = TRUE, useAsRegions = FALSE, seqLen = NULL, libSize = "lane", Acutoff = NULL, ...)
+\method{blocksStats}{default}(rs, coordinatesTable, design, upStream = 0, downStream = 2000, verbose = TRUE, useAsRegions = FALSE, seqLen = NULL, libSize = "lane", Acutoff = NULL, ...)
 \method{blocksStats}{matrix}(cs, ndf, coordinatesTable, annot = NULL, probePositions = NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust = TRUE, useAsRegions=FALSE, ...)
 } 
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{cs}{An \code{AffymetrixCelSet} or \code{GRangesList} object, or a \code{data.frame} of scores for each probe with a column for each condition, presumably from normalized data.}
+  \item{rs}{A \code{GenomeDataList} or \code{GRangesList} object.}
+  \item{cs}{An \code{AffymetrixCelSet} or a \code{data.frame} of scores for each probe with a column for each condition, presumably from normalized data.}
   \item{ndf}{A \code{data.frame} with columns \code{chr}, \code{position}, and \code{index}}
   \item{coordinatesTable}{\code{data.frame} giving the gene coordinates or regions of interest. The column names of this are \code{chr}, \code{name}, \code{start}, \code{end}, \code{strand}.}
   \item{annot}{If a mapping with \code{annotationLookup} or \code{annotationBlocksLookup} has already been done, it can be passed in, and avoids re-conmputing of the mapping list within \code{blocksStats}.}

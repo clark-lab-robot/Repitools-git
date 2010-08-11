@@ -1,4 +1,4 @@
-setMethodS3("significancePlots", "GRangesList", function(rs, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, total.lib.size=TRUE, seqLen=NULL, verbose=FALSE, ...) {
+setMethodS3("significancePlots", "default", function(rs, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, total.lib.size=TRUE, seqLen=NULL, verbose=FALSE, ...) {
 	coordinatesTable$position <- ifelse(coordinatesTable$strand=="+", coordinatesTable$start, coordinatesTable$end)
 	rownames(coordinatesTable) <- coordinatesTable$name
 	blockPos <- seq.int(-upStream, downStream, by)
@@ -20,7 +20,8 @@ setMethodS3("significancePlots", "GRangesList", function(rs, coordinatesTable, d
 	annoCounts <- annotationBlocksCounts(rs[inUse], annoBlocks, seqLen, verbose)
 	if (total.lib.size) {
 		if (verbose) cat("normalising to total library sizes\n")
-		annoCounts <- t(t(annoCounts)/elementLengths(rs[inUse]))*1000000
+		totalReads <- if(class(rs) == "GenomeDataList") laneCounts(rs[inUse]) else elementLengths(rs[inUse])
+		annoCounts <- t(t(annoCounts)/totalReads)*1000000
 	}
 	if (verbose) cat("made annoCounts\n")
 	if (!is.null(design)) {
