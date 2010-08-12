@@ -1,67 +1,89 @@
 annotationBlocksLookup <- function(probes, annotation, probeIndex=NULL, verbose=TRUE) {
-	require(GenomicRanges)
-	probeRanges <- GRanges(seqnames = probes$chr, ranges = IRanges(probes$position, width = 1))
-	if("strand" %in% colnames(annotation))
-		annoStrands <- annotation$strand
-	else
-		annoStrands <- Rle('*', nrow(annotation))
-	if("name" %in% colnames(annotation))
-		annoNames <- annotation$name
-	else
-		annoNames <- rownames(annotation)
-	if(is.null(probeIndex)) probeIndex <- 1:nrow(probes)
-	annotationRanges <- GRanges(seqnames = annotation$chr, ranges = IRanges(annotation$start, annotation$end), strand = annoStrands)
-	matches <- findOverlaps(annotationRanges, probeRanges)@matchMatrix
+#probes = dataframe of $chr, $position and $strand ("+" or "-")
+#annotation = dataframe of $chr, $start, $end, $strand ("+" or "-") and $name or rownames = annotation name
 
-	indexes <- vector("list", nrow(annotation))
-	offsets <- vector("list", nrow(annotation))
-	names(indexes) <- annoNames
-	names(offsets) <- annoNames
-	for(index in 1:nrow(annotation))
-	{
-		currAnno <- which(matches[, 1] == index)
-		if(length(currAnno) != 0)
-		{
-			indexes[[index]] <- probeIndex[matches[currAnno, 2]]
-			namedOffsets <- start(probeRanges)[indexes[[index]]] - start(annotationRanges)[index]
-			names(namedOffsets) <- indexes[[index]]
-			offsets[[index]] <- namedOffsets
-		}
+
+	processChromosome <- function(probePositions, annotation) {
+		numAnnot = nrow(annotation)
+		annotProbes = list(indexes=vector(mode='list', length=numAnnot), offsets=vector(mode='list', length=numAnnot))
+		if (length(probePositions)==0) return(annotProbes) #if no probes on this chromosome return empty annotations	
+		require(IRanges)
+		probes.IRanges <- IRanges(start=probePositions, width=1)
+		annotation.IRanges <- IRanges(start=annotation$start, end=annotation$end)
+		anno.overlaps <- findOverlaps(query=probes.IRanges, subject=annotation.IRanges)
+		anno.overlaps <- tapply(anno.overlaps@matchMatrix[,1], anno.overlaps@matchMatrix[,2], list)
+		annotProbes$indexes[as.integer(names(anno.overlaps))] <- anno.overlaps
+		annotProbes$offsets <- mapply(function(x ,y) probePositions[x]-y, annotProbes$indexes, annotation$start, SIMPLIFY = FALSE)
+		annotProbes$indexes <- lapply(annotProbes$indexes, function(x) as.integer(names(probePositions[x])))
+		return(annotProbes)
+  }
+
+
+	if (is.null(annotation$strand)) { #dont bother with strandedness anywhere
+		probesStrandChr <- probes$chr
+		annotationStrandChr <- annotation$chr
+	} else { #create separate plus & minus chromosomes
+		if (is.null(probes$strand)) stop("error: if 'annotation' contains strand information, 'probes' must contain strand information as well")
+		probesStrandChr <- paste(probes$chr, probes$strand, sep="")
+		annotationStrandChr <- paste(annotation$chr, annotation$strand, sep="")
 	}
 
+	#split by strand AND chromosome simultaneously
+	annotChr = split(1:nrow(annotation), annotationStrandChr)
+	annot = list(indexes=vector(mode='list', length=nrow(annotation)), offsets=vector(mode='list', length=nrow(annotation)))
+	if (verbose) cat("Processing mapping between probes and genes.\n")
+
+	for (i in annotChr) {
+		thisChr = annotationStrandChr[i[1]]
+		
+		#Grab the subset of probes on that chromosome
+		tempIndex = which(probesStrandChr==thisChr)
+		tempProbes = probes$position[tempIndex]
+		#Use probeIndex supplied, or assume probes are in order
+		if (is.null(probeIndex)) names(tempProbes) <- tempIndex else names(tempProbes) <- probeIndex[tempIndex]
+
+		#Process the chromosome
+		tempAnnot = processChromosome(tempProbes, annotation[i,])
+		annot$indexes[i] = tempAnnot$indexes
+		annot$offsets[i] = tempAnnot$offsets
+	}
+	if (!is.null(rownames(annotation))) {
+		names(annot$indexes) <- annotation$name
+		names(annot$offsets) <- annotation$name
+	} else {
+		names(annot$indexes) <- rownames(annotation)
+		names(annot$offsets) <- rownames(annotation)
+	}
 	if (verbose) cat("Mapping done.\n")
-	return(list(indexes = indexes, offsets = offsets))
+	return(annot)
+	#returns $indexes = a list for each annotation entry with the indexes of the probes within the block
+	#	 $offsets = a list for each annotation entry with the offsets from the beginning of the block
+	
 }
 
 annotationLookup <- function(probes, annotation, bpUp, bpDown, probeIndex=NULL, verbose=TRUE) {
-	newStart <- numeric(nrow(annotation))
-	newEnd <- numeric(nrow(annotation))
-	newStrand <- if (is.null(annotation$strand)) '*' else annotation$strand
-	whichPlus <- which(newStrand == '+')
-	whichMinus <- which(newStrand == '-')
-	whichBoth <- which(newStrand == '*')
-	newStart[whichPlus] <- annotation$start[whichPlus] - bpUp
-	newStart[whichMinus] <- annotation$end[whichMinus] - bpDown
-	newStart[whichBoth] <- round((annotation$start[whichBoth] + annotation$end[whichBoth]) / 2) - bpUp
-	newEnd[whichPlus] <- annotation$start[whichPlus] + bpDown
-	newEnd[whichMinus] <- annotation$end[whichMinus] + bpUp
-	newEnd[whichBoth] <- round((annotation$start[whichBoth] + annotation$end[whichBoth]) / 2) + bpDown
-	
-	regions <- data.frame(chr = annotation$chr, start = newStart, end = newEnd, strand = newStrand, name = if("name" %in% colnames(annotation)) annotation$name else 1:nrow(annotation))
-	if(is.null(probeIndex)) probeIndex <- 1:nrow(probes)
-	annot <- annotationBlocksLookup(probes, regions, probeIndex, verbose)
+#probes = dataframe of $chr and $position
+#annotation = dataframe of $chr, $position, $strand ("+" or "-") and $name or rownames = annotation name
+#if annotation has no strand, assume are + strand
+	if (is.null(annotation$strand)) annotation$strand <- "+"
+	if (is.null(annotation$position)) annotation$position <- ifelse(annotation$strand == '+', annotation$start, annotation$end)
+	annotationTemp <- data.frame(chr=annotation$chr, 
+                                     start=annotation$position+ifelse(annotation$strand=="+",-bpUp, -bpDown),
+                                     end=annotation$position+ifelse(annotation$strand=="+",+bpDown, +bpUp),
+                                     name=rownames(annotation), stringsAsFactors=F)
+	annot <- annotationBlocksLookup(probes, annotationTemp, probeIndex, verbose)
 
-	annot$offsets <- mapply(function(aStrand, aPos, pInds){
-		if(aStrand == '+')
-			newOffsets <- (aPos - probes$position[match(pInds, probeIndex)]) * -1
-		else
-			newOffsets <- aPos - probes$position[match(pInds, probeIndex)]
-		names(newOffsets) <- pInds
-		return(newOffsets)
-	}, annotation$strand, ifelse(annotation$strand == '+', annotation$start, annotation$end), annot$indexes, SIMPLIFY = FALSE)
-	names(annot$offsets) <- names(annot$indexes)
+	annot$offsets[annotation$strand=="+"] = lapply(annot$offsets[annotation$strand=="+"], function(x,bpOff) {return(x-bpOff)}, bpUp)
+	annot$offsets[annotation$strand=="-"] = lapply(annot$offsets[annotation$strand=="-"], function(x,bpOff) {return(rev(bpOff-x))}, bpDown)
+	annot$indexes[annotation$strand=="-"] = lapply(annot$indexes[annotation$strand=="-"], rev)
+	if (!is.null(rownames(annotation))) {
+		names(annot$indexes) <- annotation$name
+		names(annot$offsets) <- annotation$name
+	} else {
+		names(annot$indexes) <- rownames(annotation)
+		names(annot$offsets) <- rownames(annotation)
+	}
 
-	if (verbose) cat("Mapping done.\n")
 	return(annot)
 }
 

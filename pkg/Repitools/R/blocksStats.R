@@ -77,17 +77,12 @@ setMethodS3("blocksStats", "AffymetrixCelSet", function(cs, coordinatesTable, an
 		{
 			if(!all(c("chr", "name", "start", "end", "strand")  %in% colnames(coordinatesTable)))
 				stop("Incorrect column headings for coordinatesTable. Check documentation for details.")  
-			pos <- ifelse(coordinatesTable$strand=="+", coordinatesTable$start, coordinatesTable$end)
-			
-			genePositions <- data.frame(chr=coordinatesTable$chr, position=pos, 
-			strand=coordinatesTable$strand, row.names=coordinatesTable$name,
-			stringsAsFactors=FALSE)
 																											
 			# run lookup twice.  first to get a list of smaller list of probes to use
-			annot <- annotationLookup(probePositions, genePositions, upStream, downStream, verbose=verbose)
+			annot <- annotationLookup(probePositions, coordinatesTable, upStream, downStream, verbose=verbose)
 			pb <- unique(unlist(annot$indexes, use.names=FALSE))
 			probePositions <- probePositions[pb,]
-			annot <- annotationLookup(probePositions, genePositions, upStream, downStream, verbose=verbose)
+			annot <- annotationLookup(probePositions, coordinatesTable, upStream, downStream, verbose=verbose)
 		}
 	}
 
@@ -160,17 +155,12 @@ setMethodS3("blocksStats", "matrix", function(cs, ndf, coordinatesTable, annot=N
 		{	
 			if(!all(c("chr", "name", "start", "end", "strand")  %in% colnames(coordinatesTable)))
 				stop("Incorrect column headings for coordinatesTable. Check documentation for details.")
-			pos <- rep(NA,nrow(coordinatesTable))
-			pos[coordinatesTable$strand=="+"] <- coordinatesTable$start[coordinatesTable$strand=="+"]
-			pos[coordinatesTable$strand=="-"] <- coordinatesTable$end[coordinatesTable$strand=="-"]
-	
-			genePositions <- data.frame(chr=coordinatesTable$chr, position=pos, strand=coordinatesTable$strand, row.names=coordinatesTable$name, stringsAsFactors=FALSE)
 	
 			# run lookup twice.  first to get a list of smaller list of probes to use
-			annot <- annotationLookup(probePositions, genePositions, upStream, downStream, verbose=verbose)
+			annot <- annotationLookup(probePositions, coordinatesTable, upStream, downStream, verbose=verbose)
 			pb <- unique(unlist(annot$indexes, use.names=FALSE))
 			probePositions <- probePositions[pb,]
-			annot <- annotationLookup(probePositions, genePositions, upStream, downStream, verbose=verbose)
+			annot <- annotationLookup(probePositions, coordinatesTable, upStream, downStream, verbose=verbose)
 		}
 	}
 

@@ -29,7 +29,9 @@ getNearestFeature <- function(peaksTable, featuresTable)
 		featureLoc <- "middle"
 	}	
 	
-	annoPeaks <- as.data.frame(annotatePeakInBatch(peaksRangedData, AnnotationData = featuresRangedData, PeakLocForDistance = "middle"))
+	annoPeaks <- as.data.frame(annotatePeakInBatch(peaksRangedData, AnnotationData = featuresRangedData))
+	featLoc <- ifelse(as.character(values(featuresRangedData)[, "strand"]) == '+', start(featuresRangedData), end(featuresRangedData))
+	annoPeaks[, "distancetoFeature"] <- abs(round((annoPeaks[, 2] + annoPeaks[, 3]) / 2) - featLoc)
 	annoPeaks$feature <- unlist(values(featuresRangedData)[, "name"])[as.numeric(annoPeaks$feature)]
 	annoPeaks <- annoPeaks[order(as.numeric(annoPeaks$peak)), ]
 	annoPeaks <- annoPeaks[peaksRDtoTableMap, ]
