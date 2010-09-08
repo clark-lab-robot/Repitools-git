@@ -1,3 +1,5 @@
+setGeneric("cpgBoxplots", function(this, ...){standardGeneric("cpgBoxplots")})
+
 .cpgBoxplots <- function(dm, bins, gcContent, nBins, calcDiff, pdfFile, mfrow, col, ylim, gcCount, cb, sampleNames)
 {
   if(calcDiff){
@@ -52,7 +54,7 @@
 	cut(u,breaks=q)
 }
 
-setMethodS3("cpgBoxplots", "AffymetrixCelSet", function(this, ..., samples=c(1,2), subsetChrs="chr[1-5]", gcContent=7:18, 
+setMethod("cpgBoxplots", "AffymetrixCelSet", function(this, ..., samples=c(1,2), subsetChrs="chr[1-5]", gcContent=7:18, 
                                                      calcDiff=FALSE, verbose=FALSE, nBins=40, pdfFile=NULL,
 													 ylim=if (calcDiff) c(-5,6) else c(4,15), 
 													 col=if (calcDiff) "salmon" else c("lightgreen","lightblue"),
@@ -138,7 +140,7 @@ setMethodS3("cpgBoxplots", "AffymetrixCelSet", function(this, ..., samples=c(1,2
 } 
 )
 
-setMethodS3("cpgBoxplots", "matrix", function(this, ndfTable, ..., samples=c(1,2), subsetChrs="chr[1-5]", gcContent=7:18, 
+setMethod("cpgBoxplots", "matrix", function(this, ndfTable, ..., samples=c(1,2), subsetChrs="chr[1-5]", gcContent=7:18, 
                                                      calcDiff=FALSE, verbose=FALSE, nBins=40, pdfFile=NULL,
 													 ylim=if (calcDiff) c(-5,6) else c(4,15), 
 													 col=if (calcDiff) "salmon" else c("lightgreen","lightblue"),

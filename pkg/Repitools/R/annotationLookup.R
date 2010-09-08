@@ -1,3 +1,6 @@
+setGeneric("annotationBlocksCounts", function(rs, annotation, ...){standardGeneric("annotationBlocksCounts")})
+setGeneric("annotationCounts", function(rs, annotation, ...){standardGeneric("annotationCounts")})
+
 annotationBlocksLookup <- function(probes, annotation, probeIndex=NULL, verbose=TRUE) {
 #probes = dataframe of $chr, $position and $strand ("+" or "-")
 #annotation = dataframe of $chr, $start, $end, $strand ("+" or "-") and $name or rownames = annotation name
@@ -87,9 +90,8 @@ annotationLookup <- function(probes, annotation, bpUp, bpDown, probeIndex=NULL, 
 	return(annot)
 }
 
-setMethodS3("annotationBlocksCounts", "GenomeDataList", function(rs, annotation, seqLen=NULL, verbose=TRUE, ...) {
+setMethod("annotationBlocksCounts", "GenomeDataList", function(rs, annotation, seqLen=NULL, verbose=TRUE, ...) {
     require(chipseq)
-    if (class(rs)=="GenomeData") rs <- GenomeDataList(list(rs))
     if (class(annotation)=="data.frame") {
         if (is.null(annotation$name)) annotation$name <- 1:nrow(annotation)
         anno.names <- annotation$name
@@ -122,7 +124,7 @@ setMethodS3("annotationBlocksCounts", "GenomeDataList", function(rs, annotation,
     if (is.null(annotation$order)) anno.counts else anno.counts[annotation$order,]
 })
 
-setMethodS3("annotationBlocksCounts", "GRangesList", function(rs, annotation, seqLen=NULL, verbose=TRUE, ...) {
+setMethod("annotationBlocksCounts", "GRangesList", function(rs, annotation, seqLen=NULL, verbose=TRUE, ...) {
     require(GenomicRanges)
     if (!class(rs) == "GRangesList")
     		stop("rs must be a GRangesList")
@@ -145,10 +147,7 @@ setMethodS3("annotationBlocksCounts", "GRangesList", function(rs, annotation, se
     return(anno.counts)
 })
 
-annotationCounts <- function(rs, annotation, bpUp, bpDown, seqLen=NULL, verbose=TRUE) {
-	require(GenomicRanges)
-	if (!class(rs) == "GenomeDataList" && !class(rs) == "GRangesList")
-		stop("rs must be a GRangesList or GenomeDataList")
+setMethod("annotationCounts", "GenomeDataList", function(rs, annotation, bpUp, bpDown, seqLen=NULL, verbose=TRUE) {
 	anno = annotation
 	if (is.null(anno$strand)) anno$strand <- "*"
 	anno$position <- mapply(function(aStrand, aStart, aEnd) {if(aStrand == '+') aStart else if(aStrand == '-') aEnd else round((aStart + aEnd) / 2)}, anno$strand, anno$start, anno$end)
@@ -156,4 +155,14 @@ annotationCounts <- function(rs, annotation, bpUp, bpDown, seqLen=NULL, verbose=
 	anno$start=ifelse(anno$strand=="+", anno$position-bpUp, anno$position-bpDown)
         anno$end=ifelse(anno$strand=="+", anno$position+bpDown, anno$position+bpUp)
 	annotationBlocksCounts(rs, anno, seqLen, verbose)
-}
+})
+
+setMethod("annotationCounts", "GRangesList", function(rs, annotation, bpUp, bpDown, seqLen=NULL, verbose=TRUE) {
+	anno = annotation
+	if (is.null(anno$strand)) anno$strand <- "*"
+	anno$position <- mapply(function(aStrand, aStart, aEnd) {if(aStrand == '+') aStart else if(aStrand == '-') aEnd else round((aStart + aEnd) / 2)}, anno$strand, anno$start, anno$end)
+	if (is.null(anno$name)) anno$name <- 1:nrow(annotation)
+	anno$start=ifelse(anno$strand=="+", anno$position-bpUp, anno$position-bpDown)
+        anno$end=ifelse(anno$strand=="+", anno$position+bpDown, anno$position+bpUp)
+	annotationBlocksCounts(rs, anno, seqLen, verbose)
+})

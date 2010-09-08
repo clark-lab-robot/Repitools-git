@@ -1,11 +1,12 @@
 \name{getProbePositionsDf}
 \alias{getProbePositionsDf}
+\alias{getProbePositionsDf.AffymetrixCdfFile}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Translate probe information in a table}
 \description{Translates the probe information in the AromaCellPositionFile to a data.frame object}
 
 \usage{
-getProbePositionsDf(cdf, ..., verbose = -20)
+\method{getProbePositionsDf}{AffymetrixCdfFile}(cdf, ..., verbose = -20)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -24,5 +25,3 @@ A data.frame with 3 columns: chr, position, index
 ## not run
 # probePositions <- getProbePositionsDf(cdfU)
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.

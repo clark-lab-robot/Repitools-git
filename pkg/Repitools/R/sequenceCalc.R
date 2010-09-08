@@ -1,4 +1,6 @@
-setMethodS3("sequenceCalc", "GRanges", function(locations, organism, pattern, fixed=TRUE, Nmask=FALSE, positions=FALSE, verbose=FALSE, chunkSize=10000000, ...) {
+setGeneric("sequenceCalc", function(locations, ...){standardGeneric("sequenceCalc")})
+
+setMethod("sequenceCalc", "GRanges", function(locations, organism, pattern, fixed=TRUE, Nmask=FALSE, positions=FALSE, verbose=FALSE, chunkSize=10000000, ...) {
 	chr.length <- seqlengths(organism)
 	elementMetadata(locations)$chunk <- paste(seqnames(locations), trunc(start(locations)/chunkSize), sep="/")
 	scores <- if (positions) vector(mode='list', length=length(locations)) else numeric(length(locations))
@@ -30,7 +32,7 @@ setMethodS3("sequenceCalc", "GRanges", function(locations, organism, pattern, fi
 	return(scores)
 })
 
-setMethodS3("sequenceCalc", "data.frame", function(locations, window=500, organism, pattern, fixed=TRUE, Nmask=FALSE, positions=FALSE, verbose=FALSE, chunkSize=10000000, ...) {
+setMethod("sequenceCalc", "data.frame", function(locations, window=500, organism, pattern, fixed=TRUE, Nmask=FALSE, positions=FALSE, verbose=FALSE, chunkSize=10000000, ...) {
 	chr.length <- seqlengths(organism)
 	if(is.null(locations$position)) locations$position <- ifelse(locations$strand == '+', locations$start, locations$end)
 	if (any((locations$position<window/2) | (locations$position+window/2>chr.length[locations$chr])))

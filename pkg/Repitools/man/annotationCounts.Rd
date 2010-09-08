@@ -1,11 +1,14 @@
 \name{annotationCounts}
 \alias{annotationCounts}
+\alias{annotationCounts,GenomeDataList-method}
+\alias{annotationCounts,GRangesList-method}
 \title{Counts the number of sequencing reads surrounding supplied annotations}
 \description{
 Counts the number of sequencing reads surrounding supplied annotations
 }
 \usage{
-annotationCounts(rs, annotation, bpUp, bpDown, seqLen = NULL, verbose=TRUE)
+  \S4method{annotationCounts}{GenomeDataList}(rs, annotation, bpUp, bpDown, seqLen = NULL, verbose=TRUE)
+  \S4method{annotationCounts}{GRangesList}(rs, annotation, bpUp, bpDown, seqLen = NULL, verbose=TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

@@ -1,11 +1,12 @@
 \name{genomeBlocks}
 \alias{genomeBlocks}
+\alias{genomeBlocks,BSgenome-method}
 \title{
 Creates bins across a genome.
 }
-\description{Creates a compact \code{RangedData} representation of bins across specified chromosomes of a given genome}
+\description{Creates a compact \code{GRanges} representation of bins across specified chromosomes of a given genome}
 \usage{
-genomeBlocks(organism, chrs, width, spacing = width)
+\S4method{genomeBlocks}{BSgenome}(organism, chrs, width, spacing = width)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

@@ -1,10 +1,13 @@
 \name{enrichmentPlot}
 \alias{enrichmentPlot}
-\alias{enrichmentPlot.GRangesList}
+\alias{enrichmentPlot,GenomeDataList,BSgenome-method}
+\alias{enrichmentPlot,GRangesList,BSgenome-method}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Plot the distribution of sequencing enrichment.}
 \description{Function to generate a plot of the distribution of sequencing reads enrichments.}
-\usage{enrichmentPlot(rs, organism, seqLen, cols=rainbow(length(rs)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE)
+\usage{
+  \S4method{enrichmentPlot}{GenomeDataList,BSgenome}(rs, organism, seqLen, cols=rainbow(length(rs)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE)
+  \S4method{enrichmentPlot}{GRangesList,BSgenome}(rs, organism, seqLen, cols=rainbow(length(rs)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

@@ -1,11 +1,14 @@
 \name{ChromaBlocks}
 \alias{ChromaBlocks}
+\alias{ChromaBlocks,GenomeDataList,GenomeDataList-method}
+\alias{ChromaBlocks,GRangesList,GRangesList-method}
 \title{A function to find areas of enrichment in sequencing data}
 \description{
 For each region of interest or TSS, this routine interrogates probes or sequence data for either a high level of absolute signal or a change in signal for some specified contrast (i.e. difference) of interest.  Regions can be surroundings of TSSs, or can be a table of user - specified regions. The function determines if the \code{start} and \code{end} columns of the \code{coordinatesTable} should be used as regions or as TSSs, based on the \code{useAsRegions} flag.
 }
 \usage{
-ChromaBlocks(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidth=500, preset=NULL, blockWidth=NULL, minBlocks=NULL, extend=NULL, cutoff=NULL, FDR=0.01, nPermutations=5, nCutoffs=20, cutoffQuantile=0.98, verbose=TRUE, seqLen=NULL)
+\S4method{ChromaBlocks}{GenomeDataList,GenomeDataList}(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidth=500, preset=NULL, blockWidth=NULL, minBlocks=NULL, extend=NULL, cutoff=NULL, FDR=0.01, nPermutations=5, nCutoffs=20, cutoffQuantile=0.98, verbose=TRUE, seqLen=NULL)
+\S4method{ChromaBlocks}{GRangesList,GRangesList}(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidth=500, preset=NULL, blockWidth=NULL, minBlocks=NULL, extend=NULL, cutoff=NULL, FDR=0.01, nPermutations=5, nCutoffs=20, cutoffQuantile=0.98, verbose=TRUE, seqLen=NULL)
 }
 \arguments{
   \item{rs.ip}{A \code{GenomeDataList} or \code{GRangesList} object containing reads from the Immunoprecipited sample}

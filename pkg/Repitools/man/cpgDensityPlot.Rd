@@ -1,9 +1,13 @@
 \name{cpgDensityPlot}
 \alias{cpgDensityPlot}
+\alias{cpgDensityPlot,GenomeDataList-method}
+\alias{cpgDensityPlot,GRangesList-method}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Plot the distribution of sequencing reads CpG densities.}
 \description{Function to generate a plot of the distribution of sequencing reads CpG densities.}
-\usage{cpgDensityPlot(rs, cols=rainbow(length(rs)), xlim=c(0,20), main="CpG Density Plot", ...)
+\usage{
+  \S4method{cpgDensityPlot}{GenomeDataList}(rs, cols=rainbow(length(rs)), xlim=c(0,20), main="CpG Density Plot", ...)
+  \S4method{cpgDensityPlot}{GRangesList}(rs, cols=rainbow(length(rs)), xlim=c(0,20), main="CpG Density Plot", ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

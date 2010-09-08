@@ -1,14 +1,14 @@
 \name{annotationBlocksCounts}
 \alias{annotationBlocksCounts}
-\alias{annotationBlocksCounts.GenomeDataList}
-\alias{annotationBlocksCounts.GRangesList}
+\alias{annotationBlocksCounts,GenomeDataList-method}
+\alias{annotationBlocksCounts,GRangesList-method}
 \title{Counts the number of sequencing reads within supplied genomic blocks}
 \description{
 Counts the number of sequencing reads within supplied genomic blocks
 }
 \usage{
-\method{annotationBlocksCounts}{GenomeDataList}(rs, annotation, seqLen = NULL, verbose=TRUE, ...)
-\method{annotationBlocksCounts}{GRangesList}(rs, annotation, seqLen = NULL, verbose=TRUE, ...)
+\S4method{annotationBlocksCounts}{GenomeDataList}(rs, annotation, seqLen = NULL, verbose=TRUE, ...)
+\S4method{annotationBlocksCounts}{GRangesList}(rs, annotation, seqLen = NULL, verbose=TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

@@ -1,19 +1,19 @@
 \name{regionStats} 
 \Rdversion{1.1}
 \alias{regionStats}
-\alias{regionStats.AffymetrixCelSet}
-\alias{regionStats.default}
+\alias{regionStats,AffymetrixCelSet-method}
+\alias{regionStats,matrix-method}
 \title{Find Regions of significance in microarray data}
 \description{
 The function finds the highest smoothed score cutoff for a pre-specified FDR. Smoothing is performed over a specified number of basepairs, and regions must have a minimum number of qualifying probes to be considered significant. The FDR is calculated as the ratio of the number of significant regions found in a permutation-based test, to the number found in the actual experimental microarray data. 
 }
 \usage{
-\method{regionStats}{default}(cs, design, fdrLevel=0.05, nPermutations=5, probeWindow=600, meanTrim=.1, nProbes=10, maxGap=500, twoSides=TRUE, verbose=TRUE, ndf, returnTrimmedMeans = FALSE, ...)
-\method{regionStats}{AffymetrixCelSet}(cs, design, fdrLevel=0.05, nPermutations=5, probeWindow=600, meanTrim=.1, nProbes=10, maxGap=500, twoSides=TRUE, verbose=TRUE, ind=NULL, returnTrimmedMeans = FALSE, ...)
+  \S4method{regionStats}{matrix}(x, design, fdrLevel=0.05, nPermutations=5, probeWindow=600, meanTrim=.1, nProbes=10, maxGap=500, twoSides=TRUE, verbose=TRUE, ndf, returnTrimmedMeans = FALSE, ...)
+  \S4method{regionStats}{AffymetrixCelSet}(x, design, fdrLevel=0.05, nPermutations=5, probeWindow=600, meanTrim=.1, nProbes=10, maxGap=500, twoSides=TRUE, verbose=TRUE, ind=NULL, returnTrimmedMeans = FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{cs}{A set of raw microarray intensity data files}
+  \item{x}{An \code{AffymetrixCelSet} or \code{matrix} of array data to use.}
   \item{design}{A design matrix of how to manipulate }
   \item{fdrLevel}{Cutoff of the maximum acceptable FDR}
   \item{nPermutations}{Number of permutations to use }

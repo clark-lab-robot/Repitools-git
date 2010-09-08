@@ -1,4 +1,8 @@
-setMethodS3("significancePlots", "default", function(rs, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, total.lib.size=TRUE, seqLen=NULL, verbose=FALSE, ...) {
+setOldClass("AffymetrixCelSet")
+
+setGeneric("significancePlots", signature = "x", function(x, ...){standardGeneric("significancePlots")})
+
+setMethod("significancePlots", "GenomeDataList", function(x, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, total.lib.size=TRUE, seqLen=NULL, verbose=FALSE, ...) {
 	coordinatesTable$position <- ifelse(coordinatesTable$strand=="+", coordinatesTable$start, coordinatesTable$end)
 	rownames(coordinatesTable) <- coordinatesTable$name
 	blockPos <- seq.int(-upStream, downStream, by)
@@ -13,14 +17,14 @@ setMethodS3("significancePlots", "default", function(rs, coordinatesTable, desig
 	annoBlocks$end[annoBlocks$strand=="-"] <- annoBlocks$end[annoBlocks$strand=="-"] - blockPos
 	if (verbose) cat("made annoBlocks\n")
 	if (!is.null(design)) {
-		stopifnot(all(design %in% c(-1,0,1)), nrow(design)==length(rs))
+		stopifnot(all(design %in% c(-1,0,1)), nrow(design)==length(x))
 		inUse <- !apply(design==0,1,all)
 		design <- design[inUse,, drop=FALSE]
-	} else inUse <- rep(TRUE, length(rs))
-	annoCounts <- annotationBlocksCounts(rs[inUse], annoBlocks, seqLen, verbose)
+	} else inUse <- rep(TRUE, length(x))
+	annoCounts <- annotationBlocksCounts(x[inUse], annoBlocks, seqLen, verbose)
 	if (total.lib.size) {
 		if (verbose) cat("normalising to total library sizes\n")
-		totalReads <- if(class(rs) == "GenomeDataList") laneCounts(rs[inUse]) else elementLengths(rs[inUse])
+		totalReads <- laneCounts(x[inUse])
 		annoCounts <- t(t(annoCounts)/totalReads)*1000000
 	}
 	if (verbose) cat("made annoCounts\n")
@@ -38,10 +42,50 @@ setMethodS3("significancePlots", "default", function(rs, coordinatesTable, desig
 	significancePlots(annoCounts, annoTable, removeZeros=FALSE, useMean=TRUE, ...)
 })
 
-setMethodS3("significancePlots", "AffymetrixCelSet", function(cs, probeMap=NULL, coordinatesTable=NULL, upStream=7500, downStream=2500, by=100, bw=300, log2adjust=TRUE, verbose=FALSE, ...) {			
+setMethod("significancePlots", "GRangesList", function(x, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, total.lib.size=TRUE, seqLen=NULL, verbose=FALSE, ...) {
+	coordinatesTable$position <- ifelse(coordinatesTable$strand=="+", coordinatesTable$start, coordinatesTable$end)
+	rownames(coordinatesTable) <- coordinatesTable$name
+	blockPos <- seq.int(-upStream, downStream, by)
+	if (verbose) cat("made blockPos\n")
+	annoBlocks <- data.frame(chr=rep(coordinatesTable$chr, each=length(blockPos)),
+		start=rep(coordinatesTable$position-bw, each=length(blockPos)),
+		end=rep(coordinatesTable$position+bw, each=length(blockPos)),
+		strand=rep(coordinatesTable$strand, each=length(blockPos)))
+	annoBlocks$start[annoBlocks$strand=="+"] <- annoBlocks$start[annoBlocks$strand=="+"] + blockPos
+	annoBlocks$end[annoBlocks$strand=="+"] <- annoBlocks$end[annoBlocks$strand=="+"] + blockPos
+	annoBlocks$start[annoBlocks$strand=="-"] <- annoBlocks$start[annoBlocks$strand=="-"] - blockPos
+	annoBlocks$end[annoBlocks$strand=="-"] <- annoBlocks$end[annoBlocks$strand=="-"] - blockPos
+	if (verbose) cat("made annoBlocks\n")
+	if (!is.null(design)) {
+		stopifnot(all(design %in% c(-1,0,1)), nrow(design)==length(x))
+		inUse <- !apply(design==0,1,all)
+		design <- design[inUse,, drop=FALSE]
+	} else inUse <- rep(TRUE, length(x))
+	annoCounts <- annotationBlocksCounts(x[inUse], annoBlocks, seqLen, verbose)
+	if (total.lib.size) {
+		if (verbose) cat("normalising to total library sizes\n")
+		totalReads <- elementLengths(x[inUse])
+		annoCounts <- t(t(annoCounts)/totalReads)*1000000
+	}
+	if (verbose) cat("made annoCounts\n")
+	if (!is.null(design)) {
+		if (verbose) cat("applying design matrix\n")
+		design <- apply(design, 2, function(x) {
+					x[x==1] <- 1/sum(x==1)
+					x[x==-1] <- -1/sum(x==-1)
+					return(x)
+				})
+		annoCounts <- annoCounts %*% design 
+	}
+	annoTable <- matrix(1:nrow(annoCounts), byrow=TRUE, ncol=length(blockPos), nrow=nrow(coordinatesTable), dimnames=list(NULL, blockPos))
+	if (verbose) cat("made annoTable\n")
+	significancePlots(annoCounts, annoTable, removeZeros=FALSE, useMean=TRUE, ...)
+})
+
+setMethod("significancePlots", "AffymetrixCelSet", function(x, probeMap=NULL, coordinatesTable=NULL, upStream=7500, downStream=2500, by=100, bw=300, log2adjust=TRUE, verbose=FALSE, ...) {			
 	if (is.null(probeMap)) {
 		if (is.null(coordinatesTable)) stop("Either probeMap or coordinatesTable must be supplied!")
-		probePositions <- getProbePositionsDf( getCdf(cs), verbose=verbose )
+		probePositions <- getProbePositionsDf( getCdf(x), verbose=verbose )
 		coordinatesTable$position <- ifelse(coordinatesTable$strand=="+", coordinatesTable$start, coordinatesTable$end)
 		rownames(coordinatesTable) <- coordinatesTable$name
 		
@@ -58,7 +102,7 @@ setMethodS3("significancePlots", "AffymetrixCelSet", function(cs, probeMap=NULL,
 		lookupT <- probeMap$lookupT
 	}
 	
-	dmM <- extractMatrix(cs, cells = probePositions$index, verbose = verbose)
+	dmM <- extractMatrix(x, cells = probePositions$index, verbose = verbose)
 	if (log2adjust) dmM <- log2(dmM)
 	
 	significancePlots(dmM, lookupT, ...)
@@ -66,7 +110,7 @@ setMethodS3("significancePlots", "AffymetrixCelSet", function(cs, probeMap=NULL,
 })
 
 
-setMethodS3("significancePlots", "matrix", function(dataMatrix, lookupTable, geneList, titles=colnames(dataMatrix), nSamples=1000, confidence=0.975, legend.plot="topleft", cols=rainbow(length(geneList)), removeZeros=TRUE, useMean=FALSE, ...) {
+setMethod("significancePlots", "matrix", function(x, lookupTable, geneList, titles=colnames(x), nSamples=1000, confidence=0.975, legend.plot="topleft", cols=rainbow(length(geneList)), removeZeros=TRUE, useMean=FALSE, ...) {
 	#Test geneList for sanity
 	for (i in 1:length(geneList)) if (class(geneList[[i]])=="logical") {
 		if (length(geneList[[i]])!=nrow(lookupTable)) 
@@ -76,12 +120,12 @@ setMethodS3("significancePlots", "matrix", function(dataMatrix, lookupTable, gen
 		  stop("geneList element value greater than num of rows in lookupTable") 
 	} else stop("geneList elements must a be boolean or integer vector")
 	stopifnot(confidence>0.5, confidence<1)
-	if (length(legend.plot)!=ncol(dataMatrix)) if (length(legend.plot)!=1) stop("legend.plot must be either same length as columns in dataMatrix or 1") else legend.plot <- rep(legend.plot, ncol(dataMatrix))
+	if (length(legend.plot)!=ncol(x)) if (length(legend.plot)!=1) stop("legend.plot must be either same length as columns in x or 1") else legend.plot <- rep(legend.plot, ncol(x))
 	x.p <- as.numeric(colnames(lookupTable))
 	#grab Intensities for all genes
 	geneList.max <- which.max(sapply(geneList, FUN=function(u) if(class(u)=="logical") sum(u) else length(u)))
-	for (i in 1:ncol(dataMatrix)) {
-		sMat <- .scoreIntensity(lookupTable, dataMatrix[,i], removeZeros=removeZeros, returnMatrix=TRUE, useMean=useMean)
+	for (i in 1:ncol(x)) {
+		sMat <- .scoreIntensity(lookupTable, x[,i], removeZeros=removeZeros, returnMatrix=TRUE, useMean=useMean)
 		sMat.geneList <- lapply(geneList, FUN=function(u) sMat[u, ])
 		if (useMean) trace.geneList <- sapply(sMat.geneList, FUN=function(u) apply(u, 2, mean, na.rm=TRUE)) else
 		trace.geneList <- sapply(sMat.geneList, FUN=function(u) apply(u, 2, median, na.rm=TRUE))
@@ -99,4 +143,3 @@ setMethodS3("significancePlots", "matrix", function(dataMatrix, lookupTable, gen
 		if (!is.na(legend.plot[i])) legend(legend.plot[i], legend=names(geneList), col=cols, lwd=3)
 	}
 })
-

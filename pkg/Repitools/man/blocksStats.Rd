@@ -1,21 +1,22 @@
 \name{blocksStats}
 \alias{blocksStats}
-\alias{blocksStats.AffymetrixCelSet}
-\alias{blocksStats.default}
-\alias{blocksStats.matrix}
+\alias{blocksStats,AffymetrixCelSet-method}
+\alias{blocksStats,GenomeDataList-method}
+\alias{blocksStats,GRangesList-method}
+\alias{blocksStats,matrix-method}
 \title{A routine to calculate statistics for regions in the genome}
 \description{
 For each region of interest or TSS, this routine interrogates probes or sequence data for either a high level of absolute signal or a change in signal for some specified contrast (i.e. difference) of interest.  Regions can be surroundings of TSSs, or can be a table of user - specified regions. The function determines if the \code{start} and \code{end} columns of the \code{coordinatesTable} should be used as regions or as TSSs, based on the \code{useAsRegions} flag.
 }
 \usage{
-\method{blocksStats}{AffymetrixCelSet}(cs, coordinatesTable, annot = NULL, probePositions = NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust = TRUE, useAsRegions=FALSE, ...)
-\method{blocksStats}{default}(rs, coordinatesTable, design, upStream = 0, downStream = 2000, verbose = TRUE, useAsRegions = FALSE, seqLen = NULL, libSize = "lane", Acutoff = NULL, ...)
-\method{blocksStats}{matrix}(cs, ndf, coordinatesTable, annot = NULL, probePositions = NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust = TRUE, useAsRegions=FALSE, ...)
+\S4method{blocksStats}{AffymetrixCelSet}(x, coordinatesTable, annot = NULL, probePositions = NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust = TRUE, useAsRegions=FALSE, ...)
+\S4method{blocksStats}{GenomeDataList}(x, coordinatesTable, design, upStream = 0, downStream = 2000, verbose = TRUE, useAsRegions = FALSE, seqLen = NULL, libSize = "lane", Acutoff = NULL, ...)
+\S4method{blocksStats}{GRangesList}(x, coordinatesTable, design, upStream = 0, downStream = 2000, verbose = TRUE, useAsRegions = FALSE, seqLen = NULL, libSize = "lane", Acutoff = NULL, ...)
+\S4method{blocksStats}{matrix}(x, ndf, coordinatesTable, annot = NULL, probePositions = NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust = TRUE, useAsRegions=FALSE, ...)
 } 
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{rs}{A \code{GenomeDataList} or \code{GRangesList} object.}
-  \item{cs}{An \code{AffymetrixCelSet} or a \code{data.frame} of scores for each probe with a column for each condition, presumably from normalized data.}
+  \item{x}{A \code{GenomeDataList}, \code{GRangesList}, \code{AffymetrixCelSet}, or a \code{data.frame} of data.}
   \item{ndf}{A \code{data.frame} with columns \code{chr}, \code{position}, and \code{index}}
   \item{coordinatesTable}{\code{data.frame} giving the gene coordinates or regions of interest. The column names of this are \code{chr}, \code{name}, \code{start}, \code{end}, \code{strand}.}
   \item{annot}{If a mapping with \code{annotationLookup} or \code{annotationBlocksLookup} has already been done, it can be passed in, and avoids re-conmputing of the mapping list within \code{blocksStats}.}

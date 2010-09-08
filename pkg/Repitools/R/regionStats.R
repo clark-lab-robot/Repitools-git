@@ -1,6 +1,4 @@
-#regionStats <- function(cs, design, fdrLevel=0.05, nPermutations=5, probeWindow=600, meanTrim=.1, nProbes=10, verbose=TRUE, fdrProbes = FALSE, ...) UseMethod("regionStats")
-
-#regionStats <- function(...) UseMethod("regionStats")
+setGeneric("regionStats", function(x, design, ...){standardGeneric("regionStats")})
 
 .regionStats <- function(diffs, design, ch, sp, fdrLevel, nPermutations, probeWindow, meanTrim, nProbes, maxGap, twoSides, verbose, returnTrimmedMeans) {
 
@@ -159,21 +157,21 @@
 }
 
 
-setMethodS3("regionStats","AffymetrixCelSet",function(cs, design, fdrLevel=0.05, nPermutations=5, probeWindow=600, meanTrim=.1, nProbes=10, maxGap=500, twoSides=TRUE, verbose=TRUE, ind=NULL, returnTrimmedMeans = FALSE, ...) {
+setMethod("regionStats","AffymetrixCelSet",function(x, design, fdrLevel=0.05, nPermutations=5, probeWindow=600, meanTrim=.1, nProbes=10, maxGap=500, twoSides=TRUE, verbose=TRUE, ind=NULL, returnTrimmedMeans = FALSE, ...) {
 
   require(aroma.affymetrix)
 
-  # cs - AffymetrixCelSet to read probe-level data from
+  # x - AffymetrixCelSet to read probe-level data from
   # design - design matrix
   # ind - (optional) 
 
   
-  cdf <- getCdf(cs)
+  cdf <- getCdf(x)
     
   if( is.null(ind) )
     ind <- getCellIndices( cdf, useNames=FALSE, unlist=TRUE)
 
-  if( nrow(design) != nbrOfArrays(cs) )
+  if( nrow(design) != nbrOfArrays(x) )
     stop("The number of rows in the design matrix does not equal the number of columns in the probes data matrix")
 	
   acp <- AromaCellPositionFile$byChipType(getChipType(cdf))
@@ -182,8 +180,8 @@ setMethodS3("regionStats","AffymetrixCelSet",function(cs, design, fdrLevel=0.05,
   
   # cut down on the amount of data read, if some rows of the design matrix are all zeros
   w <- which( rowSums(design != 0) > 0 )
-  cs <- extract(cs,w, verbose=verbose)
-  dmP <- log2(extractMatrix(cs,cells=ind,verbose=verbose))
+  x <- extract(x,w, verbose=verbose)
+  dmP <- log2(extractMatrix(x,cells=ind,verbose=verbose))
   
   # compute probe-level score of some contrast
   diffs <- dmP %*% design[w,]
@@ -203,12 +201,12 @@ setMethodS3("regionStats","AffymetrixCelSet",function(cs, design, fdrLevel=0.05,
 })
 
 
-setMethodS3("regionStats","default",function(cs, design, fdrLevel=0.05, nPermutations=5, probeWindow=600, meanTrim=.1, nProbes=10, maxGap=500, twoSides=TRUE, verbose=TRUE, ndf, returnTrimmedMeans = FALSE, ...) {
+setMethod("regionStats","matrix",function(x, design, fdrLevel=0.05, nPermutations=5, probeWindow=600, meanTrim=.1, nProbes=10, maxGap=500, twoSides=TRUE, verbose=TRUE, ndf, returnTrimmedMeans = FALSE, ...) {
   #nimblegen data
 
   # cut down on the amount of data read, if some rows of the design matrix are all zeros
   w <- which( rowSums(design != 0) > 0 )
-  diffs = cs %*% design
+  diffs = x %*% design
 
   w <- rowSums( is.na(diffs) )==0
   if( verbose )

@@ -1,8 +1,10 @@
-setMethodS3("enrichmentCalc", "GenomeDataList", function(rs, organism, seqLen, ...) {
+setGeneric("enrichmentCalc", function(rs, organism, ...){standardGeneric("enrichmentCalc")})
+
+setMethod("enrichmentCalc", c("GenomeDataList", "BSgenome"), function(rs, organism, seqLen=NULL, ...) {
 	return(lapply(IRanges::as.list(rs), enrichmentCalc, organism, seqLen, ...))
 })
 
-setMethodS3("enrichmentCalc", "GenomeData", function(rs, organism, seqLen=NULL, do.warn=FALSE, ...) {
+setMethod("enrichmentCalc", c("GenomeData", "BSgenome"), function(rs, organism, seqLen=NULL, do.warn=FALSE) {
 	if (class(rs) != "GenomeData") {
 	} else if (class(rs[[1]]) != "Rle") {
 		if (class(rs[[1]]) != "IRanges") {
@@ -27,7 +29,7 @@ setMethodS3("enrichmentCalc", "GenomeData", function(rs, organism, seqLen=NULL, 
 	return(cov.table)
 })
 
-setMethodS3("enrichmentCalc", "GRanges", function(rs, organism, seqLen=NULL, ...) {
+setMethod("enrichmentCalc", c("GRanges", "BSgenome"), function(rs, organism, seqLen=NULL) {
 	require(GenomicRanges)
 	
 	rs <- resize(rs, seqLen)

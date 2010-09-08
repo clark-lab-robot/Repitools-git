@@ -1,12 +1,12 @@
 \name{sequenceCalc}
 \alias{sequenceCalc}
-\alias{sequenceCalc.GRanges}
-\alias{sequenceCalc.data.frame}
+\alias{sequenceCalc,GRanges-method}
+\alias{sequenceCalc,data.frame-method}
 \title{Find occurences of a DNA pattern}
 \description{Function to find all occurrences of a DNA pattern in given locations.}
 \usage{
-\method{sequenceCalc}{GRanges}(locations, organism, pattern, fixed=TRUE, Nmask=FALSE, positions=FALSE, verbose=FALSE, chunkSize=10000000, ...)
-\method{sequenceCalc}{data.frame}(locations, window=500, organism, pattern, fixed=TRUE, Nmask=FALSE, positions=FALSE, verbose=FALSE, chunkSize=10000000, ...)
+  \S4method{sequenceCalc}{GRanges}(locations, organism, pattern, fixed=TRUE, Nmask=FALSE, positions=FALSE, verbose=FALSE, chunkSize=10000000, ...)
+  \S4method{sequenceCalc}{data.frame}(locations, window=500, organism, pattern, fixed=TRUE, Nmask=FALSE, positions=FALSE, verbose=FALSE, chunkSize=10000000, ...)
 }
 \arguments{
   \item{locations}{A \code{data.frame}, with columns \code{chr} and \code{position}, or instead of the column \code{position} there can be columns \code{start}, \code{end}, and \code{strand}, or a \code{GRanges} object of the regions.}

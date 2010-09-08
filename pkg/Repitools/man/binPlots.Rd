@@ -1,22 +1,22 @@
 \name{binPlots}
 \alias{binPlots}
-\alias{binPlots.default}
-\alias{binPlots.AffymetrixCelSet}
-\alias{binPlots.matrix}
+\alias{binPlots,GenomeDataList-method}
+\alias{binPlots,GRangesList-method}
+\alias{binPlots,AffymetrixCelSet-method}
+\alias{binPlots,matrix-method}
 \title{Create line plots of averaged signal across a promoter}
 \description{
 Using a specified ordering of genes, they are split into multiple bins.  In each bin, the signal across is summarized and displayed visually.  The plots are created in an array, one row for each column of the data matrix and one column for each ordering specified.
 }
 \usage{
-\method{binPlots}{default}(rs, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, libSize="lane", seqLen=NULL, verbose=FALSE, Acutoff=NULL, ...)
-\method{binPlots}{AffymetrixCelSet}(cs, probeMap=NULL, coordinatesTable=NULL, upStream=7500, downStream=2500, by=100, bw=300, log2adjust=TRUE, verbose=FALSE, ...)
-\method{binPlots}{matrix}(dataMatrix, lookupTable, ordering, plotType = c("line", "heatmap", "terrain", "boxplot"), nbins = 10, cols = NULL, lwd = 3, lty = 1, sameScale = TRUE, symmScale = FALSE, verbose = FALSE, removeZeros=TRUE, useMean=FALSE, ...)
+  \S4method{binPlots}{GenomeDataList}(x, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, libSize="lane", seqLen=NULL, verbose=FALSE, Acutoff=NULL, ...)
+  \S4method{binPlots}{GRangesList}(x, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, libSize="lane", seqLen=NULL, verbose=FALSE, Acutoff=NULL, ...)
+  \S4method{binPlots}{AffymetrixCelSet}(x, probeMap=NULL, coordinatesTable=NULL, upStream=7500, downStream=2500, by=100, bw=300, log2adjust=TRUE, verbose=FALSE, ...)
+  \S4method{binPlots}{matrix}(x, lookupTable, ordering, plotType = c("line", "heatmap", "terrain", "boxplot"), nbins = 10, cols = NULL, lwd = 3, lty = 1, sameScale = TRUE, symmScale = FALSE, verbose = FALSE, removeZeros=TRUE, useMean=FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{dataMatrix}{\code{matrix} of data to use}
-  \item{rs}{A \code{GenomeDataList} or \code{GRangesList} object of sequencing data to use}
-  \item{cs}{\code{AffymetrixCelSet} of array data to use}
+  \item{x}{\code{matrix}, \code{GenomeDataList} or \code{GRangesList} object, or \code{AffymetrixCelSet} object of data to use}
   \item{probeMap}{A pre-made mapping of probes to a coordinatesTable}
   \item{coordinatesTable}{\code{data.frame} giving the gene coordinates or regions of interest. The column names of this are \code{chr}, \code{name}, \code{start}, \code{end}, \code{strand}.}
   \item{lookupTable}{\code{matrix}, e.g. from \code{makeWindowLookupTable}}

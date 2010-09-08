@@ -1,4 +1,8 @@
-setMethodS3("writeWig", "GenomeDataList", function(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE, ...) {
+setOldClass("AffymetrixCelSet")
+
+setGeneric("writeWig", function(rs, ...){standardGeneric("writeWig")})
+
+setMethod("writeWig", "GenomeDataList", function(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE, ...) {
 	scipen <- getOption("scipen")
 	options(scipen=100)
 	if (verbose) cat("Extending the reads by ", seqLen,"bp\n", sep="" )
@@ -42,7 +46,7 @@ setMethodS3("writeWig", "GenomeDataList", function(rs, seqLen, design=NULL, samp
 	options(scipen=scipen)
 })
 
-setMethodS3("writeWig", "GRangesList", function(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE, ...) {
+setMethod("writeWig", "GRangesList", function(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE, ...) {
 	require(GenomicRanges)	
 
 	scipen <- getOption("scipen")
@@ -88,7 +92,7 @@ setMethodS3("writeWig", "GRangesList", function(rs, seqLen, design=NULL, sample=
 	options(scipen=scipen)
 })
 
-setMethodS3("writeWig", "AffymetrixCelSet", function(rs, design=NULL, log2adjust=TRUE, verbose=TRUE, ...) {
+setMethod("writeWig", "AffymetrixCelSet", function(rs, design=NULL, log2adjust=TRUE, verbose=TRUE, ...) {
 	scipen <- getOption("scipen")
 	options(scipen=100)
 	if (is.null(design)) {

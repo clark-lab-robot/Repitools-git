@@ -1,37 +1,39 @@
-setMethodS3("cpgDensityCalc", "GenomeDataList", function(rs, seqLen, ...) {
-            return(lapply(IRanges::as.list(rs), cpgDensityCalc, seqLen, ...))
+setGeneric("cpgDensityCalc", signature = "x", function(x, ...){standardGeneric("cpgDensityCalc")})
+
+setMethod("cpgDensityCalc", "GenomeDataList", function(x, seqLen, ...) {
+            return(lapply(IRanges::as.list(x), cpgDensityCalc, seqLen, ...))
         })
 
 
-setMethodS3("cpgDensityCalc", "GenomeData", function(rs, seqLen, ...) {
-            rs.midpt <- vector(mode='list', length=length(rs))
-            names(rs.midpt) <- names(rs)
+setMethod("cpgDensityCalc", "GenomeData", function(x, seqLen, window = seqLen / 2, ...) {
+            rs.midpt <- vector(mode='list', length=length(x))
+            names(rs.midpt) <- names(x)
             
-            for (chr in names(rs)) if (length(rs[[chr]][["+"]])+length(rs[[chr]][["+"]])>0) {
-                    rs.midpt[[chr]] <- data.frame(chr=chr, position=c(rs[[chr]][["+"]]+seqLen/2, rs[[chr]][["-"]]-seqLen/2), stringsAsFactors=FALSE)
+            for (chr in names(x)) if (length(x[[chr]][["+"]])+length(x[[chr]][["+"]])>0) {
+                    rs.midpt[[chr]] <- data.frame(chr=chr, position=c(x[[chr]][["+"]]+seqLen/2, x[[chr]][["-"]]-seqLen/2), stringsAsFactors=FALSE)
                 }
             rs.midpt <- do.call(rbind, rs.midpt)
             
-            return(cpgDensityCalc(rs.midpt, window=seqLen, ...))
+            return(cpgDensityCalc(rs.midpt, ...))
             
         })
 
-setMethodS3("cpgDensityCalc", "GRanges", function(rs, seqLen = width(rs[1]), ...)
+setMethod("cpgDensityCalc", "GRanges", function(x, seqLen, window = seqLen / 2, ...)
 {
-	    rs <- resize(rs, seqLen)
-	    positionsDF <- data.frame(chr = as.character(seqnames(rs)), position = round((start(rs) + end(rs)) / 2))
+	    x <- resize(x, seqLen)
+	    positionsDF <- data.frame(chr = as.character(seqnames(x)), position = round((start(x) + end(x)) / 2))
 
-            return(cpgDensityCalc(positionsDF, window=seqLen, ...))
+            return(cpgDensityCalc(positionsDF, ...))
 })
 
-setMethodS3("cpgDensityCalc", "data.frame", function(locations, window=500, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...)
+setMethod("cpgDensityCalc", "data.frame", function(x, window=500, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...)
 {
             wFunction <- match.arg(wFunction)
             
             if(wFunction == "none") {
-                cpgDensity <- sequenceCalc(locations, window, organism, DNAString("CG"), verbose=verbose, chunkSize=chunkSize)
+                cpgDensity <- sequenceCalc(x, window, organism, DNAString("CG"), verbose=verbose, chunkSize=chunkSize)
             } else {
-                CGfinds <- sequenceCalc(locations, window, organism, DNAString("CG"), verbose=verbose, positions=TRUE)
+                CGfinds <- sequenceCalc(x, window, organism, DNAString("CG"), verbose=verbose, positions=TRUE)
                 distances <- lapply(CGfinds, function(positionsInRegion) {if(!is.null(positionsInRegion)) abs(positionsInRegion)})
                 if(wFunction == "linear") {
                     cpgDensity <- sapply(distances, function(distancesInRegion) sum(1 - (distancesInRegion / (window / 2))))

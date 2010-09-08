@@ -1,24 +1,25 @@
 \name{cpgDensityCalc}
 \alias{cpgDensityCalc}
-\alias{cpgDensityCalc.GenomeDataList}
-\alias{cpgDensityCalc.GenomeData}
-\alias{cpgDensityCalc.GRanges}
-\alias{cpgDensityCalc.data.frame}
+\alias{cpgDensityCalc,GenomeDataList-method}
+\alias{cpgDensityCalc,GenomeData-method}
+\alias{cpgDensityCalc,GRanges-method}
+\alias{cpgDensityCalc,data.frame-method}
 \title{Calculate CpG Density in a Window}
 \description{Function to calculate CpG density around a position.
 }
 \usage{
-\method{cpgDensityCalc}{GRanges}(rs, seqLen, ...)
-\method{cpgDensityCalc}{data.frame}(locations, window=500, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...)
+  \S4method{cpgDensityCalc}{GenomeDataList}(x, seqLen, ...)
+  \S4method{cpgDensityCalc}{GenomeData}(x, seqLen, window = seqLen / 2, ...)
+  \S4method{cpgDensityCalc}{GRanges}(x, seqLen, window = seqLen / 2, ...)
+  \S4method{cpgDensityCalc}{data.frame}(x, window=500, wFunction=c("linear","exp","log","none"), organism, verbose=FALSE, chunkSize=10000000, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{locations}{A \code{data.frame}, with columns \code{chr} and \code{position}, or a GRanges object.}
+  \item{x}{A \code{data.frame}, with columns \code{chr} and \code{position}, GRanges object, \code{GenomeData} or \code{GenomeDataList}.}
   \item{window}{Bases around the locations that are in the window. Calculation will consider \code{windowSize / 2 - 1} bases upstream, and \code{windowSize / 2} bases downstream.}
   \item{wFunction}{Weighting function to use. Can be \code{none}, \code{linear}, \code{log}, or \code{exp}}
   \item{organism}{The \code{BSgenome} object to calculate CpG density upon.}
-  \item{rs}{A \code{GenomeData} or \code{GenomeDataList} object.}
-  \item{seqLen}{The fragment size of the sequence reads in \code{rs}, doubles as the \code{window} to be used.}
+  \item{seqLen}{The fragment size of the sequence reads in \code{x}, doubles as the \code{window} to be used.}
   \item{verbose}{Print details of processing.}
   \item{chunkSize}{The number of basepairs to process in a chunk, lower amounts use less memory, higher amounts may be faster}
   \item{...}{Arguments passed into the \code{data.frame} method}

@@ -1,4 +1,54 @@
-setMethodS3("binPlots", "default", function(rs, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, libSize="lane", seqLen=NULL, verbose=FALSE, Acutoff=NULL, ...) {
+setOldClass("AffymetrixCelSet")
+
+setGeneric("binPlots", signature = "x", function(x, ...){standardGeneric("binPlots")})
+
+setMethod("binPlots", "GenomeDataList", function(x, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, libSize="lane", seqLen=NULL, verbose=FALSE, Acutoff=NULL, ...) {
+	coordinatesTable$position <- ifelse(coordinatesTable$strand=="+", coordinatesTable$start, coordinatesTable$end)
+	rownames(coordinatesTable) <- coordinatesTable$name
+	if(libSize == "ref" && is.null(Acutoff))
+		stop("Must give value of Acutoff if using \"ref\" normalisation.\n")
+	blockPos <- seq.int(-upStream, downStream, by)
+	if (verbose) cat("made blockPos\n")
+	annoBlocks <- data.frame(chr=rep(coordinatesTable$chr, each=length(blockPos)),
+                                 start=rep(coordinatesTable$position-bw, each=length(blockPos)),
+                                 end=rep(coordinatesTable$position+bw, each=length(blockPos)),
+                                 strand=rep(coordinatesTable$strand, each=length(blockPos)))
+	annoBlocks$start[annoBlocks$strand=="+"] <- annoBlocks$start[annoBlocks$strand=="+"] + blockPos
+	annoBlocks$end[annoBlocks$strand=="+"] <- annoBlocks$end[annoBlocks$strand=="+"] + blockPos
+	annoBlocks$start[annoBlocks$strand=="-"] <- annoBlocks$start[annoBlocks$strand=="-"] - blockPos
+	annoBlocks$end[annoBlocks$strand=="-"] <- annoBlocks$end[annoBlocks$strand=="-"] - blockPos
+	if (verbose) cat("made annoBlocks\n")
+	if (!is.null(design)) {
+		stopifnot(all(design %in% c(-1,0,1)), nrow(design)==length(x))
+		inUse <- !apply(design==0,1,all)
+		design <- design[inUse, , drop = FALSE]
+	} else inUse <- rep(TRUE, length(x))
+	annoCounts <- annotationBlocksCounts(x[inUse], annoBlocks, seqLen, verbose)
+	if (libSize == "ref") {
+		if (verbose) cat("normalising to reference sample\n")
+		annoCounts <- t(t(annoCounts) * calcNormFactors(annoCounts, Acutoff = Acutoff))
+		
+	} else { # libSize = "lane"
+		if (verbose) cat("normalising to total library sizes\n")
+		totalReads <- laneCounts(x)
+		annoCounts <- t(t(annoCounts)/totalReads)*1000000	
+	}
+	if (verbose) cat("made annoCounts\n")
+	if (!is.null(design)) {
+		if (verbose) cat("applying design matrix\n")
+		design <- apply(design, 2, function(x) {
+					x[x==1] <- 1/sum(x==1)
+					x[x==-1] <- -1/sum(x==-1)
+					return(x)
+				})
+		annoCounts <- annoCounts %*% design 
+	}
+	annoTable <- matrix(1:nrow(annoCounts), byrow=TRUE, ncol=length(blockPos), nrow=nrow(coordinatesTable), dimnames=list(NULL, blockPos))
+	if (verbose) cat("made annoTable\n")
+	binPlots(annoCounts, annoTable, removeZeros=FALSE, useMean=TRUE, ...)
+})
+
+setMethod("binPlots", "GRangesList", function(x, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, libSize="lane", seqLen=NULL, verbose=FALSE, Acutoff=NULL, ...) {
 	coordinatesTable$position <- ifelse(coordinatesTable$strand=="+", coordinatesTable$start, coordinatesTable$end)
 	rownames(coordinatesTable) <- coordinatesTable$name
 	if(libSize == "ref" && is.null(Acutoff))
@@ -18,15 +68,15 @@ setMethodS3("binPlots", "default", function(rs, coordinatesTable, design=NULL, u
 		stopifnot(all(design %in% c(-1,0,1)), nrow(design)==length(rs))
 		inUse <- !apply(design==0,1,all)
 		design <- design[inUse, , drop = FALSE]
-	} else inUse <- rep(TRUE, length(rs))
-	annoCounts <- annotationBlocksCounts(rs[inUse], annoBlocks, seqLen, verbose)
+	} else inUse <- rep(TRUE, length(x))
+	annoCounts <- annotationBlocksCounts(x[inUse], annoBlocks, seqLen, verbose)
 	if (libSize == "ref") {
 		if (verbose) cat("normalising to reference sample\n")
 		annoCounts <- t(t(annoCounts) * calcNormFactors(annoCounts, Acutoff = Acutoff))
 		
 	} else { # libSize = "lane"
 		if (verbose) cat("normalising to total library sizes\n")
-		totalReads <- if(class(rs) == "GenomeDataList") laneCounts(rs) else elementLengths(rs[inUse])
+		totalReads <- elementLengths(x[inUse])
 		annoCounts <- t(t(annoCounts)/totalReads)*1000000	
 	}
 	if (verbose) cat("made annoCounts\n")
@@ -44,10 +94,10 @@ setMethodS3("binPlots", "default", function(rs, coordinatesTable, design=NULL, u
 	binPlots(annoCounts, annoTable, removeZeros=FALSE, useMean=TRUE, ...)
 })
 
-setMethodS3("binPlots", "AffymetrixCelSet", function(cs, probeMap=NULL, coordinatesTable=NULL, upStream=7500, downStream=2500, by=100, bw=300, log2adjust=TRUE, verbose=FALSE, ...) {			
+setMethod("binPlots", "AffymetrixCelSet", function(x, probeMap=NULL, coordinatesTable=NULL, upStream=7500, downStream=2500, by=100, bw=300, log2adjust=TRUE, verbose=FALSE, ...) {			
 	if (is.null(probeMap)) {
 		if (is.null(coordinatesTable)) stop("Either probeMap or coordinatesTable must be supplied!")
-		probePositions <- getProbePositionsDf( getCdf(cs), verbose=verbose )
+		probePositions <- getProbePositionsDf( getCdf(x), verbose=verbose )
 		coordinatesTable$position <- ifelse(coordinatesTable$strand=="+", coordinatesTable$start, coordinatesTable$end)
 		rownames(coordinatesTable) <- coordinatesTable$name
 			
@@ -64,7 +114,7 @@ setMethodS3("binPlots", "AffymetrixCelSet", function(cs, probeMap=NULL, coordina
 		lookupT <- probeMap$lookupT
 	}
 	
-	dmM <- extractMatrix(cs, cells = probePositions$index, verbose = verbose)
+	dmM <- extractMatrix(x, cells = probePositions$index, verbose = verbose)
 	if (log2adjust) dmM <- log2(dmM)
 
 	binPlots(dmM, lookupT, ...)
@@ -72,10 +122,10 @@ setMethodS3("binPlots", "AffymetrixCelSet", function(cs, probeMap=NULL, coordina
 })
 
 
-setMethodS3("binPlots", "matrix", function(dataMatrix, lookupTable, ordering, plotType=c("line","heatmap","terrain","boxplot"), nbins=10, cols=NULL, lwd=3, lty=1, sameScale=TRUE, symmScale=FALSE, verbose=FALSE, removeZeros=TRUE, useMean=FALSE, ...) {
+setMethod("binPlots", "matrix", function(x, lookupTable, ordering, plotType=c("line","heatmap","terrain","boxplot"), nbins=10, cols=NULL, lwd=3, lty=1, sameScale=TRUE, symmScale=FALSE, verbose=FALSE, removeZeros=TRUE, useMean=FALSE, ...) {
   def.par <- par(no.readonly = TRUE) # save default, for resetting...
   plotType <- match.arg(plotType)
-  if(!ncol(ordering) == ncol(dataMatrix)) {
+  if(!ncol(ordering) == ncol(x)) {
     if (!ncol(ordering) == 1)
       stop("ordering must have either 1 column or the same number of columns as dataMatrix.")
       orderingIndex <- rep(1, ncol(dataMatrix))
@@ -111,17 +161,17 @@ setMethodS3("binPlots", "matrix", function(dataMatrix, lookupTable, ordering, pl
   
   breaks <- apply(ordering, 2, .makeBins)
   if( plotType %in% c("line","heatmap","terrain")) {
-    intensScores <- array(NA,dim=c(ncol(dataMatrix), ncol(lookupTable), nbins),
-	                      dimnames=list(colnames(dataMatrix),colnames(lookupTable),NULL))
+    intensScores <- array(NA,dim=c(ncol(x), ncol(lookupTable), nbins),
+	                      dimnames=list(colnames(x),colnames(lookupTable),NULL))
   } else {
-    intensScores <- vector("list",ncol(dataMatrix))
+    intensScores <- vector("list",ncol(x))
 	for(i in 1:length(intensScores))
 		intensScores[[i]] <- vector("list", length(levels(breaks[[orderingIndex[i]]][["intervals"]])))
   }
   
   xval <- as.numeric(colnames(lookupTable))
 
-  for(i in 1:ncol(dataMatrix)) {
+  for(i in 1:ncol(x)) {
 	if (verbose) cat(colnames(ordering)[orderingIndex[i]],": ",sep="")
 	cutLevels <- levels( breaks[[orderingIndex[i]]][["intervals"]] )
 
@@ -130,9 +180,9 @@ setMethodS3("binPlots", "matrix", function(dataMatrix, lookupTable, ordering, pl
 		level <- cutLevels[j]
 	    lookupTableSubset <- lookupTable[breaks[[orderingIndex[i]]][["intervals"]]==level, ]
 	  if( plotType %in% c("line","heatmap","terrain")) {
-	    intensScores[i,,j] <- .scoreIntensity(lookupTableSubset, intensities=dataMatrix[,i], minProbes=2, removeZeros=removeZeros, useMean=useMean)	
+	    intensScores[i,,j] <- .scoreIntensity(lookupTableSubset, intensities=x[,i], minProbes=2, removeZeros=removeZeros, useMean=useMean)	
       } else {
-		d <- .scoreIntensity(lookupTableSubset, intensities=dataMatrix[,i], minProbes=2, returnMatrix=TRUE, removeZeros=removeZeros, useMean=useMean)
+		d <- .scoreIntensity(lookupTableSubset, intensities=x[,i], minProbes=2, returnMatrix=TRUE, removeZeros=removeZeros, useMean=useMean)
 		intensScores[[i]][[j]] <- boxplot(as.data.frame(d), plot=FALSE)
 	  }
 	}
@@ -143,7 +193,7 @@ setMethodS3("binPlots", "matrix", function(dataMatrix, lookupTable, ordering, pl
       if (symmScale) rng <- c(-max(abs(rng)),max(abs(rng)))
     }
 
-  for(i in 1:ncol(dataMatrix)) {
+  for(i in 1:ncol(x)) {
   cutLevels <- levels( breaks[[orderingIndex[i]]][["intervals"]] )
 
 	  
@@ -163,7 +213,7 @@ setMethodS3("binPlots", "matrix", function(dataMatrix, lookupTable, ordering, pl
           if (symmScale) rng <- c(-max(abs(rng)),max(abs(rng)))
         }
 
-	titName <- paste("Signal:", colnames(dataMatrix)[i], label[orderingIndex[i]], colnames(ordering)[orderingIndex[i]], sep="")
+	titName <- paste("Signal:", colnames(x)[i], label[orderingIndex[i]], colnames(ordering)[orderingIndex[i]], sep="")
 	if(plotType=="line")
 	{
 		  layout(rbind(c(1, 2)), widths=c(3,2))

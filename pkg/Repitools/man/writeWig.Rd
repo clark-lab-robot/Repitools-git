@@ -1,14 +1,14 @@
 \name{writeWig}
 \alias{writeWig}
-\alias{writeWig.AffymetrixCelSet}
-\alias{writeWig.GenomeDataList}
-\alias{writeWig.GRangesList}
+\alias{writeWig,AffymetrixCelSet-method}
+\alias{writeWig,GenomeDataList-method}
+\alias{writeWig,GRangesList-method}
 \title{Writes sequencing data out into a wiggle files}
 \description{Writes sequencing data out into a wiggle files}
 \usage{
-\method{writeWig}{AffymetrixCelSet}(rs, design=NULL, log2adjust=TRUE, verbose=TRUE, ...)
-\method{writeWig}{GenomeDataList}(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE, ...)
-\method{writeWig}{GRangesList}(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE, ...)
+  \S4method{writeWig}{AffymetrixCelSet}(rs, design=NULL, log2adjust=TRUE, verbose=TRUE, ...)
+  \S4method{writeWig}{GenomeDataList}(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE, ...)
+  \S4method{writeWig}{GRangesList}(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE, ...)
 }
 \arguments{
   \item{rs}{The sequencing or array data.}
