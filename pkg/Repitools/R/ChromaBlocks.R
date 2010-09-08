@@ -53,8 +53,8 @@ setMethod("ChromaBlocks", c("GenomeDataList", "GenomeDataList"), function(rs.ip,
         extend=0.1
     } else stopifnot(!is.null(blockWidth), !is.null(minBlocks))
     if (verbose) cat("Creating bins\n")
-    IPbins <- genomeBlocks(organism, chrs, ipWidth)
-    InputBins <- genomeBlocks(organism, chrs, inputWidth, ipWidth)
+    IPbins <- as(genomeBlocks(organism, chrs, ipWidth), "RangedData")
+    InputBins <- as(genomeBlocks(organism, chrs, inputWidth, ipWidth), "RangedData")
     if (verbose) cat("Counting IP lanes: ")
     ipCounts <- annotationBlocksCounts(rs.ip, IPbins, seqLen=seqLen, verbose=verbose)
     #pool & normalise IP lanes & turn into RPKM - reads per kb (ipWidth/1000) per million (/lanecounts*1000000)
