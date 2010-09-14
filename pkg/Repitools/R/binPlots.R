@@ -128,8 +128,8 @@ setMethod("binPlots", "matrix", function(x, lookupTable, ordering, plotType=c("l
   if(!ncol(ordering) == ncol(x)) {
     if (!ncol(ordering) == 1)
       stop("ordering must have either 1 column or the same number of columns as dataMatrix.")
-      orderingIndex <- rep(1, ncol(dataMatrix))
-  } else orderingIndex <- 1:ncol(dataMatrix)
+      orderingIndex <- rep(1, ncol(x))
+  } else orderingIndex <- 1:ncol(x)
 
   if( is.null(cols) ) {
     require(gplots)
