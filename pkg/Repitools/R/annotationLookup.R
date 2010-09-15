@@ -126,14 +126,12 @@ setMethod("annotationBlocksCounts", "GenomeDataList", function(rs, annotation, s
 
 setMethod("annotationBlocksCounts", "GRangesList", function(rs, annotation, seqLen=NULL, verbose=TRUE, ...) {
     require(GenomicRanges)
-    if (!class(rs) == "GRangesList")
-    		stop("rs must be a GRangesList")
     if (class(annotation)=="data.frame") {
     	if (is.null(annotation$name)) annotation$name <- 1:nrow(annotation)
         annotation <- GRanges(seqnames=annotation$chr, ranges = IRanges(start = annotation$start, end = annotation$end), name = annotation$name)
     } else {
     	stopifnot(class(annotation)=="GRanges")
-    	if(!"name" %in% names(elementMetadata(annotation))) elementMetadata(annotation)$name <- 1:nrow(annotation)
+    	if(!"name" %in% names(elementMetadata(annotation))) elementMetadata(annotation)$name <- 1:length(annotation)
     }
 
     anno.counts <- matrix(as.integer(NA), nrow=length(annotation), ncol=length(rs), dimnames=list(elementMetadata(annotation)[, "name"], names(rs)))
@@ -161,7 +159,7 @@ setMethod("annotationCounts", "GRangesList", function(rs, annotation, bpUp, bpDo
 	anno = annotation
 	if (is.null(anno$strand)) anno$strand <- "*"
 	anno$position <- mapply(function(aStrand, aStart, aEnd) {if(aStrand == '+') aStart else if(aStrand == '-') aEnd else round((aStart + aEnd) / 2)}, anno$strand, anno$start, anno$end)
-	if (is.null(anno$name)) anno$name <- 1:nrow(annotation)
+	if (is.null(anno$name)) anno$name <- 1:length(annotation)
 	anno$start=ifelse(anno$strand=="+", anno$position-bpUp, anno$position-bpDown)
         anno$end=ifelse(anno$strand=="+", anno$position+bpDown, anno$position+bpUp)
 	annotationBlocksCounts(rs, anno, seqLen, verbose)
