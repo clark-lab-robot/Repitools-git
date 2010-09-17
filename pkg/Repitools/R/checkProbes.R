@@ -1,6 +1,7 @@
 checkProbes <- function(regionsTable, probesTable, outFile = "Probe Specificity")
 {
 	probesTable$pos <- round((probesTable$start + probesTable$end) / 2 )
+	regionsTable$pos <- if(is.null(regionsTable$pos)) ifelse(regionsTable$strand == '+', regionsTable$start, regionsTable$end)
 	hits <- as.data.frame(table(probesTable$name), stringsAsFactors = FALSE)
 	colnames(hits) <- c("name", "number")
 	regions <- GRanges(seqnames = regionsTable$chr, ranges = IRanges(start = regionsTable$start, end = regionsTable$end))
