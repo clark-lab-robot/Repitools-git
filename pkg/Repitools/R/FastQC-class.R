@@ -26,6 +26,7 @@ setGeneric("Sequence_Length_Distribution", function(x, ...) {standardGeneric("Se
 setGeneric("Sequence_Duplication_Levels", function(x, ...) {standardGeneric("Sequence_Duplication_Levels")})
 setGeneric("Overrepresented_sequences", function(x, ...) {standardGeneric("Overrepresented_sequences")})
 setGeneric("Mismatches", function(x, ...) {standardGeneric("Mismatches")})
+setGeneric("MismatchTable", function(x, ...) {standardGeneric("MismatchTable")})
 
 setMethod("show", "FastQC", 
     function(object) {
@@ -76,7 +77,8 @@ setClass("SequenceQC",
     representation(
         Unaligned="FastQC",
         Aligned="FastQC",
-        Mismatches="data.frame"
+        Mismatches="data.frame",
+        MismatchTable="data.frame"
     )
 )
 
@@ -124,6 +126,7 @@ setMethod("Overrepresented_sequences", "SequenceQC", function(x, which=c("Unalig
     if (which=="Aligned") Overrepresented_sequences(x@Aligned) else Overrepresented_sequences(x@Unaligned)
 })
 setMethod("Mismatches", "SequenceQC", function(x) x@Mismatches)
+setMethod("MismatchTable", "SequenceQC", function(x) x@MismatchTable)
 
 ##SequenceQCSet-class
 setClass("SequenceQCSet",
@@ -154,3 +157,10 @@ setMethod("Sequence_Length_Distribution", "SequenceQCSet", function(x, ...) lapp
 setMethod("Sequence_Duplication_Levels", "SequenceQCSet", function(x, ...) lapply(x, Sequence_Duplication_Levels, ...))
 setMethod("Overrepresented_sequences", "SequenceQCSet", function(x, ...) lapply(x, Overrepresented_sequences, ...))
 setMethod("Mismatches", "SequenceQCSet", function(x) lapply(x, Mismatches))
+setMethod("MismatchTable", "SequenceQCSet", function(x) lapply(x, MismatchTable))
+
+setMethod("[", "SequenceQCSet", function(x, i, j, ..., drop){
+    newSet <- x@.Data[i]
+    names(newSet) <- names(x)[i]
+    new("SequenceQCSet", newSet)
+})
