@@ -13,7 +13,7 @@ Counts the number of sequencing reads within supplied genomic blocks
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{rs}{A \code{GenomeDataList} or \code{GRangesList} object}
-  \item{annotation}{A \code{GRanges} object (preferable) or a \code{data.frame} with required elements \code{chr} (character),  \code{start} (integer), \code{end} (integer) and optional elements \code{strand} ("+" or "-") and \code{name} (character)}
+  \item{annotation}{If \code{rs} is a \code{GRangesList}, then a \code{GRanges} object (preferable) or a \code{data.frame} with required elements \code{chr} (character), \code{start} (integer), \code{end} (integer) and optional elements \code{strand} ("+" or "-") and \code{name} (character). If \code{rs} is a \code{GenomeDataList}, then either a \code{RangedData} object, or a \code{data.frame} with columns as described for when \code{rs} is a \code{GRangesList}.}
   \item{seqLen}{If sequencing reads need to be extended, the fragment size to be used}
   \item{verbose}{logical, whether to print progress}
   \item{...}{Non-functional - makes S3 methods happy}

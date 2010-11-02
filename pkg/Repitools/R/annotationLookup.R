@@ -148,19 +148,33 @@ setMethod("annotationBlocksCounts", "GRangesList", function(rs, annotation, seqL
 setMethod("annotationCounts", "GenomeDataList", function(rs, annotation, bpUp, bpDown, seqLen=NULL, verbose=TRUE) {
 	anno = annotation
 	if (is.null(anno$strand)) anno$strand <- "*"
-	anno$position <- mapply(function(aStrand, aStart, aEnd) {if(aStrand == '+') aStart else if(aStrand == '-') aEnd else round((aStart + aEnd) / 2)}, anno$strand, anno$start, anno$end)
 	if (is.null(anno$name)) anno$name <- 1:nrow(annotation)
-	anno$start=ifelse(anno$strand=="+", anno$position-bpUp, anno$position-bpDown)
-        anno$end=ifelse(anno$strand=="+", anno$position+bpDown, anno$position+bpUp)
+	if (class(anno)=="data.frame") {
+		anno$position <- mapply(function(aStrand, aStart, aEnd) {if(aStrand == '+') aStart else if(aStrand == '-') aEnd else round((aStart + aEnd) / 2)}, anno$strand, anno$start, anno$end)
+		anno$start=ifelse(anno$strand=="+", anno$position-bpUp, anno$position-bpDown)
+        	anno$end=ifelse(anno$strand=="+", anno$position+bpDown, anno$position+bpUp)
+	} else {
+		stopifnot(class(annotation)=="RangedData") 
+		
+		position <- mapply(function(aStrand, aStart, aEnd) {if(aStrand == '+') aStart else if(aStrand == '-') aEnd else round((aStart + aEnd) / 2)}, anno$strand, start(anno), end(anno))
+		anno <- RangedData(IRanges(start = position - bpUp, end = position + bpDown), space=space(anno), name=anno$name)
+	}
 	annotationBlocksCounts(rs, anno, seqLen, verbose)
 })
 
 setMethod("annotationCounts", "GRangesList", function(rs, annotation, bpUp, bpDown, seqLen=NULL, verbose=TRUE) {
 	anno = annotation
+	if (class(anno)=="data.frame") {
 	if (is.null(anno$strand)) anno$strand <- "*"
 	anno$position <- mapply(function(aStrand, aStart, aEnd) {if(aStrand == '+') aStart else if(aStrand == '-') aEnd else round((aStart + aEnd) / 2)}, anno$strand, anno$start, anno$end)
-	if (is.null(anno$name)) anno$name <- 1:length(annotation)
+	if (is.null(anno$name)) anno$name <- 1:nrow(annotation)
 	anno$start=ifelse(anno$strand=="+", anno$position-bpUp, anno$position-bpDown)
         anno$end=ifelse(anno$strand=="+", anno$position+bpDown, anno$position+bpUp)
+	} else {
+		stopifnot(class(annotation)=="GRanges")
+
+		position <- mapply(function(aStrand, aStart, aEnd) {if(aStrand == '+') aStart else if(aStrand == '-') aEnd else round((aStart + aEnd) / 2)}, as.character(strand(anno)), as.integer(start(anno)), as.integer(end(anno)))
+		anno <- GRanges(seqnames = seqnames(anno), ranges = IRanges(start = position - bpUp, end = position + bpDown), name=if("name" %in% names(elementMetadata(anno))) elementMetadata(anno)[, "name"] else 1:length(anno))
+	}
 	annotationBlocksCounts(rs, anno, seqLen, verbose)
 })
