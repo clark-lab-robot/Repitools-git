@@ -36,7 +36,7 @@ setMethod("enrichmentCalc", c("GRanges", "BSgenome"), function(rs, organism, seq
 	chrs <- levels(seqnames(rs))
 	seqlengths(rs) <- seqlengths(organism)[chrs]
 	coverage <- colSums(table(coverage(resize(rs, seqLen))))
-	coverageTable <- cbind(as.numeric(names(coverage)), coverage)
+	coverageTable <- data.frame(as.numeric(names(coverage)), coverage)
 	colnames(coverageTable) <- c("coverage", "bases")
 
 	return(coverageTable)
