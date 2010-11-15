@@ -7,8 +7,9 @@ setMethod("doSeqStats", "GenomeDataList", function(reads, seqLen, whichInputs, w
 
 	if(is.null(blocksTable))
 	{
-		inputRegions <- genomeBlocks(Hsapiens, 1:25, blockSize[1])
+		inputRegions <- as.data.frame(genomeBlocks(Hsapiens, 1:25, blockSize[1]))[, 1:3]
 		enrichedRegions <- as.data.frame(genomeBlocks(Hsapiens, 1:25, blockSize[2]))[, 1:3]
+		colnames(inputRegions)[1] <- "chr"
 		colnames(enrichedRegions)[1] <- "chr"
 	} else {
 		if("strand" %in% colnames(blocksTable))
@@ -30,7 +31,6 @@ setMethod("doSeqStats", "GenomeDataList", function(reads, seqLen, whichInputs, w
 
 			inputRegions <- do.call(rbind, intervals)
 			inputRegions <- inputRegions[!duplicated(inputRegions), ]
-			inputRegions <- RangedData(space = inputRegions$chr, ranges = IRanges(start = inputRegions$start, end = inputRegions$end))
 			rm(intervals)
 
 	 }
@@ -104,8 +104,9 @@ setMethod("doSeqStats", "GRangesList", function(reads, seqLen, whichInputs, whic
 
 	if(is.null(blocksTable))
 	{
-		inputRegions <- genomeBlocks(Hsapiens, 1:25, blockSize[1])
+		inputRegions <- as.data.frame(genomeBlocks(Hsapiens, 1:25, blockSize[1]))[, 1:3]
 		enrichedRegions <- as.data.frame(genomeBlocks(Hsapiens, 1:25, blockSize[2]))[, 1:3]
+		colnames(inputRegions)[1] <- "chr"
 		colnames(enrichedRegions)[1] <- "chr"
 	} else {
 		if("strand" %in% colnames(blocksTable))
@@ -127,7 +128,6 @@ setMethod("doSeqStats", "GRangesList", function(reads, seqLen, whichInputs, whic
 
 			inputRegions <- do.call(rbind, intervals)
 			inputRegions <- inputRegions[!duplicated(inputRegions), ]
-			inputRegions <- RangedData(space = inputRegions$chr, ranges = IRanges(start = inputRegions$start, end = inputRegions$end))
 			rm(intervals)
 
 	 }

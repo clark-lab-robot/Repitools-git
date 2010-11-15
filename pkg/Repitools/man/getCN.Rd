@@ -8,7 +8,7 @@ getCN(regionsInfo, readsInputs)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{regionsInfo}{A \code{list}, with elements \code{inputs} and \code{enriched}. \code{inputs} is a \code{RangedData} object with elements \code{space}, \code{start}, \code{end}, that describes what regions from the input counts the copy number should be caculated from.  \code{enriched} is a \code{data.frame}, with the column names \code{chr}, \code{start}, \code{end}, that describes the regions is the enrichment count data that statistics are sought for.}
+  \item{regionsInfo}{A \code{list}, with elements \code{inputs} and \code{enriched}. \code{inputs} is a \code{data.frame} of with columns \code{chr}, \code{start}, \code{end}, that describes what regions from the input counts the copy number should be caculated from.  \code{enriched} is a \code{data.frame}, with the column names \code{chr}, \code{start}, \code{end}, that describes the regions is the enrichment count data that statistics are sought for.}
   \item{readsInputs}{A 2 column matrix of counts. Column 1 must have the counts for the control sample, and column 2 must be the treatment sample.}
 
 }
@@ -21,8 +21,7 @@ getCN(regionsInfo, readsInputs)
 \author{Dario Strbenac}
 \references{Olshen, A. B., Venkatraman, E. S., Lucito, R., and Wigler, M. (2004). Circular binary segmentation for the analysis of array-based DNA copy number data. \emph{Biostatistics} 5: 557-572}
 \examples{
-	require(IRanges)
-	inputs <- RangedData(space = c("chr1", "chr1", "chr1", "chr2", "chr2"), IRanges(start = c(1, 50001, 100001, 1, 10001), end = c(50000, 100000, 150000, 10000, 20000)))
+	inputs <- data.frame(chr = c("chr1", "chr1", "chr1", "chr2", "chr2"), start = c(1, 50001, 100001, 1, 10001), end = c(50000, 100000, 150000, 10000, 20000))
 	enriched <- data.frame(chr = c("chr1", "chr1", "chr1", "chr1", "chr1", "chr2", "chr2"), start = c(1, 1001, 2001, 10000001, 10005001, 9001, 9501), end = c(1000, 2000, 3000, 10001000, 10006000, 9500, 10000))
 	counts <- matrix(c(25, 39, 3, 10, 22, 29, 38, 5, 19, 31), nrow = 5)
 	colnames(counts) <- c("Control", "Treatment")

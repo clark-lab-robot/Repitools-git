@@ -24,13 +24,14 @@ setMethod("binPlots", "GenomeDataList", function(x, coordinatesTable, design=NUL
 		design <- design[inUse, , drop = FALSE]
 	} else inUse <- rep(TRUE, length(x))
 	annoCounts <- annotationBlocksCounts(x[inUse], annoBlocks, seqLen, verbose)
+
+	totalReads <- laneCounts(x)
 	if (libSize == "ref") {
 		if (verbose) cat("normalising to reference sample\n")
-		annoCounts <- t(t(annoCounts) * calcNormFactors(annoCounts, Acutoff = Acutoff))
+		annoCounts <- t(t(annoCounts) * calcNormFactors(annoCounts, Acutoff = Acutoff) * totalReads)
 		
 	} else { # libSize = "lane"
 		if (verbose) cat("normalising to total library sizes\n")
-		totalReads <- laneCounts(x)
 		annoCounts <- t(t(annoCounts)/totalReads)*1000000	
 	}
 	if (verbose) cat("made annoCounts\n")
@@ -65,18 +66,19 @@ setMethod("binPlots", "GRangesList", function(x, coordinatesTable, design=NULL, 
 	annoBlocks$end[annoBlocks$strand=="-"] <- annoBlocks$end[annoBlocks$strand=="-"] - blockPos
 	if (verbose) cat("made annoBlocks\n")
 	if (!is.null(design)) {
-		stopifnot(all(design %in% c(-1,0,1)), nrow(design)==length(rs))
+		stopifnot(all(design %in% c(-1,0,1)), nrow(design)==length(x))
 		inUse <- !apply(design==0,1,all)
 		design <- design[inUse, , drop = FALSE]
 	} else inUse <- rep(TRUE, length(x))
 	annoCounts <- annotationBlocksCounts(x[inUse], annoBlocks, seqLen, verbose)
+
+	totalReads <- elementLengths(x[inUse])
 	if (libSize == "ref") {
 		if (verbose) cat("normalising to reference sample\n")
-		annoCounts <- t(t(annoCounts) * calcNormFactors(annoCounts, Acutoff = Acutoff))
+		annoCounts <- t(t(annoCounts) * calcNormFactors(annoCounts, Acutoff = Acutoff) * totalReads)
 		
 	} else { # libSize = "lane"
 		if (verbose) cat("normalising to total library sizes\n")
-		totalReads <- elementLengths(x[inUse])
 		annoCounts <- t(t(annoCounts)/totalReads)*1000000	
 	}
 	if (verbose) cat("made annoCounts\n")
@@ -87,7 +89,8 @@ setMethod("binPlots", "GRangesList", function(x, coordinatesTable, design=NULL, 
 					x[x==-1] <- -1/sum(x==-1)
 					return(x)
 				})
-		annoCounts <- annoCounts %*% design 
+		annoCounts <- annoCounts %*% design
+		colnames(annoCounts) <- colnames(design)
 	}
 	annoTable <- matrix(1:nrow(annoCounts), byrow=TRUE, ncol=length(blockPos), nrow=nrow(coordinatesTable), dimnames=list(NULL, blockPos))
 	if (verbose) cat("made annoTable\n")
@@ -231,7 +234,7 @@ setMethod("binPlots", "matrix", function(x, lookupTable, ordering, plotType=c("l
 		  layout(rbind(c(1,2,3)), widths=c(1,3,1))
 		  par(mai=c(1.02,0.50,0.82,0.05))
 		  par(oma = c(0, 0, 0, 0))
-		  image(rbind(1:nbins), col=cols,axes=F, xlab="Signal Intensity")
+		  image(y=seq(1/nbins/2, 1-(1/nbins/2), 1/nbins),z=rbind(1:nbins), col=cols,axes=F, xlab="Signal Intensity", ylab = NA)
 		  axis(2, at=(0:nbins)/nbins, labels=format(seq(rng[1], rng[2], length.out=nbins+1), digits=1))
 		  par(mai=c(1.02,0.05,0.82,0.05))
 		  image(xval,1:nbins,dm,xlab="Position relative to TSS", yaxt="n", ylab="Bin",col=cols,zlim=rng)
