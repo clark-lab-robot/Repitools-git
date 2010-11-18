@@ -21,7 +21,7 @@ findClusters(statsTable, posCol, scoreCol, windowSize = 5, cutoff = 0.05, trend 
 \details{
   First, the median over a window of size \code{wnidowSize} is calculated and then associated with the middle gene of the window. The order of the \code{statsTable} rows is randomised, and the median is again calculated, for every randomisation.
 
-Next, the procedure for calling clusters is done at a range ofscore cutoffs.  For trend == "down", the cutoff starts at -1, increments by -0.05, and ends at -10. If the median associated with a particular gene is below the score cutoff, and the actual score of that gene is negative, then the cluster is expanded outwards in both directions, for as long as the score remains negative.
+Next, the procedure for calling clusters is done at a range of score cutoffs. For trend == "down", the cutoff starts at -1, increments by -0.05, and ends at -10. If the median associated with a particular gene is below the score cutoff, and the actual score of that gene is negative, then the cluster is expanded outwards in both directions, for as long as the score remains negative.
 
 For trend == "up", the cutoff starts at 1, increments by 0.05, and ends at 10. If the median associated with a particular gene is above the score cutoff, and the actual score of that gene is positive, then the cluster is expanded outwards in both directions, for as long as the score remains positive.
 

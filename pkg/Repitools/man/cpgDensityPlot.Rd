@@ -6,14 +6,16 @@
 \title{Plot the distribution of sequencing reads CpG densities.}
 \description{Function to generate a plot of the distribution of sequencing reads CpG densities.}
 \usage{
-  \S4method{cpgDensityPlot}{GenomeDataList}(rs, cols=rainbow(length(rs)), xlim=c(0,20), main="CpG Density Plot", ...)
-  \S4method{cpgDensityPlot}{GRangesList}(rs, cols=rainbow(length(rs)), xlim=c(0,20), main="CpG Density Plot", ...)
+  \S4method{cpgDensityPlot}{GenomeDataList}(rs, cols=rainbow(length(rs)), xlim=c(0,20), lty = 1, lwd = 1, main="CpG Density Plot", ...)
+  \S4method{cpgDensityPlot}{GRangesList}(rs, cols=rainbow(length(rs)), xlim=c(0,20), lty = 1, lwd = 1, main="CpG Density Plot", ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{rs}{A \code{GenomeDataList} or \code{GRangesList} object of reads to plot CpG density of}
   \item{cols}{The line colour for each element of \code{rs}}
   \item{xlim}{\code{xlim} parameter passed to \code{plot}, the default is appropriate for \code{linear} \code{cpgDensityCalc} weighting.}
+  \item{lty}{The line type for each element of \code{rs}}
+  \item{lwd}{The line width for each element of \code{rs}}
   \item{main}{\code{main} parameter passed to \code{plot}}
   \item{...}{Arguments passed into \code{cpgDensityCalc}, \code{seqLen} and \code{organism} are required}
 }

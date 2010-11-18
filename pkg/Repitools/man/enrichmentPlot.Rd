@@ -6,8 +6,8 @@
 \title{Plot the distribution of sequencing enrichment.}
 \description{Function to generate a plot of the distribution of sequencing reads enrichments.}
 \usage{
-  \S4method{enrichmentPlot}{GenomeDataList,BSgenome}(rs, organism, seqLen, cols=rainbow(length(rs)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE)
-  \S4method{enrichmentPlot}{GRangesList,BSgenome}(rs, organism, seqLen, cols=rainbow(length(rs)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE)
+  \S4method{enrichmentPlot}{GenomeDataList,BSgenome}(rs, organism, seqLen, cols=rainbow(length(rs)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE, ...)
+  \S4method{enrichmentPlot}{GRangesList,BSgenome}(rs, organism, seqLen, cols=rainbow(length(rs)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -19,6 +19,7 @@
   \item{main}{\code{main} parameter passed to \code{plot}}
   \item{total.lib.size}{Whether to normalise enrichment values to the total number of reads per lane.}
   \item{verbose}{Print details of processing.}
+  \item{...}{Additional graphical parameters to pass to \code{plot}.}
 }
 \details{
   See \code{enrichmentCalc} for details of how the results are determined.

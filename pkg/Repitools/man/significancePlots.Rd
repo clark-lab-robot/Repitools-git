@@ -39,7 +39,7 @@ Creates a plot where the average signal across a promoter of supplied gene lists
   \item{...}{arguments passed from the \code{GenomeDataList} method into the \code{matrix} method.}
 }
 \details{
-For each column of data in \code{dataMatrix} a plot is created showing the average signal of the genes specified in each list element of \code{geneList} compared to \code{nSamples} random samplings of all genes, with \code{confidence} % intervals shaded. If an element of \code{geneList} is a \code{logical} vector, its length must be the same as the number of rows in \code{lookupTable}.
+For each column of data in \code{dataMatrix} a plot is created showing the average signal of the genes specified in each list element of \code{geneList} compared to \code{nSamples} random samplings of all genes, with \code{confidence} \% intervals shaded. If an element of \code{geneList} is a \code{logical} vector, its length must be the same as the number of rows in \code{lookupTable}.
 }
 \value{
   A plot.
