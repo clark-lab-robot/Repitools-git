@@ -30,6 +30,11 @@ Using a specified ordering of genes, they are split into multiple bins.  In each
 }
 \author{Dario Strbenac}
 \examples{
-  # See examples in manual.
+  # Not run.
+  # 
+  # geneAnno <- read.csv("geneAnno.csv")
+  # load("exprVector.Rdata")
+  # load("IP_GRanges.Rdata")
+  # clusteredHeatmap(IP_GRanges, geneAnno, expr = exprVector, tName = "A Sample Heatmap")
 }
 
