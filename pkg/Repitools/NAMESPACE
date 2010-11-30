@@ -1,4 +1,4 @@
-.onLoad <- function(lib, pkg) require(methods)
+#.onLoad <- function(lib, pkg) require(methods)
 
 #  All functions exported other than those starting with "."
 import(IRanges, BSgenome, methods)
