@@ -50,7 +50,7 @@ echo $contents; } ?>
 <p> Users can join the mailing list <a href="https://lists.r-forge.r-project.org/cgi-bin/mailman/listinfo/repitools-help">here</a>.
 
 <p> The R package can be downloaded from <a href="http://r-forge.r-project.org/R/?group_id=716">here</a> or installed directly using: <br> <br>
-<code>install.packages("Repitools",repos="http://r-forge.r-project.org")</code></p>
+<code>install.packages("Repitools",repos="http://r-forge.r-project.org", type="source")</code></p>
 
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
