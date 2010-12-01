@@ -128,4 +128,8 @@ setMethod("clusteredHeatmap", "GRangesList", function(readsIPs, exptTypes, geneA
 
 	par(oma = c(0, 0, 2, 0))
 	mtext(tName, line = 0, outer = TRUE)
+
+	returnList <- split(geneAnno$name, factor(clusterID, levels = exprOrder))
+	names(returnList) <- medClusterExpr[exprOrder]
+	invisible(returnList)
 })

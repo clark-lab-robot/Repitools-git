@@ -12,7 +12,7 @@ Clusters the coverage around gene TSSs for a set of ChIP-seq experiments and plo
 \arguments{
   \item{readsIPs}{A \code{GRangesList} object of lanes of sequencing data.}
   \item{exptTypes}{A character vector of the same length as \code{readsIPs}, that gives what epigenetic mark each sample is of.}
-  \item{geneAnno}{A \code{data.frame} with at least columns \code{chr}, \code{start}, \code{end}, and \code{strand}.}
+  \item{geneAnno}{A \code{data.frame} with at least columns \code{chr}, \code{start}, \code{end}, \code{strand}, and \code{name}.}
   \item{upPct}{How many percent upstream of the TSS to plot.}
   \item{downPct}{How many percent upstream of the TSS to plot.}
   \item{cvgResolution}{How often to take a measurement.}
@@ -27,7 +27,7 @@ Clusters the coverage around gene TSSs for a set of ChIP-seq experiments and plo
 	The region of coverage of \code{upPct} percent of the width of each gene upstream to \code{downPct} percent of the width of each gene downstream is extracted. Flanking regions of half the smoothing width are also extracted at each end, so that even the first or last base's coverage of the region can be smoothed. A sequence of sampling points is determined by \code{upPct}, \code{downPct}, and \code{cvgResolution}. Starting at \code{upPct} of the width of each gene upstream, a sample of the smoothed coverage is made every \code{cvgResolution} percent, until the last sample is made at \code{downPct} percent of the gene width downstream. Genes that are close to the edge of chrosomomes and don't have coverage data at all of the sampling points are excluded from the heatmap.
 }
 \value{
-  A plot to the current device.
+  A list the same length at the number of clusters (invisibly). Each element contains gene names that belong to that cluster. The name of each element is the median expression level of that cluster.
 }
 \author{Dario Strbenac}
 \examples{
