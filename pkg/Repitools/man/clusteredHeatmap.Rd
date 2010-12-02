@@ -1,41 +1,39 @@
 \name{clusteredHeatmap}
 \alias{clusteredHeatmap}
-\alias{clusteredHeatmap,GRangesList-method}
+\alias{clusteredHeatmap,list-method}
 \title{Create heatmaps of averaged read coverage across a promoter and and plot with expression.}
 \description{
 Clusters the coverage around gene TSSs for a set of ChIP-seq experiments and plots the heatmaps of these alongside a vector of gene expressions, and gene widths.
 }
 \usage{
-  \S4method{clusteredHeatmap}{GRangesList}(readsIPs, exptTypes, geneAnno, upPct = 50, downPct = 100, cvgResolution = 10, smoothingWidth = 2001, capQuantile = 0.95, nClusters = 5, expr, cols = colorpanel(64, "blue", "white", "red"), tName = "Clustered Enrichment")
+  \S4method{clusteredHeatmap}{list}(coverageList, geneAnno, capQuantile = 0.95, nClusters = 5, expr, cols = colorpanel(64, "blue", "white", "red"), logWidth = TRUE, tName = "Clustered Enrichment")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{readsIPs}{A \code{GRangesList} object of lanes of sequencing data.}
-  \item{exptTypes}{A character vector of the same length as \code{readsIPs}, that gives what epigenetic mark each sample is of.}
+  \item{coverageList}{A \code{list} object of matrices of coverage. Each matrix has rows for each gene, and columns for each sampling position.}
   \item{geneAnno}{A \code{data.frame} with at least columns \code{chr}, \code{start}, \code{end}, \code{strand}, and \code{name}.}
-  \item{upPct}{How many percent upstream of the TSS to plot.}
-  \item{downPct}{How many percent upstream of the TSS to plot.}
-  \item{cvgResolution}{How often to take a measurement.}
-  \item{smoothingWidth}{Must be an odd number. The sliding window size used for smoothing.}
   \item{capQuantile}{Intensities above this quantile will be set to this quantile.}
   \item{nClusters}{The number of clusters to find. k-means method is used.}
-  \item{expr}{A vetor of expression values for the gemes. Must have same number of rows as \code{geneAnno}. The relationship to the gene annotation table is by the order of expression values corresponding to the order of rows of the annotation.}
+  \item{expr}{A vector of expression values for the genes. Must have same number of rows as \code{geneAnno}. The relationship to the gene annotation table is by the order of expression values corresponding to the order of rows of the annotation.}
   \item{cols}{A vector of colours to use. The length of this also determines how many levels of intensities there are.}
+  \item{logWidth}{Whether to take the log of the width of genes, before plotting them.}
   \item{tName}{Title to put above the heatmaps.}
 }
 \details{
-	The region of coverage of \code{upPct} percent of the width of each gene upstream to \code{downPct} percent of the width of each gene downstream is extracted. Flanking regions of half the smoothing width are also extracted at each end, so that even the first or last base's coverage of the region can be smoothed. A sequence of sampling points is determined by \code{upPct}, \code{downPct}, and \code{cvgResolution}. Starting at \code{upPct} of the width of each gene upstream, a sample of the smoothed coverage is made every \code{cvgResolution} percent, until the last sample is made at \code{downPct} percent of the gene width downstream. Genes that are close to the edge of chrosomomes and don't have coverage data at all of the sampling points are excluded from the heatmap.
+  The \code{coverageList} list should be the list that is output from the function \code{getTSScoverage}. The code has been divided into two functions because the coverage and smoothing calculations take time, and by having the heatmap plotting separate, the user can change the number of clusters or the colour scheme, and see the results quickly, compared to the smoothed coverage having to be executed each time.
 }
 \value{
   A list the same length at the number of clusters (invisibly). Each element contains gene names that belong to that cluster. The name of each element is the median expression level of that cluster.
 }
+\seealso{\code{\link{getTSScoverage}}}
 \author{Dario Strbenac}
 \examples{
   # Not run.
-  # 
+  #
   # geneAnno <- read.csv("geneAnno.csv")
-  # load("exprVector.Rdata")
   # load("exampleGRangesList.Rdata")
-  # clusteredHeatmap(exampleGRangesList, exptTypes = c("MBD2", "MBD2", "H3K27me3", "H3K27me3") geneAnno, expr = exprVector, tName = "A Sample Plot")
+  # load("exprVector.Rdata")
+  # tablesList <- getTSScoverage(exampleGRangesList, exptTypes = c("MBD2", "MBD2", "H3K27me3", "H3K27me3"), geneAnno)
+  # clusteredHeatmap(tablesList, geneAnno, 3, exprVector, tName = "A Sample Plot")
 }
 
