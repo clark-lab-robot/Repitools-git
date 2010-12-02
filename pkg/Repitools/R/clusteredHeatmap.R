@@ -65,7 +65,7 @@ setMethod("clusteredHeatmap", "list", function(coverageList, geneAnno, capQuanti
 	if(logWidth == TRUE) widths <- log(widths)
 	par(mai=c(1.02,0.05,0.82,0.50))
 	plot(expr, y = 1:length(expr), yaxs = 'i', pch = 19, xlab = "log2 expression", ylab = NA, yaxt = "n", cex = 0.5)
-	plot(widths, y = 1:length(widths), yaxs = 'i', pch = 19, xlab = "Gene widths", ylab = NA, yaxt = "n", cex = 0.5)	
+	plot(widths, y = 1:length(widths), yaxs = 'i', pch = 19, xlab = ifelse(logWidth == TRUE, "log(Gene widths)", "Gene widths") , ylab = NA, yaxt = "n", cex = 0.5)	
 
 	par(oma = c(0, 0, 2, 0))
 	mtext(tName, line = 0, outer = TRUE)

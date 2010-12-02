@@ -14,6 +14,7 @@ setMethod("getTSScoverage", "GRangesList", function(readsIPs, exptTypes, geneAnn
 		positionsLabels <- positions
 	widths <- geneAnno$end - geneAnno$start + 1
 	geneAnno$tss <- ifelse(geneAnno$strand == '+', geneAnno$start, geneAnno$end)
+	flank = floor(smoothingWidth / 2)
 
 	# Get base positions to extract in 5' to 3' direction for every gene.
 	regionBasesList <- lapply(1:nrow(geneAnno), function(geneIndex)
@@ -43,8 +44,6 @@ setMethod("getTSScoverage", "GRangesList", function(readsIPs, exptTypes, geneAnn
 	} else {
 		samplingPositions <- round(flank + (0:(length(positions)-1) * cvgResolution)) + 1
 	}
-
-	flank = floor(smoothingWidth / 2)
 
 	# Get coverage sampling matrix for each IP mark.
 	coverageMatrices <- lapply(readsIPs, function(readsIP)
