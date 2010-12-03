@@ -40,7 +40,7 @@ setMethod("clusteredHeatmap", "list", function(coverageList, geneAnno, capQuanti
 	widths <- widths[sortedIndices]
 
 	# Plot heatmap.
-	layout(rbind(1:(length(coverageList) + 3)), widths=c(1, rep(3, length(coverageList)), 1, 1))
+	layout(rbind(1:(length(coverageList) + 3)), widths=c(1, rep(3, length(coverageList)), 2, 1))
 	par(mai=c(1.02,0.50,0.82,0.05))
   	
 	par(oma = c(0, 0, 0, 0))
