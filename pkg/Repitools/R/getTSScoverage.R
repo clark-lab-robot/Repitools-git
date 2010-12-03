@@ -13,7 +13,7 @@ setMethod("getTSScoverage", "GRangesList", function(readsIPs, exptTypes, geneAnn
     cat(":")
     for(i in 1:length(u)) {
       cat(".")
-      gr <- c(gr,IPlist[[ u[i] ]])
+      gr <- c(gr,readsIPs[[ u[i] ]])
     }
     return(gr)
   })
