@@ -6,7 +6,7 @@ setMethod("getTSScoverage", "GRangesList", function(readsIPs, exptTypes, geneAnn
 
 	# Pool any replicates
 	#readsIPs <- split(unlist(readsIPs), rep(exptTypes, elementLengths(readsIPs)))
-  inds <- split(1:length(exptTypes), unique(exptTypes))
+  inds <- split(1:length(exptTypes), exptTypes)
   
   readsIPs <- lapply(inds, FUN=function(u) {
     gr <- GRanges()
