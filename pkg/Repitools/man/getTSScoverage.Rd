@@ -6,11 +6,12 @@
 Creates a list of tables of coverages, one table for each sample type.
 }
 \usage{
-  \S4method{getTSScoverage}{GRangesList}(readsIPs, exptTypes, geneAnno, up = 50, down = 100, distType = c("percent", "base"), cvgResolution = 10, smoothingWidth = 2001)
+  \S4method{getTSScoverage}{GRangesList}(readsIPs, seqLen = 300, exptTypes, geneAnno, up = 50, down = 100, distType = c("percent", "base"), cvgResolution = 10, smoothingWidth = 2001)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{readsIPs}{A \code{GRangesList} object of lanes of sequencing data.}
+  \item{seqLen}{Length to extend the short reads to.}
   \item{exptTypes}{A character vector of the same length as \code{readsIPs}, that gives what epigenetic mark each sample is of.}
   \item{geneAnno}{A \code{data.frame} with at least columns \code{chr}, \code{start}, \code{end}, \code{strand}, and \code{name}.}
   \item{up}{How far upstream of the TSS to find coverage of.}
@@ -33,7 +34,7 @@ Creates a list of tables of coverages, one table for each sample type.
   # 
   # geneAnno <- read.csv("geneAnno.csv")
   # load("exampleGRangesList.Rdata")
-  # tablesList <- getTSScoverage(exampleGRangesList, exptTypes = c("MBD2", "MBD2", "H3K27me3", "H3K27me3"), geneAnno)
+  # tablesList <- getTSScoverage(exampleGRangesList, exptTypes = c("MBD2", "MBD2", "H3K27me3", "H3K27me3"), geneAnno = geneAnno)
 }
 
 

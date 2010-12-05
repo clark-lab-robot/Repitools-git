@@ -33,7 +33,7 @@ Clusters the coverage around gene TSSs for a set of ChIP-seq experiments and plo
   # geneAnno <- read.csv("geneAnno.csv")
   # load("exampleGRangesList.Rdata")
   # load("exprVector.Rdata")
-  # tablesList <- getTSScoverage(exampleGRangesList, exptTypes = c("MBD2", "MBD2", "H3K27me3", "H3K27me3"), geneAnno)
-  # clusteredHeatmap(tablesList, geneAnno, 3, exprVector, tName = "A Sample Plot")
+  # tablesList <- getTSScoverage(exampleGRangesList, exptTypes = c("MBD2", "MBD2", "H3K27me3", "H3K27me3"), geneAnno = geneAnno)
+  # clusteredHeatmap(tablesList, geneAnno, nClusters = 3, expr = exprVector, tName = "A Sample Plot")
 }
 
