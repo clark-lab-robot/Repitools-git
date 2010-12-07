@@ -202,9 +202,9 @@ setMethod("blocksStats", "matrix", function(x, ndf, coordinatesTable, annot=NULL
 
 	if(log2adjust == TRUE)
 	{						
-		diffs <- log2(x[probePositions$index, ]) %*% design[w,]
+		diffs <- log2(x[probePositions$index, , drop = FALSE]) %*% design[w,]
 	} else {
-		diffs <- x[probePositions$index, ] %*% design[w,]
+		diffs <- x[probePositions$index, , drop = FALSE] %*% design[w,]
 	}
 
 	return(.blocksStats(diffs, coordinatesTable, design, upStream, downStream, verbose, robust, minNRobust, adjustMethod, useAsRegions, annot))
