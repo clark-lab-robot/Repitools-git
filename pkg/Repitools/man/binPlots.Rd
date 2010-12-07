@@ -12,7 +12,7 @@ Using a specified ordering of genes, they are split into multiple bins.  In each
   \S4method{binPlots}{GenomeDataList}(x, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, libSize="lane", seqLen=NULL, verbose=FALSE, Acutoff=NULL, ...)
   \S4method{binPlots}{GRangesList}(x, coordinatesTable, design=NULL, upStream=7500, downStream=2500, by=100, bw=300, libSize="lane", seqLen=NULL, verbose=FALSE, Acutoff=NULL, ...)
   \S4method{binPlots}{AffymetrixCelSet}(x, probeMap=NULL, coordinatesTable=NULL, upStream=7500, downStream=2500, by=100, bw=300, log2adjust=TRUE, verbose=FALSE, ...)
-  \S4method{binPlots}{matrix}(x, lookupTable, ordering, plotType = c("line", "heatmap", "terrain", "boxplot"), nbins = 10, cols = NULL, lwd = 3, lty = 1, sameScale = TRUE, symmScale = FALSE, verbose = FALSE, removeZeros=TRUE, useMean=FALSE, ...)
+  \S4method{binPlots}{matrix}(x, lookupTable, ordering, ordLabel, plotType = c("line", "heatmap", "terrain", "boxplot"), nbins = 10, cols = NULL, lwd = 3, lty = 1, sameScale = TRUE, symmScale = FALSE, verbose = FALSE, removeZeros=TRUE, useMean=FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,6 +22,7 @@ Using a specified ordering of genes, they are split into multiple bins.  In each
   \item{lookupTable}{\code{matrix}, e.g. from \code{makeWindowLookupTable}}
   \item{design}{Optional for GDL data - design matrix specifying the contrast to compute (i.e. the samples to use and what differences to take)}
   \item{ordering}{\code{data.frame} of either numeric or factor variables, with the same number of rows as \code{lookupTable}}
+  \item{ordLabel}{Character string that describes what type of data the ordering is. e.g. "log2 expression". Used to label relevant plot axis.}
   \item{plotType}{type of plot}
   \item{nbins}{number of bins}
   \item{cols}{vector of colours}

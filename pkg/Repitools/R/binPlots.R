@@ -125,7 +125,7 @@ setMethod("binPlots", "AffymetrixCelSet", function(x, probeMap=NULL, coordinates
 })
 
 
-setMethod("binPlots", "matrix", function(x, lookupTable, ordering, plotType=c("line","heatmap","terrain","boxplot"), nbins=10, cols=NULL, lwd=3, lty=1, sameScale=TRUE, symmScale=FALSE, verbose=FALSE, removeZeros=TRUE, useMean=FALSE, ...) {
+setMethod("binPlots", "matrix", function(x, lookupTable, ordering, ordLabel, plotType=c("line","heatmap","terrain","boxplot"), nbins=10, cols=NULL, lwd=3, lty=1, sameScale=TRUE, symmScale=FALSE, verbose=FALSE, removeZeros=TRUE, useMean=FALSE, ...) {
   def.par <- par(no.readonly = TRUE) # save default, for resetting...
   plotType <- match.arg(plotType)
   if(!ncol(ordering) == ncol(x)) {
@@ -225,7 +225,7 @@ setMethod("binPlots", "matrix", function(x, lookupTable, ordering, plotType=c("l
 		  matplot(xval,dm,type="l",col=cols,lty=lty,lwd=lwd,xlab="Position relative to TSS",ylab="Signal",ylim=rng)
 		  par(mai=c(1.02,0.05,0.82,0))
 		  plot.new()
-		  legend(x="top", title ="Line Colours", col=cols, lty = 1, legend=cutLevels)
+		  legend(x="top", title = ordLabel, col=cols, lty = 1, legend=cutLevels)
 		  if (verbose) print(cols)
 		  intervals <- breaks[[orderingIndex[i]]][["intervals"]]
 		  if (verbose) print(intervals)
@@ -240,7 +240,7 @@ setMethod("binPlots", "matrix", function(x, lookupTable, ordering, plotType=c("l
 		  image(xval,1:nbins,dm,xlab="Position relative to TSS", yaxt="n", ylab="Bin",col=cols,zlim=rng)
 		  par(mai=c(1.02,0.05,0.82,0.50))
 		  breakpoints <- breaks[[orderingIndex[i]]][["breakpoints"]]
-		  plot(x=breakpoints,y=0:nbins, type="l", yaxt="n", lwd=3,xlab="log2 Expression", yaxs="i")
+		  plot(x=breakpoints,y=0:nbins, type="l", yaxt="n", lwd=3, xlab=ordLabel, yaxs="i")
 		  par(oma = c(0, 0, 2, 0))
 		  mtext(titName, line = 0, outer = TRUE)
 		} else if(plotType=="terrain") {
@@ -250,7 +250,7 @@ setMethod("binPlots", "matrix", function(x, lookupTable, ordering, plotType=c("l
              		dm[-(nrow(dm) -1), -1] + dm[-(nrow(dm) -1), -(ncol(dm) - 1)]) / 4
 
   		  this.cols = cols[cut(dm.avg, breaks = seq(rng[1], rng[2], length.out=length(cols)), include.lowest = T)] 
-		  persp(xval, 1:nbins, dm, xlab="Position relative to TSS", yaxt="n", ylab="Bin", col=this.cols, zlim=rng, theta=-25, phi=20, d=1.5, border=NA, ticktype="detailed", zlab="Signal")
+		  persp(xval, 1:nbins, dm, xlab="Position relative to TSS", yaxt="n", ylab=ordLabel, col=this.cols, zlim=rng, theta=-25, phi=20, d=1.5, border=NA, ticktype="detailed", zlab="Signal")
 		  mtext(titName, line = 0, outer = TRUE)
 		}
 
@@ -258,5 +258,3 @@ setMethod("binPlots", "matrix", function(x, lookupTable, ordering, plotType=c("l
 	  par(def.par)#- reset to default
     }
 })
-
-
