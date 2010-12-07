@@ -172,7 +172,7 @@ setMethod("blocksStats", "GRangesList", function(x, coordinatesTable, design, up
 
 setMethod("blocksStats", "matrix", function(x, ndf, coordinatesTable, annot=NULL, probePositions=NULL, design, upStream=0, downStream=2000, verbose=TRUE, robust=FALSE, minNRobust=10, adjustMethod="fdr", log2adjust=TRUE, useAsRegions=FALSE, ...)
 {
-	if( nrow(design) != ncol(cs) )
+	if( nrow(design) != ncol(x) )
 		stop("The number of rows in the design matrix does not equal the number of columns in the probes data matrix.")
 		
 	w <- which( rowSums(design != 0) > 0 )
@@ -202,9 +202,9 @@ setMethod("blocksStats", "matrix", function(x, ndf, coordinatesTable, annot=NULL
 
 	if(log2adjust == TRUE)
 	{						
-		diffs <- log2(cs[probePositions$index, ]) %*% design[w,]
+		diffs <- log2(x[probePositions$index, ]) %*% design[w,]
 	} else {
-		diffs <- cs[probePositions$index, ] %*% design[w,]
+		diffs <- x[probePositions$index, ] %*% design[w,]
 	}
 
 	return(.blocksStats(diffs, coordinatesTable, design, upStream, downStream, verbose, robust, minNRobust, adjustMethod, useAsRegions, annot))
