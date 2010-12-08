@@ -179,7 +179,7 @@ setMethod("blocksStats", "matrix", function(x, ndf, coordinatesTable, annot=NULL
 	
 	if(is.null(annot))
 	{
-		probePositions <- data.frame(chr = ndf$chr, position = ndf$position, index = ndf$index, strand = ndf$strand, stringsAsFactors=FALSE)
+		probePositions <- data.frame(chr = ndf$chr, position = ndf$position, index = ndf$index, stringsAsFactors=FALSE)
 	
 		if(useAsRegions == TRUE)
 		{
