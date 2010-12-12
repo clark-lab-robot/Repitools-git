@@ -96,7 +96,7 @@ setMethod("getTSScoverage", "GRangesList", function(readsIPs, seqLen = 300, expt
 		coverageIP <- coverageIP[names(windowsRL)]
 
 		# Get smoothing region. Extra flanks so that we can smooth the edge of the region nicely.
-		coverageGenes <- viewApply(unlist(Views(coverageIP, windowsRL)), function(aView) Rle(as.integer(aView)))
+		coverageGenes <- viewApply(unlist(Views(coverageIP, windowsRL)), function(aView) Rle(as.numeric(aView)))
 		coverageGenes[whichReverse] <- lapply(coverageGenes[whichReverse], rev)
 
 		# Running mean smoothing.
