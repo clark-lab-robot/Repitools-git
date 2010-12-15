@@ -54,7 +54,7 @@ setGeneric("cpgBoxplots", function(this, ...){standardGeneric("cpgBoxplots")})
 	cut(u,breaks=q)
 }
 
-setMethod("cpgBoxplots", "AffymetrixCelSet", function(this, ..., samples=c(1,2), subsetChrs="chr[1-5]", gcContent=7:18, 
+setMethod("cpgBoxplots", "AffymetrixCelSet", function(this, samples=c(1,2), subsetChrs="chr[1-5]", gcContent=7:18, 
                                                      calcDiff=FALSE, verbose=FALSE, nBins=40, pdfFile=NULL,
 													 ylim=if (calcDiff) c(-5,6) else c(4,15), 
 													 col=if (calcDiff) "salmon" else c("lightgreen","lightblue"),
@@ -140,7 +140,7 @@ setMethod("cpgBoxplots", "AffymetrixCelSet", function(this, ..., samples=c(1,2),
 } 
 )
 
-setMethod("cpgBoxplots", "matrix", function(this, ndfTable, ..., samples=c(1,2), subsetChrs="chr[1-5]", gcContent=7:18, 
+setMethod("cpgBoxplots", "matrix", function(this, ndfTable, organism, samples=c(1,2), subsetChrs="chr[1-5]", gcContent=7:18, 
                                                      calcDiff=FALSE, verbose=FALSE, nBins=40, pdfFile=NULL,
 													 ylim=if (calcDiff) c(-5,6) else c(4,15), 
 													 col=if (calcDiff) "salmon" else c("lightgreen","lightblue"),
@@ -184,11 +184,11 @@ setMethod("cpgBoxplots", "matrix", function(this, ndfTable, ..., samples=c(1,2),
   cb <- sapply(ndfTable$sequence[usefulProbeIndices], length)
   verbose && exit(verbose)
 
-  densities <- cpgDensityCalc(ndfTable, 300)
+  densities <- cpgDensityCalc(ndfTable, 300, organism = organism)
   bins <- .createBins(densities, nBins) 	
   
   sampleNames <- colnames(this)[samples]
   
-  .cpgBoxplots(this, bins, gcContent, nBins, calcDiff, pdfFile, mfrow, col, ylim, gcCount, cb, sampleNames)
+  .cpgBoxplots(this[, samples], bins, gcContent, nBins, calcDiff, pdfFile, mfrow, col, ylim, gcCount, cb, sampleNames)
 }
 )

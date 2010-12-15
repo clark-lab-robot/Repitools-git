@@ -7,14 +7,14 @@
 \description{Either makes a side by side boxplot of two designs, or plots a single boxplot for the difference between the two designs.
 }
 \usage{
-\S4method{cpgBoxplots}{AffymetrixCelSet}(this, ..., samples=c(1,2), subsetChrs="chr[1-5]", gcContent=7:18, calcDiff=FALSE, verbose=FALSE, nBins=40, pdfFile=NULL, ylim=if (calcDiff) c(-5,6) else c(4,15), col=if (calcDiff) "salmon" else c("lightgreen","lightblue"), mfrow=if (!is.null(pdfFile)) c(2,2) else c(1,1))
-\S4method{cpgBoxplots}{matrix}(this, ndfTable, ..., samples=c(1,2), subsetChrs="chr[1-5]", gcContent=7:18, calcDiff=FALSE, verbose=FALSE, nBins=40, pdfFile=NULL, ylim=if (calcDiff) c(-5,6) else c(4,15), col=if (calcDiff) "salmon" else c("lightgreen","lightblue"), mfrow=if (!is.null(pdfFile)) c(2,2) else c(1,1))
+\S4method{cpgBoxplots}{AffymetrixCelSet}(this, samples=c(1,2), subsetChrs="chr[1-5]", gcContent=7:18, calcDiff=FALSE, verbose=FALSE, nBins=40, pdfFile=NULL, ylim=if (calcDiff) c(-5,6) else c(4,15), col=if (calcDiff) "salmon" else c("lightgreen","lightblue"), mfrow=if (!is.null(pdfFile)) c(2,2) else c(1,1))
+\S4method{cpgBoxplots}{matrix}(this, ndfTable, organism, samples=c(1,2), subsetChrs="chr[1-5]", gcContent=7:18, calcDiff=FALSE, verbose=FALSE, nBins=40, pdfFile=NULL, ylim=if (calcDiff) c(-5,6) else c(4,15), col=if (calcDiff) "salmon" else c("lightgreen","lightblue"), mfrow=if (!is.null(pdfFile)) c(2,2) else c(1,1))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{this}{Either an AffymetrixCelSet or a matrix of intensity data.}
   \item{ndfTable}{In the case of Nimblegen data, a \code{data.frame} with at least columns \code{chr} and \code{sequence}. Must be in the same order of rows as the intensity data.}
-  \item{...}{Other arguments for graphing}
+  \item{organism}{The \code{BSgenome} object of the genome build to use for getting DNA sequence surrounding the probes.}
   \item{samples}{Which 2 columns from the data matrix to use.}
   \item{subsetChrs}{Which chromosomes to limit the analysis to.}
   \item{gcContent}{A range of GC content, which only probes that have GC content in the range are used for the graphing.}
