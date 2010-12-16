@@ -47,7 +47,7 @@ setGeneric("cpgBoxplots", function(this, ...){standardGeneric("cpgBoxplots")})
 }
 
 .createBins <- function(u, nBins) {
-	q<-unique(quantile(u,prob=(0:nBins)/nBins))
+	q<-quantile(u,prob=(0:nBins)/nBins)
 	q[1] <- q[1]-.000000001
 	n <- length(q)
 	q[n] <- q[n]+.000000001
@@ -189,6 +189,6 @@ setMethod("cpgBoxplots", "matrix", function(this, ndfTable, organism, samples=c(
   
   sampleNames <- colnames(this)[samples]
   
-  .cpgBoxplots(this[, samples], bins, gcContent, nBins, calcDiff, pdfFile, mfrow, col, ylim, gcCount, cb, sampleNames)
+  .cpgBoxplots(this[usefulProbeIndices, samples], bins, gcContent, nBins, calcDiff, pdfFile, mfrow, col, ylim, gcCount, cb, sampleNames)
 }
 )
