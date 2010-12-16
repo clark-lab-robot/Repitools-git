@@ -21,6 +21,8 @@ Creates a list of tables of coverages, one table for each sample type.
   \item{smoothingWidth}{Must be an odd number. The sliding window size used for smoothing.}
 }
 \details{
+	First, elements of the reads list are combined, based on the \code{exptTypes} vector, so that samples of the same epigenetic mark are pooled. Coverage is then calculated on this pooled list. Because different elements will have different numbers of reads, the coverage is then scaled by multiplying each coverage object by a scaling factor. This factor is 10 million / the sample's number of reads.
+
 	The region of coverage of surrounding each gene is extracted. If \code{distType} is \code{percent}, then the region is \code{up} \% upstream and \code{down} \% downstream of the wdith of each gene. On the other hand, if \code{distType} is \code{base}, then \code{up} simply refers the number of bases upstream and \code{down} refers to the number of bases downstream to take.  Flanking regions of half the smoothing width are also extracted at each end, so that even the first or last base's coverage of the region can be smoothed. \code{cvgResolution} describes how often to sample from the smoothed coverage. For example, if \code{distType} is \code{percent} and \code{up}, \code{down}, \code{cvgResolution} are all their default values, then the bases sampled will be -50\%, -40\%, -30\%, ..., 90\%, 100\% of the gene width. Genes that are close to the edge of chrosomomes and don't have coverage data at all of the sampling points are excluded from the table.
 }
 \value{
