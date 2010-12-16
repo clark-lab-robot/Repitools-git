@@ -66,7 +66,7 @@ setMethod("clusteredBinplots", "list", function(coverageList, geneAnno, capQuant
 			title(main = markName)
 			title(xlab = "Position")
 			title(ylab = "Smoothed Coverage")
-			axis(1, positions)
+			axis(1, positions, labels = posLabels)
 			axis(2)
 			mapply(function(order, aCol)
 			{
