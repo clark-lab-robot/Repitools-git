@@ -1,12 +1,12 @@
-\name{clusteredBinplots}
-\alias{clusteredBinplots}
-\alias{clusteredBinplots,list-method}
-\title{Create heatmaps of averaged read coverage across a promoter and and plot with expression.}
+\name{clusteredPlots}
+\alias{clusteredPlots}
+\alias{clusteredPlots,list-method}
+\title{Create graphical summaries of averaged read coverage across a promoter associated with expression.}
 \description{
-Clusters the coverage around gene TSSs for a set of ChIP-seq experiments and plots the heatmaps of these alongside a vector of gene expressions, and gene widths.
+Clusters the coverage around gene TSSs for a set of ChIP-seq experiments and plots either the heatmaps of these alongside a vector of gene expressions, and gene widths or per - cluster lineplots.
 }
 \usage{
-  \S4method{clusteredBinplots}{list}(coverageList, geneAnno, capQuantile = 0.95, nClusters = 5, expr, plotType = c("line", "heatmap"), cols = NULL, logWidth = TRUE, tName = "Clustered Enrichment")
+  \S4method{clusteredPlots}{list}(coverageList, geneAnno, capQuantile = 0.95, nClusters = 5, expr, plotType = c("line", "heatmap"), cols = NULL, logWidth = TRUE, tName = "Clustered Enrichment")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -23,7 +23,7 @@ Clusters the coverage around gene TSSs for a set of ChIP-seq experiments and plo
 \details{
   The \code{coverageList} list should be the list that is output from the function \code{getTSScoverage}. The code has been divided into two functions because the coverage and smoothing calculations take time, and by having the heatmap plotting separate, the user can change the number of clusters or the colour scheme, and see the results quickly, compared to the smoothed coverage having to be executed each time.
 
-  If \code{plotType} is 'line', then the average coverage at each position for each cluster is drawn as a line. The colour of the line depends on the expression level. If a heatmap is requested, then the heatmap image contains a row for every gene.
+  If \code{plotType} is 'line', then the average coverage at each position for each mark is drawn as a line. Each plot is for one cluster. If a heatmap is requested, then the heatmap image contains a row for every gene. Each heatmap panel is for one mark.
 }
 \value{
   A list the same length at the number of clusters (invisibly). Each element contains gene names that belong to that cluster. The name of each element is the median expression level of that cluster.
@@ -37,6 +37,6 @@ Clusters the coverage around gene TSSs for a set of ChIP-seq experiments and plo
   # load("exampleGRangesList.Rdata")
   # load("exprVector.Rdata")
   # tablesList <- getTSScoverage(exampleGRangesList, exptTypes = c("MBD2", "MBD2", "H3K27me3", "H3K27me3"), geneAnno = geneAnno)
-  # clusteredBinplots(tablesList, geneAnno, nClusters = 3, expr = exprVector, tName = "A Sample Plot")
+  # clusteredPlots(tablesList, geneAnno, nClusters = 3, expr = exprVector, tName = "A Sample Plot")
 }
 

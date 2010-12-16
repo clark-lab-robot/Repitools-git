@@ -9,7 +9,7 @@ setMethod("clusteredBinplots", "list", function(coverageList, geneAnno, capQuant
 		require(gplots)
 		if(plotType=="line")
 		{
-			cols <- colorpanel(nClusters, "blue", "green", "red")
+			cols <- colorpanel(length(coverageList), "blue", "green", "red")
 		} else {
 		  	cols <- colorpanel(64, "blue", "white", "red")
 		}
@@ -45,7 +45,7 @@ setMethod("clusteredBinplots", "list", function(coverageList, geneAnno, capQuant
 
 	if(plotType == "line")
 	{
-		# Get the cluster average profile.
+		# Get the cluster average profile within each mark for each cluster.
 				
 		profilesList <- lapply(coverageList, function(coverageMatrix)
 		{
@@ -56,26 +56,37 @@ setMethod("clusteredBinplots", "list", function(coverageList, geneAnno, capQuant
 			})
 		})
 
-		# Plot the lineplots.
-		layout(rbind(1:(length(coverageList) + 1)), widths=c(rep(3, length(coverageList)), 1))
-		par(mai=c(1,0.5,0.8,0.5))
-		invisible(mapply(function(markProfile, markName)
+		# Group each cluster from all epigenetic marks.
+
+		profilesByCluster <- lapply(1:nClusters, function(index)
 		{
+			lapply(profilesList, function(markList)
+			{
+				markList[[exprOrder[index]]]
+			})
+		})
+
+		# Plot the lineplots.
+		layout(rbind(1:2), widths=c(3, 1))
+		invisible(mapply(function(clustProfile, expr)
+		{
+			par(mai=c(1,2,0.8,0.5))
 			plot.new()
 			plot.window(xlim = c(positions[1], positions[length(positions)]), ylim = c(0, maxIntensity * 1.1), xaxs = "i", yaxs = "i")
-			title(main = markName)
+			title(main = paste("Within Cluster Coverage (Median Expression : ", round(expr, 2), ")", sep = ''))
 			title(xlab = "Position")
 			title(ylab = "Smoothed Coverage")
 			axis(1, positions, labels = posLabels)
 			axis(2)
-			mapply(function(order, aCol)
+			mapply(function(clustMarkProfile, aCol)
 			{
-				lines(positions, markProfile[[order]], col = aCol)
-			}, exprOrder, cols)
-		}, profilesList, names(profilesList)))
-		plot.new()
-		par(mai=c(1,0.1,0.2,0.1))
-		legend("topright", legend = round(medClusterExpr[exprOrder], 2), title = "Median Expression", col = cols, lwd = 2)
+				lines(positions, clustMarkProfile, col = aCol)
+			}, clustProfile, cols)
+
+			plot.new()
+			par(mai=c(1,0.1,0.2,0.1))
+			legend("topright", legend = names(profilesList), title = "Mark", col = cols, lwd = 2)
+		}, profilesByCluster, medClusterExpr[exprOrder]))
 
 	} else { # Plot a heatmap
 

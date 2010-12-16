@@ -29,7 +29,7 @@ Creates a list of tables of coverages, one table for each sample type.
   A list of tables of coverage. These can then be visualised with the \code{clusteredBinplots} function.
 }
 
-\seealso{\code{\link{clusteredBinplots}}}
+\seealso{\code{\link{clusteredPlots}}}
 \author{Dario Strbenac}
 \examples{
   # Not run.
