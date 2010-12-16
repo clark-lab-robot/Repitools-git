@@ -180,8 +180,9 @@ setMethod("cpgBoxplots", "matrix", function(this, ndfTable, organism, samples=c(
   # Counting bases
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   verbose && enter(verbose, sprintf("Counting bases for %d probes",length(usefulProbeIndices)))
-  gcCount <- sapply(gregexpr("[CG]", ndfTable$sequence[usefulProbeIndices]), length)
-  cb <- sapply(ndfTable$sequence[usefulProbeIndices], length)
+  ndfTable <- ndfTable[usefulProbeIndices, ]
+  gcCount <- sapply(gregexpr("[CG]", ndfTable$sequence), length)
+  cb <- sapply(ndfTable$sequence, length)
   verbose && exit(verbose)
 
   densities <- cpgDensityCalc(ndfTable, 300, organism = organism)
