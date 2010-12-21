@@ -33,11 +33,12 @@ setMethod("enrichmentCalc", c("GRanges", "BSgenome"), function(rs, organism, seq
 	require(GenomicRanges)
 	
 	rs <- resize(rs, seqLen)
+        start(rs) <- IntegerList(lapply(start(rs), function(u) { u[u<1] <- 1; u })) # don't allow extension below 1
 	chrs <- levels(seqnames(rs))
 	seqlengths(rs) <- seqlengths(organism)[chrs]
-	coverage <- colSums(table(coverage(resize(rs, seqLen))))
+	coverage <- colSums(table(coverage(rs)))
+	#coverage <- colSums(table(coverage(resize(rs, seqLen))))
 	coverageTable <- data.frame(as.numeric(names(coverage)), coverage)
 	colnames(coverageTable) <- c("coverage", "bases")
-
 	return(coverageTable)
 })
