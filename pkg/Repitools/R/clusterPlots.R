@@ -1,6 +1,6 @@
-setGeneric("clusteredBinplots", signature = "coverageList", function(coverageList, ...){standardGeneric("clusteredBinplots")})
+setGeneric("clusterPlots", signature = "coverageList", function(coverageList, ...){standardGeneric("clusterPlots")})
 
-setMethod("clusteredBinplots", "list", function(coverageList, geneAnno, capQuantile = 0.95, nClusters = 5, expr, plotType = c("line", "heatmap"), cols = NULL, logWidth = TRUE, tName = "Clustered Enrichment")
+setMethod("clusterPlots", "list", function(coverageList, capQuantile = 0.95, nClusters = 5, expr, sortData = NULL, sortName = NULL, plotType = c("line", "heatmap"), cols = NULL, tName = "Clustered Enrichment")
 {
 	plotType <- match.arg(plotType)
 
@@ -14,13 +14,6 @@ setMethod("clusteredBinplots", "list", function(coverageList, geneAnno, capQuant
 		  	cols <- colorpanel(64, "blue", "white", "red")
 		}
 	}
-
-	widths <- geneAnno$end - geneAnno$start + 1
-
-	# Now only keep in the expression and width vectors, the genes with all coverage sample positions.
-	expr <- expr[as.integer(rownames(coverageList[[1]]))]		
-	widths <- widths[as.integer(rownames(coverageList[[1]]))]
-	geneAnno <- geneAnno[as.integer(rownames(coverageList[[1]])), ]
 
 	# Find the maximum score allowable, then make any scores bigger be the maximum score.
 	allScores <- do.call(cbind, coverageList)
@@ -90,22 +83,30 @@ setMethod("clusteredBinplots", "list", function(coverageList, geneAnno, capQuant
 
 	} else { # Plot a heatmap
 
-		# Get order by gene width next.
+		# Get order next.
 		sortedIndices <- unlist(lapply(exprOrder, function(cluster)
 		{
 			whichGenes <- which(clusterID == cluster)
-			widthOrder <- order(widths[whichGenes])
-			orderedGenes <- whichGenes[widthOrder]
+			if(!is.null(sortData)) 
+			{
+				subOrder <- order(sortData[whichGenes])
+				orderedGenes <- whichGenes[subOrder]
+			} else {
+				orderedGenes <- whichGenes
+			}
 			return(orderedGenes)
 		}))
 
-		# Re-arrange the ChIP and expression data and vector of gene widths.
+		# Re-arrange the ChIP and expression data and vector of sort data.
 		coverageList <- lapply(coverageList, function(coverageMatrix) coverageMatrix[sortedIndices, ])
 		expr <- expr[sortedIndices]
-		widths <- widths[sortedIndices]
+		if(!is.null(sortData)) sortData <- sortData[sortedIndices]
 
 		# Plot heatmap.
-		layout(rbind(1:(length(coverageList) + 3)), widths=c(1, rep(3, length(coverageList)), 2, 1))
+		if(!is.null(sortData))
+			layout(rbind(1:(length(coverageList) + 3)), widths=c(1, rep(3, length(coverageList)), 2, 1))
+		else
+			layout(rbind(1:(length(coverageList) + 2)), widths=c(1, rep(3, length(coverageList)), 2))
 		par(mai=c(1.02,0.50,0.82,0.05))
   	
 		par(oma = c(0, 0, 0, 0))
@@ -117,7 +118,7 @@ setMethod("clusteredBinplots", "list", function(coverageList, geneAnno, capQuant
 		par(mai=c(1.02,0.05,0.82,0.05))
 		mapply(function(coverageMatrix, exptName)
 		{
-			image(positions, 1:nrow(geneAnno), t(coverageMatrix), xlab="Position relative to TSS", xaxt = "n", yaxt = "n", ylab = "Gene", col = cols, main = exptName)
+			image(positions, 1:nrow(coverageMatrix), t(coverageMatrix), xlab="Position relative to TSS", xaxt = "n", yaxt = "n", ylab = "Gene", col = cols, main = exptName)
 			axis(1, positions, labels = posLabels)		
 
 			# Add lines delimiting the cluster boundaries.
@@ -125,16 +126,15 @@ setMethod("clusteredBinplots", "list", function(coverageList, geneAnno, capQuant
 			abline(h = boundaries, lwd = 2)
 		}, coverageList, names(coverageList))
 
-		if(logWidth == TRUE) widths <- log(widths)
 		par(mai=c(1.02,0.05,0.82,0.50))
 		plot(expr, y = 1:length(expr), yaxs = 'i', pch = 19, xlab = "log2 expression", ylab = NA, yaxt = "n", cex = 0.5)
-		plot(widths, y = 1:length(widths), yaxs = 'i', pch = 19, xlab = ifelse(logWidth == TRUE, "log(Gene widths)", "Gene widths") , ylab = NA, yaxt = "n", cex = 0.5)	
+		if(!is.null(sortData)) plot(sortData, y = 1:length(sortData), yaxs = 'i', pch = 19, xlab = sortName, ylab = NA, yaxt = "n", cex = 0.5)	
 
 		par(oma = c(0, 0, 2, 0))
 		mtext(tName, line = 0, outer = TRUE)
 	}
 
-	returnList <- split(geneAnno$name, factor(clusterID, levels = exprOrder))
+	returnList <- split(rownames(coverageList[[1]]), factor(clusterID, levels = exprOrder))
 	names(returnList) <- medClusterExpr[exprOrder]
 	invisible(returnList)
 })

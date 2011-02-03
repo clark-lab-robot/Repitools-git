@@ -1,23 +1,23 @@
-\name{clusteredPlots}
-\alias{clusteredPlots}
-\alias{clusteredPlots,list-method}
+\name{clusterPlots}
+\alias{clusterPlots}
+\alias{clusterPlots,list-method}
 \title{Create graphical summaries of averaged read coverage across a promoter associated with expression.}
 \description{
 Clusters the coverage around gene TSSs for a set of ChIP-seq experiments and plots either the heatmaps of these alongside a vector of gene expressions, and gene widths or per - cluster lineplots.
 }
 \usage{
-  \S4method{clusteredPlots}{list}(coverageList, geneAnno, capQuantile = 0.95, nClusters = 5, expr, plotType = c("line", "heatmap"), cols = NULL, logWidth = TRUE, tName = "Clustered Enrichment")
+  \S4method{clusterPlots}{list}(coverageList, capQuantile = 0.95, nClusters = 5, expr, sortData = NULL, sortName = NULL, plotType = c("line", "heatmap"), cols = NULL, tName = "Clustered Enrichment")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{coverageList}{A \code{list} object of matrices of coverage. Each matrix has rows for each gene, and columns for each sampling position.}
-  \item{geneAnno}{A \code{data.frame} with at least columns \code{chr}, \code{start}, \code{end}, \code{strand}, and \code{name}.}
+  \item{coverageList}{A \code{list} object of matrices of coverage. Each matrix has rows for each gene, and columns for each sampling position. The row names of the matrix should be the gene names.}
   \item{capQuantile}{Intensities above this quantile will be set to this quantile.}
   \item{nClusters}{The number of clusters to find. k-means method is used.}
   \item{expr}{A vector of expression values for the genes. Must have same number of rows as \code{geneAnno}. The relationship to the gene annotation table is by the order of expression values corresponding to the order of rows of the annotation.}
+  \item{sortData}{A vector as long as the number of rows of coverage list. Gives some measurement of the genes involved, like width, for example.}
+  \item{sortName}{An intuitive name for the sort data. Will be used as an axis label for the plot of the sort data.}
   \item{plotType}{Type of binned plot to draw.}
   \item{cols}{A vector of colours to use. The length of this also determines how many levels of intensities there are.}
-  \item{logWidth}{Whether to take the log of the width of genes, before plotting them.}
   \item{tName}{Title to put above the heatmaps.}
 }
 \details{

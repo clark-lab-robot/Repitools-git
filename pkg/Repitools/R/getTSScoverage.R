@@ -2,6 +2,9 @@ setGeneric("getTSScoverage", signature = "readsIPs", function(readsIPs, ...){sta
 
 setMethod("getTSScoverage", "GRangesList", function(readsIPs, seqLen = 300, exptTypes, geneAnno, up = 50, down = 100, distType = c("percent", "base"), cvgResolution = 10, smoothingWidth = 2001)
 {
+	if(!all(c("chr", "start", "end", "strand", "name") %in% colnames(geneAnno)))
+		stop("Some of the mandatory columns of geneAnno are not present. See documentation for requirements.")
+
 	distType <- match.arg(distType)
 	readsIPs <- endoapply(readsIPs, resize, seqLen)
 	chrLengths <- seqlengths(readsIPs)
@@ -31,8 +34,10 @@ setMethod("getTSScoverage", "GRangesList", function(readsIPs, seqLen = 300, expt
 	
 	geneAnno$original <- 1:nrow(geneAnno)
 	chrOrder <- order(geneAnno$chr)
+	originalOrder <- order(chrOrder)
 	geneAnno <- geneAnno[chrOrder, ]
 	annoGR <- GRanges(geneAnno$chr, IRanges(geneAnno$start, geneAnno$end), geneAnno$strand, order = geneAnno$original)
+	whichReverse <- which(strand(annoGR) == '-')
 
 	positions <- seq(-up, down, cvgResolution)
 	if(distType == "percent")
@@ -59,21 +64,25 @@ setMethod("getTSScoverage", "GRangesList", function(readsIPs, seqLen = 300, expt
 				region <- c(round(end - down - flank), round(end + up + flank))
 		}
 
-		if(region[1] < 0 || region[2] > chrLengths[[chr]]) # Region overlaps past edge of chromosome.
-			return(numeric())
-		else
-			return(region)
+		if(region[1] < 1)
+		{
+			flankStart = rep(0, abs(region[1] - 1))
+			region[1] = 1
+		} else {
+			flankStart = numeric()
+		}
+		if(region[2] > chrLengths[[chr]])
+		{
+			flankEnd = rep(0, region[2] - chrLengths[[chr]])
+			region[2] = chrLengths[[chr]]
+		} else {
+			flankEnd = numeric()
+		}
+			return(list(region, flankStart, flankEnd))
 	}, geneAnno$chr, geneAnno$start, geneAnno$end, geneAnno$strand, widths, SIMPLIFY = FALSE)
 
-	# Eliminate regions past edges.
-	whichOutside <- which(sapply(regionBasesList, function(regionBases) length(regionBases) == 0))
-	annoGR <- annoGR[-whichOutside, ]
-	widths <- widths[-whichOutside]
-	regionBasesList <- regionBasesList[-whichOutside]
-	whichReverse <- which(strand(annoGR) == '-')
-
 	# Create windows to use in Views().
-	windowsGR <- GRanges(as.character(seqnames(annoGR)), IRanges(sapply(regionBasesList, function(bases) bases[1]), sapply(regionBasesList, function(bases) bases[2])))
+	windowsGR <- GRanges(as.character(seqnames(annoGR)), IRanges(sapply(regionBasesList, function(regionData) regionData[[1]][1]), sapply(regionBasesList, function(regionData) regionData[[1]][2])))
 	windowsRL <- as(windowsGR, "RangesList")
 
 	# Get sampling positions in the extracted region for every gene.
@@ -96,16 +105,30 @@ setMethod("getTSScoverage", "GRangesList", function(readsIPs, seqLen = 300, expt
 		coverageIP <- coverageIP[names(windowsRL)]
 
 		# Get smoothing region. Extra flanks so that we can smooth the edge of the region nicely.
-		coverageGenes <- viewApply(unlist(Views(coverageIP, windowsRL)), function(aView) Rle(as.numeric(aView)))
+		coverageGenes <- viewApply(unlist(Views(coverageIP, windowsRL)), function(coverage) coverage)
 		coverageGenes[whichReverse] <- lapply(coverageGenes[whichReverse], rev)
 
 		# Running mean smoothing.
-		coverageGenes <- RleList(lapply(coverageGenes, function(coverageGene) runmean(coverageGene, smoothingWidth, endrule = "constant")))
+		coverageGenes <- lapply(coverageGenes, function(coverageGene) runmean(coverageGene, smoothingWidth, endrule = "constant"))
 
+		# Tack on the zeros for the regions past the ends.
+		coverageGenes <- mapply(function(start, coverage, end)
+		                       {
+				       		if(strand == '+')
+		      	               			c(start, coverage, end)
+						else
+							c(end, coverage, start)
+		      		       }, regionBasesList[[2]], coverageGenes, regionBasesList[[3]], geneAnno$strand, SIMPLIFY = FALSE)
+		
 		# Get the coverage at the sampling positions.
-		TSScoverageTable=do.call(rbind, viewApply(Views(coverageGenes, RangesList(lapply(samplingPositions, function(x) IRanges(x, width = 1)))), as.numeric)@listData)
+		TSScoverageTable <- t(mapply(function(genePositions, geneCoverage)
+		{
+			as.numeric(geneCoverage[genePositions])
+		}, samplingPositions, coverageGenes))
+		TSScoverageTable <- TSScoverageTable[originalOrder, ]
+		
 		colnames(TSScoverageTable) <- positionsLabels	
-		rownames(TSScoverageTable) <- elementMetadata(annoGR)[, "order"]
+		rownames(TSScoverageTable) <- geneAnno[, "name"]
 		return(TSScoverageTable)
 	})
 
