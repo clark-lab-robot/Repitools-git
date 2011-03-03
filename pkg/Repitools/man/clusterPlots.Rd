@@ -63,7 +63,13 @@
   different coverage types. Because it makes sense that there will be more clusters
   than there are types of coverage (typically double to triple the number), the plots
   are not drawn side-by-side, as is the layout for the heatmaps. For this reason,
-  sending the output to a PDF device is necessary.
+  sending the output to a PDF device is necessary. Since the coverage data between
+  different marks is not comparable, this method is inappropriate for visualising a
+  \code{CoverageList} object. If the user, however, can come up with a normalisation
+  method to account for the differences that are apparent between different types
+  (i.e. peaked vs. spread) of marks that makes the coverages meaningfully comparable,
+  they can alter the tables, do their own clustering, and create a
+  \code{ClusteredCoverageList} object with the modified tables.
 }
 \seealso{\code{\link{featureCoverage}} for generating coverage matrices.}
 \author{Dario Strbenac}

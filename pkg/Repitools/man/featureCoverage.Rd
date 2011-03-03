@@ -8,10 +8,10 @@
 
 \title{Get coverages at regular sample points around genomic features.}
 \description{
-  Given a GRanges / GenomeDataList / GRangesList object, or BAM file paths, of
-  reads for each experimental condition, and an anntotation of features of
-  interest, the smoothed coverage of reads at regularly spaced positions
-  around the features is calculated.
+  Given a \code{GRanges} / \code{GenomeDataList} / \code{GRangesList} object,
+  or BAM file paths, of reads for each experimental condition, and an anntotation
+  of features of interest, the smoothed coverage of reads at regularly spaced
+  positions around the features is calculated.
 }
 \usage{
   \S4method{featureCoverage}{ANY,data.frame}(
@@ -85,6 +85,11 @@
 
   Sampling points that are off the edge of a chromosome (e.g. for a gene that
   has a TSS very near to the edge of a chromosome) are given a coverage of 0.
+
+  There is no correction applied for the total number of reads in each
+  \code{GRanges} / \code{GenomeData} / BAM file, or for the fact that different marks
+  have different peak profiles (i.e. sharp, high peaks vs. low, spread out peaks),
+  so different coverage matrices are not directly comparable.
 }
 
 \seealso{\code{\link{mergeReplicates}} for merging replicates of an experiment type.}

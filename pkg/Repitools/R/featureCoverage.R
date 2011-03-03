@@ -125,9 +125,9 @@ setMethod("featureCoverage", c("GRanges", "GRanges"), function(x, anno, up = 50,
     gc()
 
     # Get coverage.
-    if(verbose == TRUE) cat("Calculating scaled coverage.\n")
+    if(verbose == TRUE) cat("Calculating coverage.\n")
     # Scale all coverages for total reads.
-    cvg <- coverage(x) / length(x)
+    cvg <- coverage(x)
     sampChr <- as(cvgSamps, "RangesList")
     gc()
 
