@@ -13,7 +13,7 @@ setMethod(".validate", "GRanges", function(anno, up, down)
 		stop("Boundaries closer to starts of chromosomes are closer to
                       the ends of the chromosomes, than the endmost boundaries.\n")
 	else
-		stop("Upstream boundaries are more downstream that downstream
+		stop("Upstream boundaries are more downstream than downstream
                       boundaries.\n")
     }
 	
