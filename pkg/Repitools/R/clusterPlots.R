@@ -24,7 +24,7 @@ setMethod("clusterPlots", "ClusteredCoverageList",
     expr <- c.list@expr
     clID <- c.list@cluster.id
     n.clusters <- length(unique(clID))
-    clExpr <- tapply(expr, factor(clID), median)
+    clExpr <- tapply(expr, factor(clID), median, na.rm = TRUE)
     clOrd <- order(clExpr)
 
     # Get x-axis pos and labels.
