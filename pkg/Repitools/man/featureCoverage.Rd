@@ -87,10 +87,8 @@
   Sampling points that are off the edge of a chromosome (e.g. for a gene that
   has a TSS very near to the edge of a chromosome) are given a coverage of 0.
 
-  There is no correction applied for the total number of reads in each
-  \code{GRanges} / \code{GenomeData} / BAM file, or for the fact that different marks
-  have different peak profiles (i.e. sharp, high peaks vs. low, spread out peaks),
-  so different coverage matrices are not directly comparable.
+  Coverage is normalised by dividing the raw coverage by the total number of
+  reads in a sample.
 }
 
 \seealso{\code{\link{mergeReplicates}} for merging replicates of an experiment type.}
