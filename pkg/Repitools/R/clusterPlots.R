@@ -64,6 +64,7 @@ setMethod("clusterPlots", "ClusteredCoverageList",
     } else { # Plot a heatmap
 	
 	sort.data <- c.list@sort.data
+	sort.name <- c.list@sort.name
 	# Get order of all features next.
 	if(length(sort.data) == 0)
 		ord <- order(factor(clID, levels = clOrd))

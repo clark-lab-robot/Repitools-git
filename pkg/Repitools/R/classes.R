@@ -1,6 +1,7 @@
 setClass("CoverageList", representation(
                                         marks = "character",
 					cvgs = "list",
+					anno = "GRanges",
 					up = "numeric",
 					down = "numeric",
 					dist = "character",
@@ -19,18 +20,20 @@ setMethod("show", "CoverageList",
 	distLabel <- ifelse(object@dist == "percent", '%', "bases")
 	cat("An object of class 'CoverageList'.\n")
 	cat("Tables: ", paste(object@marks, collapse = ", "), ".\n", sep = '')
+	cat("Features:\n")
+	print(object@anno)
 	cat("Region:",  paste(object@up, distLabel, "up to", object@down,
                          distLabel, "down.\n"))
-	cat("Smoothing:", object@s.width, "bases.\n")
+	cat("Smoothing:", paste(object@s.width, collapse = ", "), "bases.\n")
 	cat("Sampling : ", object@freq, ' ', distLabel, ".\n\n",  sep = '')
     })
 
 setMethod("[", "CoverageList",
     function(x, i)
     {
-	new("CoverageList", marks = x@marks[i], cvgs = x@cvgs[i], up = x@up,
-                            down = x@down, dist = x@dist, freq = x@freq,
-                            s.width = x@s.width)
+	new("CoverageList", marks = x@marks[i], anno = x@anno, cvgs = x@cvgs[i],
+	                    up = x@up, down = x@down, dist = x@dist,
+			    freq = x@freq, s.width = x@s.width)
 	})
 
 setReplaceMethod("names", "CoverageList",
@@ -62,6 +65,8 @@ setMethod("show", "ClusteredCoverageList",
 	cat("Tables: ", paste(object@marks, collapse = ", "), ".\n", sep = '')
 	cat("Region: ",  paste(object@up, distLabel, "up to", object@down,
 	    distLabel, "down.\n"))
+	cat("Features:\n")
+	head(object@anno)
 	cat("Smoothing:", object@s.width, "bases.\n")
 	cat("Sampling: ", object@freq, ' ', distLabel, ".\n",  sep = '')
 	cat("Feature Expressions:", paste(paste(head(object@expr),
@@ -81,7 +86,7 @@ setMethod("ClusteredCoverageList", "CoverageList",
     function(x, cvgs = tables(x), expr, cluster.id, sort.data = NULL,
              sort.name = NULL)
 {
-	new("ClusteredCoverageList", marks = x@marks, cvgs = cvgs,
+	new("ClusteredCoverageList", marks = x@marks, cvgs = cvgs, anno = x@anno,
 	    up = x@up, down = x@down, dist = x@dist,
 	    freq = x@freq, s.width = x@s.width, cluster.id = cluster.id,
 	    expr = expr, sort.name = sort.name, sort.data = sort.data)
@@ -91,7 +96,7 @@ setMethod("[", "ClusteredCoverageList",
     function(x, i)
     {
 	new("ClusteredCoverageList", marks = x@marks[i], cvgs = x@cvgs[i],
-	    up = x@up, down = x@down, dist = x@dist,
+	    anno = x@anno, up = x@up, down = x@down, dist = x@dist,
 	    freq = x@freq, s.width = x@s.width, cluster.id = x@cluster.id,
 	    expr = x@expr, sort.data = x@sort.data, sort.name = x@sort.name)
     })

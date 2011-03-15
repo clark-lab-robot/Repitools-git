@@ -40,7 +40,8 @@
   \item{dist}{The type of distance measure to use, in determining the boundaries
               of the sampling area.}
   \item{freq}{Coverage sampling frequency.}
-  \item{s.width}{The width of smoothing to apply to the coverage.}
+  \item{s.width}{The width of smoothing to apply to the coverage. Either length 1
+                , or a numeric vector of the same length as \code{x}.}
   \item{verbose}{Whether to print the progess of processing.}
 }
 \value{

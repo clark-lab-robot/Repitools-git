@@ -38,7 +38,7 @@ setMethod("featureCoverage", c("GRanges", "GRanges"), function(x, anno, up = 50,
 	dist <- match.arg(dist)
     }
 
-    if(!"cvgSamps" %in% ls())
+    if(!"cvg.samps" %in% ls())
     {
 	str <- strand(anno)
 	st <- start(anno)
@@ -49,57 +49,57 @@ setMethod("featureCoverage", c("GRanges", "GRanges"), function(x, anno, up = 50,
 	if(verbose == TRUE) cat("Calculating sampling positions.\n")	
 	if(all(str == '*'))
 	{
-	    refPoints <- round((st + en) / 2)
+	    ref.points <- round((st + en) / 2)
 	} else {
-	    refPoints <- ifelse(pos, st, en)
+	    ref.points <- ifelse(pos, st, en)
 	}
 
 	if(dist == "percent")
 	{
-	    starts = as.numeric(ifelse(pos, refPoints - wd * up/100,
-                                            refPoints - wd * down/100))
-	    ends = as.numeric(ifelse(pos, refPoints + wd * down/100,
-                                          refPoints + wd * up/100))
+	    starts = as.numeric(ifelse(pos, ref.points - wd * up/100,
+                                            ref.points - wd * down/100))
+	    ends = as.numeric(ifelse(pos, ref.points + wd * down/100,
+                                          ref.points + wd * up/100))
 	} else {
-	    starts = as.numeric(ifelse(pos, refPoints - up,
-                                            refPoints - down))
-	    ends = as.numeric(ifelse(pos, refPoints + down,
-                                          refPoints + up))
+	    starts = as.numeric(ifelse(pos, ref.points - up,
+                                            ref.points - down))
+	    ends = as.numeric(ifelse(pos, ref.points + down,
+                                          ref.points + up))
 	}
 
-	covWinds <- GRanges(seqnames = seqnames(anno),
+	cov.winds <- GRanges(seqnames = seqnames(anno),
                             IRanges(start = starts, end = ends),
                             strand = str)
 
 	posns <- seq(-up, down, freq)
 	if(dist == "percent")
-	    posLabels <<- paste(posns, '%')
+	    pos.labels <<- paste(posns, '%')
 	else
-	    posLabels <<- posns
-	nPos <- length(posns)
+	    pos.labels <<- posns
+	n.pos <- length(posns)
 
 	# Make ranges for each sample point.
-	cvgSamps <<- rep(covWinds, each = nPos)
-	gapSize <- ifelse(dist == "percent", width(cvgSamps) / (nPos - 1),
-                                             rep(freq, length(cvgSamps)))
-	ranges(cvgSamps) <- IRanges(start = as.numeric(
-                              ifelse(strand(cvgSamps) %in% c('+', '*'), 
-                                     start(cvgSamps) + 0:(nPos - 1) * gapSize,
-                                     end(cvgSamps) - 0:(nPos - 1) * gapSize)
+	cvg.samps <<- rep(cov.winds, each = n.pos)
+	gap.size <- ifelse(dist == "percent", width(cvg.samps) / (n.pos - 1),
+                                             rep(freq, length(cvg.samps)))
+	ranges(cvg.samps) <- IRanges(start = as.numeric(
+                              ifelse(strand(cvg.samps) %in% c('+', '*'), 
+                                     start(cvg.samps) + 0:(n.pos - 1) * gap.size,
+                                     end(cvg.samps) - 0:(n.pos - 1) * gap.size)
                                                       ),
                                      width = 1)
 
 	# Find upper bound of how far a sampling position could be
         # outside of a chromosome.
-	maxOut <<- ifelse(dist == "percent", max(width(anno)) * 
+	max.out <<- ifelse(dist == "percent", max(width(anno)) * 
                                                  max(abs(up), abs(down)) / 100,
                                              max(abs(up), abs(down)))
-	cvgSamps <- shift(cvgSamps, maxOut)
+	cvg.samps <- shift(cvg.samps, max.out)
 
 	# Find order to get back from RangesList order to original order.
-	chrOrd <<- order(as.character(seqnames(anno)))
-	anno <<- anno[chrOrd]
-	oldOrd <<- order(chrOrd)
+	chr.ord <<- order(as.character(seqnames(anno)))
+	anno.chr <<- anno[chr.ord]
+	old.ord <<- order(chr.ord)
     }
 
     # Qualitatively near identical to running mean smoothing.
@@ -110,69 +110,73 @@ setMethod("featureCoverage", c("GRanges", "GRanges"), function(x, anno, up = 50,
     # Infer chromosome end positions from feature annotations.
     # This means the user doesn't have to have a BSgenome object of their samples'
     # genome installed on their computer.
-    maxAnno <- sapply(split(ranges(anno), seqnames(anno)), function(y) max(end(y)))
-    maxReads <- sapply(split(ranges(x), seqnames(x)), function(y) max(end(y)))
-    maxReads <- maxReads[names(maxAnno)]
-    chrLens <- mapply(max, maxAnno, maxReads)
+    max.anno <- sapply(split(ranges(anno.chr), seqnames(anno.chr)), function(y) max(end(y)))
+    max.reads <- sapply(split(ranges(x), seqnames(x)), function(y) max(end(y)))
+    max.reads <- max.reads[names(max.anno)]
+    chr.lens <- mapply(max, max.anno, max.reads)
     gc()
 
     # Remove reads on chromosomes not in annotation.
     # Shift all reads and sampling positions right by the out-of-bounds upper bound,
     # and then adjust chr lengths accordingly.
-    x <- x[seqnames(x) %in% names(chrLens)]
-    x <- shift(x, maxOut)
-    seqlengths(x) <- chrLens + 2 * maxOut
+    x <- x[seqnames(x) %in% names(chr.lens)]
+    x <- shift(x, max.out)
+    seqlengths(x) <- chr.lens + 2 * max.out
     gc()
 
     # Get coverage.
     if(verbose == TRUE) cat("Calculating coverage.\n")
     # Scale all coverages for total reads.
     cvg <- coverage(x)
-    sampChr <- as(cvgSamps, "RangesList")
+    samp.chr <- as(cvg.samps, "RangesList")
     gc()
 
     # Do sampling, per chromosome.
     if(verbose == TRUE) cat("Sampling coverage.\n")
-    cvgMat <- lapply(names(sampChr), function(y)
+    cvg.mat <- lapply(names(samp.chr), function(y)
 	            {
-			inds <- sampChr[[y]]
-			chrMat <- cvg[[y]][inds, drop = TRUE]
-			matrix(chrMat, ncol = length(posLabels), byrow = TRUE)		   	
+			inds <- samp.chr[[y]]
+			chr.mat <- cvg[[y]][inds, drop = TRUE]
+			matrix(chr.mat, ncol = length(pos.labels), byrow = TRUE)		   	
 		    })
-    cvgMat <- do.call(rbind, cvgMat)
+    cvg.mat <- do.call(rbind, cvg.mat)
     	
-    colnames(cvgMat) <- posLabels
-    if("name" %in% names(elementMetadata(anno))) 
-	rownames(cvgMat) <- elementMetadata(anno)[, "name"]
+    colnames(cvg.mat) <- pos.labels
+    if("name" %in% names(elementMetadata(anno.chr))) 
+	rownames(cvg.mat) <- elementMetadata(anno.chr)[, "name"]
     else
-	rownames(cvgMat) <- 1:nrow(cvgMat)
-    cvgMat <- cvgMat[oldOrd, ]
+	rownames(cvg.mat) <- 1:nrow(cvg.mat)
+    cvg.mat <- cvg.mat[old.ord, ]
 
     rm(cvg)
     if(length(grep("featureCoverage", sys.calls())) <= 2)
-	rm(cvgSamps, posLabels, maxOut, chrOrd, anno, oldOrd, validated, pos = ".GlobalEnv")
+	rm(cvg.samps, pos.labels, max.out, chr.ord, anno.chr, old.ord, validated,
+        pos = ".GlobalEnv")
     gc()
-    new("CoverageList", marks = "Undefined", cvgs = list(cvgMat), up = up, down = down,
-                        dist = dist, freq = freq, s.width = s.width)
+
+    new("CoverageList", marks = "Undefined", cvgs = list(cvg.mat), anno = anno,
+         up = up, down = down, dist = dist, freq = freq, s.width = s.width)
 })
 
 setMethod("featureCoverage", c("GRangesList", "GRanges"),
     function(x, anno, up = 50, down = 100, dist = c("percent", "base"), freq = 10,
              s.width = 1000, verbose = TRUE)
 {
-	dist <- match.arg(dist)
-	.validate(anno, up, down)
-	
-	cvgs <- lapply(as.list(x), function(y) 
+    dist <- match.arg(dist)
+    .validate(anno, up, down)
+    
+    if(length(s.width) == 1) s.width <- rep(s.width, length(x))
+    cvgs <- mapply(function(y, z) 
 	           {
-		   	featureCoverage(y, anno, up, down, dist, freq, s.width, verbose)
-		   })
-	rm(cvgSamps, posLabels, maxOut, chrOrd, anno, oldOrd, validated, pos = ".GlobalEnv")
-	if(!is.null(names(x)))
-		marks <- names(x)
-	else
-		marks <- unname(sapply(cvgs, names))
-	new("CoverageList", marks = marks, cvgs = unname(sapply(cvgs, tables)),
+		   	featureCoverage(y, anno, up, down, dist, freq, z, verbose)
+		   }, as.list(x), s.width, SIMPLIFY = FALSE)
+    rm(cvg.samps, pos.labels, max.out, chr.ord, anno.chr, old.ord, validated,
+       pos = ".GlobalEnv")
+    if(!is.null(names(x)))
+	marks <- names(x)
+    else
+	marks <- unname(sapply(cvgs, names))
+    new("CoverageList", marks = marks, anno = anno, cvgs = unname(sapply(cvgs, tables)),
                             up = up, down = down, dist = dist, freq = freq,
                             s.width = s.width)
 })
@@ -181,21 +185,23 @@ setMethod("featureCoverage", c("character", "GRanges"),
     function(x, anno, up = 50, down = 100, dist = c("percent", "base"), freq = 10,
              s.width = 1000, verbose = TRUE)
 {
-	dist <- match.arg(dist)
-	.validate(anno, up, down)
+    dist <- match.arg(dist)
+    .validate(anno, up, down)
 
-	cvgs <- lapply(x, function(y)
+    if(length(s.width) == 1) s.width <- rep(s.width, length(x))
+    cvgs <- mapply(function(y, z)
 	           {
 		   	readsGR <- BAM2GRanges(y)
 		   	featureCoverage(readsGR, anno, up, down, dist, freq,
                                         s.width, verbose)
-		   })
-	rm(cvgSamps, posLabels, maxOut, chrOrd, anno, oldOrd, validated, pos = ".GlobalEnv")
-	if(!is.null(names(x)))
-		marks <- x
-	else
-		marks <- unname(sapply(cvgs, names))
-	new("CoverageList", marks = marks, cvgs = unname(sapply(cvgs, tables)),
+		   }, x, s.width, SIMPLIFY = FALSE)
+    rm(cvg.samps, pos.labels, max.out, chr.ord, anno.chr, old.ord, validated,
+       pos = ".GlobalEnv")
+    if(!is.null(names(x)))
+	marks <- x
+    else
+	marks <- unname(sapply(cvgs, names))
+    new("CoverageList", marks = marks, anno = anno, cvgs = unname(sapply(cvgs, tables)),
                             up = up, down = down, dist = dist, freq = freq,
                             s.width = s.width)
 })
@@ -204,25 +210,25 @@ setMethod("featureCoverage", c("ANY", "data.frame"),
     function(x, anno, up = 50, down = 100, dist = c("percent", "base"), freq = 10,
              s.width = 1000, verbose = TRUE)
 {
-	colMissing <- setdiff(c("chr", "start", "end"), colnames(anno))
-	if(length(colMissing > 0))
-		stop("Columns ", paste(colMissing, collapse = ", "),
-                     " of annotation are not present.")
+    col.missing <- setdiff(c("chr", "start", "end"), colnames(anno))
+    if(length(col.missing > 0))
+	stop("Columns ", paste(col.missing, collapse = ", "),
+            " of annotation are not present.")
 
-	annoGR <- GRanges(anno$chr,
-                          IRanges(anno$start, anno$end),
-                          if("strand" %in% colnames(anno)) anno$strand else '*',
-			  name = if("name" %in% colnames(anno)) anno$name)
-	featureCoverage(x, annoGR, up, down, dist, freq, s.width, verbose)
+    annoGR <- GRanges(anno$chr,
+                      IRanges(anno$start, anno$end),
+                      if("strand" %in% colnames(anno)) anno$strand else '*',
+			 name = if("name" %in% colnames(anno)) anno$name)
+    featureCoverage(x, annoGR, up, down, dist, freq, s.width, verbose)
 })
 
 setMethod("featureCoverage", c("GenomeDataList", "ANY"),
     function(x, anno, up = 50, down = 100, dist = c("percent", "base"), freq = 10,
              s.width = 1000, verbose = TRUE)
 {
-	dist <- match.arg(dist)
-	.validate(anno, up, down)
-	x <- .GDL2GRL(x)
+    dist <- match.arg(dist)
+    .validate(anno, up, down)
+    x <- .GDL2GRL(x)
 
-	featureCoverage(x, anno, up, down, dist, freq, s.width, verbose)
+    featureCoverage(x, anno, up, down, dist, freq, s.width, verbose)
 })
