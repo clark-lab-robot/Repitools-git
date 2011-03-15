@@ -33,7 +33,7 @@ setMethod("[", "CoverageList",
     {
 	new("CoverageList", marks = x@marks[i], anno = x@anno, cvgs = x@cvgs[i],
 	                    up = x@up, down = x@down, dist = x@dist,
-			    freq = x@freq, s.width = x@s.width)
+			    freq = x@freq, s.width = x@s.width[i])
 	})
 
 setReplaceMethod("names", "CoverageList",
@@ -97,7 +97,7 @@ setMethod("[", "ClusteredCoverageList",
     {
 	new("ClusteredCoverageList", marks = x@marks[i], cvgs = x@cvgs[i],
 	    anno = x@anno, up = x@up, down = x@down, dist = x@dist,
-	    freq = x@freq, s.width = x@s.width, cluster.id = x@cluster.id,
+	    freq = x@freq, s.width = x@s.width[i], cluster.id = x@cluster.id,
 	    expr = x@expr, sort.data = x@sort.data, sort.name = x@sort.name)
     })
 
