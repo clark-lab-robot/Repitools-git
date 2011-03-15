@@ -13,7 +13,7 @@
      c.list, plot.ord = 1:length(c.list), plot.type = c("line", "heatmap"),
      cols = NULL, t.name = "Clustered Enrichment")
   \S4method{clusterPlots}{CoverageList}(c.list, scale = function(x) x,
-    capQ = 0.95, cap.type = c("sep", "all"), n.clusters = 5,
+    cap.q = 0.95, cap.type = c("sep", "all"), n.clusters = 5,
     plot.ord = 1:length(c.list), expr, sort.data = NULL, sort.name = NULL,
     plot.type = c("line", "heatmap"), cols = NULL, t.name = "Clustered Enrichment")
 }
@@ -21,7 +21,7 @@
   \item{c.list}{A \linkS4class{CoverageList} or \linkS4class{ClusteredCoverageList}
                 object.}
   \item{scale}{A function to scale all the coverages by. Default : No scaling.}
-  \item{capQ}{The quantile of coverages above which to make any bigger coverages
+  \item{cap.q}{The quantile of coverages above which to make any bigger coverages
               equal to the quantile.}
   \item{cap.type}{If \code{"sep"}, then the cap quantile is calculated and applied
                   to each coverage matrix separately. If \code{"all"}, then one cap
