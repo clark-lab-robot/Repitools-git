@@ -215,11 +215,7 @@ setMethod("featureCoverage", c("ANY", "data.frame"),
 	stop("Columns ", paste(col.missing, collapse = ", "),
             " of annotation are not present.")
 
-    annoGR <- GRanges(anno$chr,
-                      IRanges(anno$start, anno$end),
-                      if("strand" %in% colnames(anno)) anno$strand else '*',
-			 name = if("name" %in% colnames(anno)) anno$name)
-    featureCoverage(x, annoGR, up, down, dist, freq, s.width, verbose)
+    featureCoverage(x, .annoDF2GR(anno), up, down, dist, freq, s.width, verbose)
 })
 
 setMethod("featureCoverage", c("GenomeDataList", "ANY"),
