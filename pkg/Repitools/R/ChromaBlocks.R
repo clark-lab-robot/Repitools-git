@@ -1,5 +1,11 @@
 setGeneric("ChromaBlocks", function(rs.ip, rs.input, ...){standardGeneric("ChromaBlocks")})
 
+setMethod("ChromaBlocks", c("GenomeDataList", "GenomeDataList"), function(rs.ip, rs.input, ...) {
+    ChromaBlocks(Repitools:::.GDL2GRL(rs.ip), Repitools:::.GDL2GRL(rs.input), ...)
+})
+
+setMethod("ChromaBlocks", c("GRangesList", "GRangesList"), function(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidth=500, preset=NULL, blockWidth=NULL, minBlocks=NULL, extend=NULL, cutoff=NULL, FDR=0.01, nPermutations=5, nCutoffs=20, cutoffQuantile=0.98, verbose=TRUE, seqLen=NULL) {
+
     .mergeOverlaps <- function (query, subject) {
         ov <- matchMatrix(findOverlaps(query, subject, select="all"))
         query.ov <- unique(ov[,1])
@@ -36,63 +42,12 @@ setGeneric("ChromaBlocks", function(rs.ip, rs.input, ...){standardGeneric("Chrom
             if (length(cutoffs)>1) sapply(cutoffs, function(x) callCutoff(dat, x)) else callCutoff(dat, cutoffs)
         }
         
-        RPKM.split <- GenomeData(split(data.frame(position=(start(bins)+end(bins))/2, RPKM=if (is.null(RPKM)) bins$RPKM else RPKM), space(bins)))
+        RPKM.split <- GenomeData(split(data.frame(position=(start(bins)+end(bins))/2, RPKM=if (is.null(RPKM)) values(bins)$RPKM else RPKM), as.character(seqnames(bins))))
         regions <- lapply(RPKM.split, callChr)
         if (verbose) cat("\n")
-        if (length(cutoffs)>1) rowSums(sapply(regions, function(x) sapply(x,length))) else GenomeData(regions)
+        if (length(cutoffs)>1) rowSums(sapply(regions, function(x) sapply(x,length))) else RangesList(regions)
     }
 
-setMethod("ChromaBlocks", c("GenomeDataList", "GenomeDataList"), function(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidth=500, preset=NULL, blockWidth=NULL, minBlocks=NULL, extend=NULL, cutoff=NULL, FDR=0.01, nPermutations=5, nCutoffs=20, cutoffQuantile=0.98, verbose=TRUE, seqLen=NULL) {
-
-    if (preset=="small") {
-        blockWidth=10
-        minBlocks=5
-    } else if (preset=="large") {
-        blockWidth=50
-        minBlocks=25
-        extend=0.1
-    } else stopifnot(!is.null(blockWidth), !is.null(minBlocks))
-    if (verbose) cat("Creating bins\n")
-    IPbins <- as(genomeBlocks(organism, chrs, ipWidth), "RangedData")
-    InputBins <- as(genomeBlocks(organism, chrs, inputWidth, ipWidth), "RangedData")
-    if (verbose) cat("Counting IP lanes: ")
-    ipCounts <- annotationBlocksCounts(rs.ip, IPbins, seqLen=seqLen, verbose=verbose)
-    #pool & normalise IP lanes & turn into RPKM - reads per kb (ipWidth/1000) per million (/lanecounts*1000000)
-    ipCounts <- rowSums(ipCounts)/sum(laneCounts(rs.ip))*1000000/(ipWidth/1000)
-    
-    if (verbose) cat("Counting Input lanes: ")
-    inputCounts <- annotationBlocksCounts(rs.input, InputBins, seqLen=seqLen, verbose=verbose)
-    #pool & normalise Input lanes
-    inputCounts <- rowSums(inputCounts)/sum(laneCounts(rs.input))*1000000/(inputWidth/1000)
-    
-    IPbins$RPKM <- ipCounts-inputCounts
-    rm(ipCounts, inputCounts)
-    #scale RPMK to have mean==0
-    IPbins$RPKM <- IPbins$RPKM-mean(IPbins$RPKM)
-    #okay find regions
-    if (is.null(cutoff)) {
-        cutoffs <- seq(0.1, quantile(IPbins$RPKM, cutoffQuantile), length.out=nCutoffs)
-        negRegions <- sapply(1:nPermutations, function(u) {
-            if (verbose) cat("Permutation",u)
-            .callRegions(IPbins, IPbins$RPKM[sample(nrow(IPbins))], cutoffs=cutoffs, blockWidth = blockWidth, ipWidth = ipWidth, minBlocks = minBlockss)
-        })
-        if (verbose) cat("Testing positive regions")
-        posRegions <- .callRegions(IPbins, cutoffs=cutoffs, blockWidth = blockWidth, ipWidth = ipWidth, minBlocks = minBlocks)
-        FDRTable <- cbind(cutoffs=cutoffs, pos=posRegions, negRegions, FDR=rowMeans(negRegions)/posRegions)
-        cutoff <- cutoffs[match(TRUE, FDRTable[,"FDR"]<FDR)]
-        if (is.na(cutoff)) {
-            warning("No cutoff below FDR", FDR, "found! Analysis halted! Try increasing cutoffQuantile or FDR")
-            return(data=IPbins, FDRTable=FDRTable)
-        }
-        if (verbose) cat("Using cutoff of",cutoff,"for a FDR of",FDR,"\n")
-    } else {
-        if (verbose) cat("Using supplied cutoff of",cutoff,"\n")
-        FDRTable <- NULL
-    }
-    list(data=IPbins, regions=.callRegions(IPbins, cutoffs=cutoff, dat = dat, blockWidth = blockWidth, ipWidth = ipWidth, minBlocks = minBlocks), FDRTable=FDRTable, cutoff=cutoff)
-})
-
-setMethod("ChromaBlocks", c("GRangesList", "GRangesList"), function(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidth=500, preset=NULL, blockWidth=NULL, minBlocks=NULL, extend=NULL, cutoff=NULL, FDR=0.01, nPermutations=5, nCutoffs=20, cutoffQuantile=0.98, verbose=TRUE, seqLen=NULL) {
     
     if (preset=="small") {
         blockWidth=10
@@ -106,6 +61,8 @@ setMethod("ChromaBlocks", c("GRangesList", "GRangesList"), function(rs.ip, rs.in
     IPbins <- genomeBlocks(organism, chrs, ipWidth)
     InputBins <- genomeBlocks(organism, chrs, inputWidth, ipWidth)
     if (verbose) cat("Counting IP lanes: ")
+    force(rs.ip)
+    force(rs.input)
     ipCounts <- annotationBlocksCounts(rs.ip, IPbins, seqLen=seqLen, verbose=verbose)
     #pool & normalise IP lanes & turn into RPKM - reads per kb (ipWidth/1000) per million (/lanecounts*1000000)
     ipCounts <- rowSums(ipCounts)/sum(elementLengths(rs.ip))*1000000/(ipWidth/1000)
@@ -115,16 +72,16 @@ setMethod("ChromaBlocks", c("GRangesList", "GRangesList"), function(rs.ip, rs.in
     #pool & normalise Input lanes
     inputCounts <- rowSums(inputCounts)/sum(elementLengths(rs.input))*1000000/(inputWidth/1000)
     
-    IPbins$RPKM <- ipCounts-inputCounts
+    values(IPbins)$RPKM <- ipCounts-inputCounts
     rm(ipCounts, inputCounts)
     #scale RPMK to have mean==0
-    IPbins$RPKM <- IPbins$RPKM-mean(IPbins$RPKM)
+    values(IPbins)$RPKM <- values(IPbins)$RPKM-mean(values(IPbins)$RPKM)
     #okay find regions
     if (is.null(cutoff)) {
-        cutoffs <- seq(0.1, quantile(IPbins$RPKM, cutoffQuantile), length.out=nCutoffs)
+        cutoffs <- seq(0.1, quantile(values(IPbins)$RPKM, cutoffQuantile), length.out=nCutoffs)
         negRegions <- sapply(1:nPermutations, function(u) {
             if (verbose) cat("Permutation",u)
-            .callRegions(IPbins, IPbins$RPKM[sample(nrow(IPbins))], cutoffs=cutoffs, blockWidth = blockWidth, ipWidth = ipWidth, minBlocks = minBlocks)
+            .callRegions(IPbins, values(IPbins)$RPKM[sample(length(IPbins))], cutoffs=cutoffs, blockWidth = blockWidth, ipWidth = ipWidth, minBlocks = minBlocks)
         })
         if (verbose) cat("Testing positive regions")
         posRegions <- .callRegions(IPbins, cutoffs=cutoffs, blockWidth = blockWidth, ipWidth = ipWidth, minBlocks = minBlocks)
@@ -141,3 +98,4 @@ setMethod("ChromaBlocks", c("GRangesList", "GRangesList"), function(rs.ip, rs.in
     }
     list(data=IPbins, regions=.callRegions(IPbins, cutoffs=cutoff, blockWidth = blockWidth, ipWidth = ipWidth, minBlocks = minBlocks), FDRTable=FDRTable, cutoff=cutoff)
 })
+

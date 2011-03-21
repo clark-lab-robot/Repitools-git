@@ -4,10 +4,10 @@
 \alias{ChromaBlocks,GRangesList,GRangesList-method}
 \title{A function to find areas of enrichment in sequencing data}
 \description{
-For each region of interest or TSS, this routine interrogates probes or sequence data for either a high level of absolute signal or a change in signal for some specified contrast (i.e. difference) of interest.  Regions can be surroundings of TSSs, or can be a table of user - specified regions. The function determines if the \code{start} and \code{end} columns of the \code{coordinatesTable} should be used as regions or as TSSs, based on the \code{useAsRegions} flag.
+This function discovers regions of enrichment in ChIP-seq data, using the method described in Hawkins RD. et al 2010 Cell Stem Cell.
 }
 \usage{
-\S4method{ChromaBlocks}{GenomeDataList,GenomeDataList}(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidth=500, preset=NULL, blockWidth=NULL, minBlocks=NULL, extend=NULL, cutoff=NULL, FDR=0.01, nPermutations=5, nCutoffs=20, cutoffQuantile=0.98, verbose=TRUE, seqLen=NULL)
+\S4method{ChromaBlocks}{GenomeDataList,GenomeDataList}(rs.ip, rs.input, ...)
 \S4method{ChromaBlocks}{GRangesList,GRangesList}(rs.ip, rs.input, organism, chrs, ipWidth=100, inputWidth=500, preset=NULL, blockWidth=NULL, minBlocks=NULL, extend=NULL, cutoff=NULL, FDR=0.01, nPermutations=5, nCutoffs=20, cutoffQuantile=0.98, verbose=TRUE, seqLen=NULL)
 }
 \arguments{
@@ -28,6 +28,7 @@ For each region of interest or TSS, this routine interrogates probes or sequence
   \item{cutoffQuantile}{The quantile of the RPKM to use as the maximum cutoff tried; a higher value will give lower resolution but may be needed if a \code{cutoff} satisfying the \code{FDR} cannot be determined with the default value}
   \item{verbose}{logical, whether to output commments of the processing}
   \item{seqLen}{If sequencing reads need to be extended, the fragment size to be used}
+  \item{...}{Arguments passed from the \code{GenomeDataList} method to the \code{GRangesList} method.}
 }
 \value{
 Havent worked out what to return yet
