@@ -79,7 +79,7 @@ if(pathToData != "") # Do tests involving CDFs, CELs, sequences.
 	cdfFile <- AffymetrixCdfFile$byChipType("Hs_PromPR_v02")
 	cdfTableUniquePositions <- getUniqueCdf(cdfFile)
 	celSetTables <- AffymetrixCelSet$byName("Tiling", cdf = cdfFile)
-	MATNormalise <- MatNormalization(celSetTables, numChunks = 15)
+	MATNormalise <- MatNormalization(celSetTables)
 	celSetMATNormalised <- process(MATNormalise)
 	celSetMATNormalisedUniquePositions <- convertToUnique(celSetMATNormalised)
 	experimentNames <- getNames(celSetMATNormalisedUniquePositions)
