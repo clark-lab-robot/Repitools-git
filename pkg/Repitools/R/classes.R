@@ -100,4 +100,8 @@ setMethod("[", "ClusteredCoverageList",
 	    freq = x@freq, s.width = x@s.width[i], cluster.id = x@cluster.id,
 	    expr = x@expr, sort.data = x@sort.data, sort.name = x@sort.name)
     })
+    
 
+# container for output of regionStats()    
+setClass("RegionStats",representation("list"))
+setIs("RegionStats","LargeDataObject")

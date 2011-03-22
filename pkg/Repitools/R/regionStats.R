@@ -1,94 +1,9 @@
 setGeneric("regionStats", function(x, design, ...){standardGeneric("regionStats")})
 
-.regionStats <- function(diffs, design, ch, sp, fdrLevel, nPermutations, probeWindow, meanTrim, nProbes, maxGap, twoSides, verbose, returnTrimmedMeans) {
 
+.regionStats <- function(diffs, design, ch, sp, fdrLevel, nPermutations, probeWindow, 
+                         meanTrim, nProbes, maxGap, twoSides, verbose, returnTrimmedMeans) {
 
-  getBed <- function(score, ch, sp, cut=NULL, nProbes=10, maxGap, twoSides) {
-    if( is.null(cut) )
-      stop("Need to specify 'cut'.")
-    posInd <- getRegions(score, ch, sp, nProbes, maxGap, cut, twoSides, doJoin=TRUE)
-    if( is.null(posInd) )
-      return(list())
-    posReg <- data.frame(chr=paste("chr",ch[posInd$start],sep=""),
-                         start=sp[posInd$start],
-	                 end=sp[posInd$end], score=0, 
-                         startInd=posInd$start, 
-                         endInd=posInd$end, 
-                         stringsAsFactors=F)
-    for(i in 1:nrow(posInd))
-      posReg$score[i] <- round(median(score[ (posInd$start[i]:posInd$end[i]) ]),3)
-    posReg
-  }
-
-  
-  getRegions <- function(score, ch, sp, nProbes, maxGap, cutoff, twoSides, doJoin) {
-    getRegionsChr <- function(ind, score, sp, nProbes, maxGap, cutoff, doJoin) {
-#pad the beginning & end
-      probes <- c(FALSE, score[ind] > cutoff, FALSE)
-
-      #insert FALSEs in to break up regions with gaps>maxGap
-      probeGaps <- which(diff(sp[ind])>maxGap)
-      num.gaps <- length(probeGaps)
-
-      ind.2 <- rep(NA, length(ind)+num.gaps)
-      ind.gaps <- probeGaps+1:num.gaps
-      ind.nogaps <- (1:length(ind.2))[-ind.gaps]
-      ind.2[ind.nogaps] <- ind
-
-      probes.2 <- rep(FALSE, length(probes)+num.gaps)
-      probes.gaps <- probeGaps+1:num.gaps+1
-      probes.nogaps <- (1:length(probes.2))[-probes.gaps]
-      probes.2[probes.nogaps] <- probes
- 
-      df <- diff(probes.2)
-      st <- ind.2[which(df==1)]
-      en <- ind.2[which(df==-1)-1]
-
-      #sort starts & ends again
-      st <- sort(st)
-      en <- sort(en)
-
-      #join regions with < maxGap basepairs between positive probes
-      if (doJoin) {
-        gap.w <- which(sp[st[-1]]-sp[rev(rev(en)[-1])] < maxGap)
-        if (length(gap.w)>0) {
-          st <- st[-(gap.w+1)]
-          en <- en[-gap.w]
-        }
-      }
-
-      w <- (en-st+1) >= nProbes
-      if (sum(w)==0)
-        return(data.frame(start=NULL, end=NULL))
-      else
-        data.frame(start=st,end=en)[w,]
-    }
-
-    chrInds <- split(1:length(score), ch)
-    regTable <- data.frame(start=NULL, end=NULL)
-    for (i in 1:length(chrInds)) regTable <- rbind(regTable, getRegionsChr(chrInds[[i]], score, sp, nProbes, maxGap, cutoff, doJoin))
-    if (twoSides) for (i in 1:length(chrInds)) regTable <- rbind(regTable, getRegionsChr(chrInds[[i]], -score, sp,  nProbes, maxGap, cutoff, doJoin))
-    return(regTable)
-  }
-
-  
-  fdrTable <- function(realScore, permScore, ch, sp, cutsLength, nProbes, maxGap, twoSides, minCutoff = .5, maxCutoff=max( abs(permScore), na.rm=TRUE ), verbose) {
-    require(gsmoothr)
-    cuts <- seq(minCutoff,maxCutoff,length=cutsLength)
-
-    fdr <- matrix(,nr=length(cuts),nc=4)
-    colnames(fdr) <- c("cutoff","neg","pos","fdr")
-    for(i in 1:length(cuts)) {
-      pos <- nrow(getRegions(realScore, ch, sp, nProbes, maxGap, cuts[i], twoSides, doJoin=FALSE))
-      neg <- nrow(getRegions(permScore, ch, sp, nProbes, maxGap, cuts[i], twoSides, doJoin=FALSE))
-      fdr[i,] <- c(cuts[i],neg,pos,min(neg/pos,1))
-      if (verbose) cat(".")
-    }
-    if (verbose) cat("\n")
-    as.data.frame(fdr)
-  }
-
-  
   uch <- unique(ch)
 
   tmeanReal <- matrix(,nr=nrow(diffs),nc=ncol(diffs))
@@ -103,61 +18,67 @@ setGeneric("regionStats", function(x, design, ...){standardGeneric("regionStats"
   
   # calculate smoothed statistics
   for(col in 1:ncol(diffs)) {
+  
     if( verbose )
-	  cat("Calculating trimmed means for column", col, "of design matrix:\n")
+	    cat("Calculating trimmed means for column", col, "of design matrix:\n")
+      
     for(ii in 1:length(uch)) {
       if( verbose )
-	    cat(" ", uch[ii], "-", sep="")
-	  w <- which(ch == uch[ii])
+	      cat(" ", uch[ii], "-", sep="")
+	    w <- which(ch == uch[ii])
 	  
-	  tmeanReal[w,col] <- gsmoothr::tmeanC(sp[w], diffs[w,col], probeWindow=probeWindow, trim=meanTrim, nProbes=nProbes)
-  	  if( verbose )
-	      cat("R")
-	  for(j in 1:ncol(tmeanPerms[[col]])) {
-	    s <- sample(1:nrow(tmeanReal))
-	    tmeanPerms[[col]][w,j] <- gsmoothr::tmeanC(sp[w], diffs[s,col][w], probeWindow=probeWindow, trim=meanTrim, nProbes=nProbes)
-		if( verbose )
-	      cat(".")
+	    tmeanReal[w,col] <- gsmoothr::tmeanC(sp[w], diffs[w,col], probeWindow=probeWindow, 
+                                           trim=meanTrim, nProbes=nProbes)
+  	    if( verbose )
+	        cat("R")
+	    for(j in 1:ncol(tmeanPerms[[col]])) {
+	      s <- sample(1:nrow(tmeanReal))
+	      tmeanPerms[[col]][w,j] <- gsmoothr::tmeanC(sp[w], diffs[s,col][w], probeWindow=probeWindow, 
+                                                   trim=meanTrim, nProbes=nProbes)
+		    if( verbose )
+	        cat(".")
 
+	    }
 	  }
-	}
 
 
     if( verbose )
       cat("\nCalculating FDR table.\n")
-    # calculate FDR table
-	mx <- max(abs(tmeanPerms[[col]]),na.rm=TRUE)
+	  mx <- max(abs(tmeanPerms[[col]]),na.rm=TRUE)
 
 
-	z <- apply(tmeanPerms[[col]], 2, FUN=function(u) fdrTable(tmeanReal[,col], u, ch, sp, 40, nProbes, maxGap, twoSides, maxCut=mx, verbose=verbose))
-	fdrTabs[[col]] <- z[[1]]
-	for(i in 2:length(nPermutations))
-	  fdrTabs[[col]][,2:3] <- fdrTabs[[col]][,2:3] + z[[i]][,2:3]
-	fdrTabs[[col]]$fdr <- pmin(fdrTabs[[col]]$neg/fdrTabs[[col]]$pos,1)  # re-adjust FDR calculation over all permutations
+    z <- apply(tmeanPerms[[col]], 2, FUN=function(u) .fdrTable(tmeanReal[,col], u, ch, sp, 40, nProbes, maxGap, 
+                                                               twoSides, maxCut=mx, verbose=verbose))
+    fdrTabs[[col]] <- z[[1]]
+	  for(i in 2:length(nPermutations))
+	    fdrTabs[[col]][,2:3] <- fdrTabs[[col]][,2:3] + z[[i]][,2:3]
+    # re-adjust FDR calculation over all permutations
+	  fdrTabs[[col]]$fdr <- pmin(fdrTabs[[col]]$neg/fdrTabs[[col]]$pos,1)  
 	
-	# select lowest cutoff such that FDR is achieved
-	w <- which(fdrTabs[[col]]$fdr < fdrLevel )
-	cut <- min( fdrTabs[[col]]$cut[w], na.rm=TRUE )
+	  # select lowest cutoff such that FDR is achieved
+	  w <- which(fdrTabs[[col]]$fdr < fdrLevel )
+	  cut <- min( fdrTabs[[col]]$cut[w], na.rm=TRUE )
 	
     if( verbose )
       cat("Using cutoff of", cut, "for FDR of", fdrLevel,"\n")
 	  
-	regions[[col]] <- getBed(tmeanReal[,col], ch, sp, cut, nProbes, maxGap, twoSides)
+	  regions[[col]] <- .getBed(tmeanReal[,col], ch, sp, cut, nProbes, maxGap, twoSides)
 	
 	
   }
   
-  if(returnTrimmedMeans == TRUE)
-  {
-	return(list(regions=regions,tmeanReal=tmeanReal,tmeanPerms=tmeanPerms,fdrTables=fdrTabs))
-  } else {
-	return(list(regions=regions, fdrTables=fdrTabs))
+  if(returnTrimmedMeans == FALSE) {
+    tmeanReal <- NULL
+    tmeanPerms <- NULL
   }
 
+  new("RegionStats",list(regions=regions,tmeanReal=tmeanReal,tmeanPerms=tmeanPerms,fdrTables=fdrTabs))
 }
 
 
-setMethod("regionStats","AffymetrixCelSet",function(x, design, fdrLevel=0.05, nPermutations=5, probeWindow=600, meanTrim=.1, nProbes=10, maxGap=500, twoSides=TRUE, verbose=TRUE, ind=NULL, returnTrimmedMeans = FALSE, ...) {
+setMethod("regionStats","AffymetrixCelSet", function(x, design, fdrLevel=0.05, nPermutations=5, probeWindow=600, 
+                                            meanTrim=.1, nProbes=10, maxGap=500, twoSides=TRUE, verbose=TRUE, ind=NULL, 
+                                            returnTrimmedMeans = FALSE, ...) {
 
   require(aroma.affymetrix)
 
@@ -165,7 +86,6 @@ setMethod("regionStats","AffymetrixCelSet",function(x, design, fdrLevel=0.05, nP
   # design - design matrix
   # ind - (optional) 
 
-  
   cdf <- getCdf(x)
     
   if( is.null(ind) )
@@ -197,12 +117,16 @@ setMethod("regionStats","AffymetrixCelSet",function(x, design, fdrLevel=0.05, nP
   rm(dmP)
   ifelse( verbose, print(gc()), gc())
 
-  return(.regionStats(diffs, design, ch, sp, fdrLevel, nPermutations, probeWindow, meanTrim, nProbes, maxGap, twoSides, verbose, returnTrimmedMeans))
+  return(.regionStats(diffs, design, ch, sp, fdrLevel, nPermutations, probeWindow, meanTrim, 
+         nProbes, maxGap, twoSides, verbose, returnTrimmedMeans))
 })
 
 
-setMethod("regionStats","matrix",function(x, design, fdrLevel=0.05, nPermutations=5, probeWindow=600, meanTrim=.1, nProbes=10, maxGap=500, twoSides=TRUE, verbose=TRUE, ndf, returnTrimmedMeans = FALSE, ...) {
-  #nimblegen data
+setMethod("regionStats","matrix", function(x, design, fdrLevel=0.05, nPermutations=5, probeWindow=600, 
+                                  meanTrim=.1, nProbes=10, maxGap=500, twoSides=TRUE, verbose=TRUE, ndf, 
+                                  returnTrimmedMeans = FALSE, ...) {
+                                  
+  # meant for nimblegen data
 
   # cut down on the amount of data read, if some rows of the design matrix are all zeros
   w <- which( rowSums(design != 0) > 0 )
@@ -213,6 +137,95 @@ setMethod("regionStats","matrix",function(x, design, fdrLevel=0.05, nPermutation
     cat("Removing", sum(!w), "rows, due to NAs.\n")
 
 
-  return(.regionStats(diffs, design, gsub("chr","",ndf$chr), ndf$position, fdrLevel, nPermutations, probeWindow, meanTrim, nProbes, maxGap, twoSides, verbose, returnTrimmedMeans))
+  return(.regionStats(diffs, design, gsub("chr","",ndf$chr), ndf$position, fdrLevel, 
+                      nPermutations, probeWindow, meanTrim, nProbes, maxGap, twoSides, 
+                      verbose, returnTrimmedMeans))
 })
 
+
+
+# accesory functions
+.getBed <- function(score, ch, sp, cut=NULL, nProbes=10, maxGap, twoSides) {
+  if( is.null(cut) )
+    stop("Need to specify 'cut'.")
+  posInd <- getRegions(score, ch, sp, nProbes, maxGap, cut, twoSides, doJoin=TRUE)
+  if( is.null(posInd) )
+    return(list())
+  posReg <- data.frame(chr=paste("chr",ch[posInd$start],sep=""),
+                       start=sp[posInd$start], end=sp[posInd$end], score=0, 
+                       startInd=posInd$start, endInd=posInd$end, stringsAsFactors=FALSE)
+  for(i in 1:nrow(posInd))
+    posReg$score[i] <- round(median(score[ (posInd$start[i]:posInd$end[i]) ]),3)
+  posReg
+}
+
+.getRegionsChr <- function(ind, score, sp, nProbes, maxGap, cutoff, doJoin) {
+  #pad the beginning & end
+  probes <- c(FALSE, score[ind] > cutoff, FALSE)
+
+  #insert FALSEs in to break up regions with gaps>maxGap
+  probeGaps <- which(diff(sp[ind])>maxGap)
+  num.gaps <- length(probeGaps)
+
+  ind.2 <- rep(NA, length(ind)+num.gaps)
+  ind.gaps <- probeGaps+1:num.gaps
+  ind.nogaps <- (1:length(ind.2))[-ind.gaps]
+  ind.2[ind.nogaps] <- ind
+
+  probes.2 <- rep(FALSE, length(probes)+num.gaps)
+  probes.gaps <- probeGaps+1:num.gaps+1
+  probes.nogaps <- (1:length(probes.2))[-probes.gaps]
+  probes.2[probes.nogaps] <- probes
+ 
+  df <- diff(probes.2)
+  st <- ind.2[which(df==1)]
+  en <- ind.2[which(df==-1)-1]
+
+  #sort starts & ends again
+  st <- sort(st)
+  en <- sort(en)
+
+  #join regions with < maxGap basepairs between positive probes
+  if (doJoin) {
+    gap.w <- which(sp[st[-1]]-sp[rev(rev(en)[-1])] < maxGap)
+    if (length(gap.w)>0) {
+      st <- st[-(gap.w+1)]
+       en <- en[-gap.w]
+    }
+  }
+
+  w <- (en-st+1) >= nProbes
+  if (sum(w)==0)
+    return(data.frame(start=NULL, end=NULL))
+  else
+    data.frame(start=st,end=en)[w,]
+}
+
+
+.getRegions <- function(score, ch, sp, nProbes, maxGap, cutoff, twoSides, doJoin) {
+  chrInds <- split(1:length(score), ch)
+  regTable <- data.frame(start=NULL, end=NULL)
+  for (i in 1:length(chrInds)) 
+    regTable <- rbind(regTable, .getRegionsChr(chrInds[[i]], score, sp, nProbes, maxGap, cutoff, doJoin))
+  if (twoSides)
+    for (i in 1:length(chrInds))
+      regTable <- rbind(regTable, .getRegionsChr(chrInds[[i]], -score, sp,  nProbes, maxGap, cutoff, doJoin))
+  return(regTable)
+}
+
+.fdrTable <- function(realScore, permScore, ch, sp, cutsLength, nProbes, maxGap, twoSides, 
+                      minCutoff = .5, maxCutoff=max( abs(permScore), na.rm=TRUE ), verbose) {
+  require(gsmoothr)
+  cuts <- seq(minCutoff,maxCutoff,length=cutsLength)
+
+  fdr <- matrix(,nr=length(cuts),nc=4)
+  colnames(fdr) <- c("cutoff","neg","pos","fdr")
+  for(i in 1:length(cuts)) {
+    pos <- nrow(getRegions(realScore, ch, sp, nProbes, maxGap, cuts[i], twoSides, doJoin=FALSE))
+    neg <- nrow(getRegions(permScore, ch, sp, nProbes, maxGap, cuts[i], twoSides, doJoin=FALSE))
+    fdr[i,] <- c(cuts[i],neg,pos,min(neg/pos,1))
+    if (verbose) cat(".")
+  }
+  if (verbose) cat("\n")
+  as.data.frame(fdr)
+}
