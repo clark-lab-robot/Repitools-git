@@ -104,4 +104,11 @@ setMethod("[", "ClusteredCoverageList",
 
 # container for output of regionStats()    
 setClass("RegionStats",representation("list"))
-setIs("RegionStats","LargeDataObject")
+
+setMethod("show", "RegionStats",function(object) {
+  cat("Object of class 'RegionStats'.\n")
+  cat("Results for: ", paste(names(object$regions),collapse=" "), "\n")
+  cat("Names:", paste(names(object),collapse=" "), "\n")
+})
+
+
