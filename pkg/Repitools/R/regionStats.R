@@ -148,7 +148,7 @@ setMethod("regionStats","matrix", function(x, design, fdrLevel=0.05, nPermutatio
 .getBed <- function(score, ch, sp, cut=NULL, nProbes=10, maxGap, twoSides) {
   if( is.null(cut) )
     stop("Need to specify 'cut'.")
-  posInd <- getRegions(score, ch, sp, nProbes, maxGap, cut, twoSides, doJoin=TRUE)
+  posInd <- .getRegions(score, ch, sp, nProbes, maxGap, cut, twoSides, doJoin=TRUE)
   if( is.null(posInd) )
     return(list())
   posReg <- data.frame(chr=paste("chr",ch[posInd$start],sep=""),
@@ -221,8 +221,8 @@ setMethod("regionStats","matrix", function(x, design, fdrLevel=0.05, nPermutatio
   fdr <- matrix(,nr=length(cuts),nc=4)
   colnames(fdr) <- c("cutoff","neg","pos","fdr")
   for(i in 1:length(cuts)) {
-    pos <- nrow(getRegions(realScore, ch, sp, nProbes, maxGap, cuts[i], twoSides, doJoin=FALSE))
-    neg <- nrow(getRegions(permScore, ch, sp, nProbes, maxGap, cuts[i], twoSides, doJoin=FALSE))
+    pos <- nrow(.getRegions(realScore, ch, sp, nProbes, maxGap, cuts[i], twoSides, doJoin=FALSE))
+    neg <- nrow(.getRegions(permScore, ch, sp, nProbes, maxGap, cuts[i], twoSides, doJoin=FALSE))
     fdr[i,] <- c(cuts[i],neg,pos,min(neg/pos,1))
     if (verbose) cat(".")
   }
