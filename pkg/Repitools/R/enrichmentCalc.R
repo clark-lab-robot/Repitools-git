@@ -1,44 +1,34 @@
-setGeneric("enrichmentCalc", function(rs, organism, ...){standardGeneric("enrichmentCalc")})
+setGeneric("enrichmentCalc", function(x, ...) standardGeneric("enrichmentCalc"))
 
-setMethod("enrichmentCalc", c("GenomeDataList", "BSgenome"), function(rs, organism, seqLen=NULL, ...) {
-	return(lapply(IRanges::as.list(rs), enrichmentCalc, organism, seqLen, ...))
+setMethod("enrichmentCalc", "GenomeDataList",
+    function(x, ...)
+{
+    enrichmentCalc(.GDL2GRL(x), ...)
 })
 
-setMethod("enrichmentCalc", c("GenomeData", "BSgenome"), function(rs, organism, seqLen=NULL, do.warn=FALSE) {
-	if (class(rs) != "GenomeData") {
-	} else if (class(rs[[1]]) != "Rle") {
-		if (class(rs[[1]]) != "IRanges") {
-			if (is.null(seqLen)) 
-				stop("If rs has not been extended, seqLen must be supplied")
-			rs <- chipseq::extendReads(rs, seqLen)
-		}
-		rs <- BSgenome::gdapply(rs, IRanges::coverage)
-	}
-	rs <- IRanges::as.list(rs)
-	max.cov <- max(sapply(rs, max))
-	cov.table <- numeric(max.cov+1)
-	names(cov.table) <- 0:max.cov
-	chr.lengths <- GenomicRanges::seqlengths(organism)
-	for (i in 1:length(rs)) {
-		temp <- IRanges::table(rs[[i]])
-		cov.table[names(temp)] <- cov.table[names(temp)]+temp
-		if (length(rs[[i]])>chr.lengths[names(rs)[i]]) cov.table["0"] <- cov.table["0"] + length(rs[[i]])-chr.lengths[names(rs)[i]]
-			else if (do.warn) warning("Coverage of ",names(rs)[i]," extends off end")
-	}
-	cov.table <- data.frame(coverage=0:max.cov, bases=cov.table, row.names=NULL)
-	return(cov.table)
+setMethod("enrichmentCalc", "GRangesList",
+    function(x, organism, seq.len=NULL, verbose=TRUE)
+{
+    xNames <- if (is.null(names(x))) 1:length(x) else names(x)
+    ans <- lapply(1:length(x), function(i)
+        {
+            if (verbose) cat(xNames[i])
+            enrichmentCalc(x[[i]], organism, seq.len, verbose)
+        })
+    if (verbose) cat("\n")
+    ans
 })
 
-setMethod("enrichmentCalc", c("GRanges", "BSgenome"), function(rs, organism, seqLen=NULL) {
-	require(GenomicRanges)
-	
-	rs <- resize(rs, seqLen)
-        start(rs) <- IntegerList(lapply(start(rs), function(u) { u[u<1] <- 1; u })) # don't allow extension below 1
-	chrs <- levels(seqnames(rs))
-	seqlengths(rs) <- seqlengths(organism)[chrs]
-	coverage <- colSums(table(coverage(rs)))
-	#coverage <- colSums(table(coverage(resize(rs, seqLen))))
-	coverageTable <- data.frame(as.numeric(names(coverage)), coverage)
-	colnames(coverageTable) <- c("coverage", "bases")
-	return(coverageTable)
+setMethod("enrichmentCalc", "GRanges",
+    function(x, organism, seq.len=NULL, verbose=TRUE)
+{
+    if (!all(levels(seqnames(x)) %in% seqnames(organism)))
+        stop("Chromosome name mismatch bewteen 'x' and 'organism'")
+    seqlengths(x) <- seqlengths(organism)[levels(seqnames(x))]
+    if (!is.null(seq.len)) x <- resize(x, seq.len)
+    covTable <- colSums(table(coverage(x)))
+    covTable <- data.frame(as.numeric(names(covTable)), covTable)
+    colnames(covTable) <- c("coverage", "bases")
+    if (verbose) cat("; ")
+    covTable
 })

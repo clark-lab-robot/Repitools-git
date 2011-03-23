@@ -46,7 +46,7 @@ cpgDensity <- cpgDensityCalc(genes, window = 100, wFunction = "log", organism = 
 if(!isTRUE(all.equal(round(cpgDensity, 3), c(2.424, 1.882, 1.436, 0.084, 0.379, 0.000, 0.000, 0.263, 1.392, 0.000))))
 	stop("cpgDensityCalc not working for window = 100, scaling = log")
 cpgDensity <- cpgDensityCalc(genes, window = 1000, wFunction = "exp", organism = Hsapiens)
-if(!isTRUE(all.equal(round(cpgDensity, 3), c(4.874, 5.828, 4.999, 2.239, 1.567, 0.851, 0.054, 5.589, 3.229,0.062))))
+if(!isTRUE(all.equal(round(cpgDensity, 3), c(4.874, 5.835, 4.999, 2.239, 1.567, 0.851, 0.054, 5.589, 3.229,0.062))))
 	stop("cpgDensityCalc not working for window = 1000, scaling = exp")
 cpgDensity <- cpgDensityCalc(genes, window = 500, wFunction = "none", organism = Hsapiens)
 if(!isTRUE(all.equal(cpgDensity, c(11, 14, 16, 6, 4, 2, 0, 15, 9, 0))))
@@ -54,7 +54,7 @@ if(!isTRUE(all.equal(cpgDensity, c(11, 14, 16, 6, 4, 2, 0, 15, 9, 0))))
 cat("cpgDensityCalc tested fine.\n")
 
 GCpercent <- gcContentCalc(genes, organism = Hsapiens)
-if(!isTRUE(all.equal(GCpercent, c(0.504, 0.586, 0.558, 0.470, 0.538, 0.304, 0.356, 0.636, 0.442, 0.388))))
+if(!isTRUE(all.equal(GCpercent, c(0.504, 0.586, 0.560, 0.470, 0.540, 0.304, 0.356, 0.638, 0.444, 0.388))))
 	stop("Error in gcContentCalc function")
 cat("gcContentCalc tested fine.\n")
 

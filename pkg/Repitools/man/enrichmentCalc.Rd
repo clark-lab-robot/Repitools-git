@@ -1,30 +1,34 @@
 \name{enrichmentCalc}
 \alias{enrichmentCalc}
-\alias{enrichmentCalc,GenomeDataList,BSgenome-method}
-\alias{enrichmentCalc,GenomeData,BSgenome-method}
-\alias{enrichmentCalc,GRanges,BSgenome-method}
-%- Also NEED an '\alias' for EACH other topic documented here.
+\alias{enrichmentCalc,GenomeDataList-method}
+\alias{enrichmentCalc,GRangesList-method}
+\alias{enrichmentCalc,GRanges-method}
 \title{Calculate sequencing enrichment}
-\description{Function to calculate enrichment over the whole genome of sequencing reads.
+\description{Function to calculate enrichment over the whole genome of sequencing reads.}
+
+\section{Usage}{
+  \describe{
+    \code{enrichmentCalc(x, organism, seq.len=NULL)}
+  }
 }
-\usage{
-  \S4method{enrichmentCalc}{GenomeDataList,BSgenome}(rs, organism, seqLen=NULL, ...)
-  \S4method{enrichmentCalc}{GenomeData,BSgenome}(rs, organism, seqLen=NULL, do.warn=FALSE)
-  \S4method{enrichmentCalc}{GRanges,BSgenome}(rs, organism, seqLen=NULL)
+\section{Arguments}{
+  \describe{
+      \item{x:}{A \code{GRangesList}, \code{GRanges}, or \code{GenomeDataList} object.}
+      \item{organism:}{The \code{BSgenome} object to calculate enrichment upon - only used to extract chromosome lengths.}
+      \item{seq.len:}{If sequencing reads need to be extended, the fragment size to be used}
+  }
 }
-%- maybe also 'usage' for other objects documented here.
-\arguments{
-  \item{rs}{A \code{GenomeData}, \code{GenomeDataList}, or \code{GRanges} object.}
-  \item{organism}{The \code{BSgenome} object to calculate enrichment upon - only used to extract chromosome lengths.}
-  \item{seqLen}{If sequencing reads need to be extended, the fragment size to be used}
-  \item{do.warn}{Warn about coverage objects going over the edges of the chromosome lengths specified by the \code{organism} object}
-  \item{...}{If wanting to pass the \code{do.warn} argument from the \code{GenomeDataList} version of the function to the \code{GenomeData} version, this allows it.}
+
+\section{Details}{
+  \describe{
+    If \code{x} has not been extended, it is extended using the supplied \code{seq.len} and then turned into a coverage object. The number of extended reads covering each base pair of the genome is then tabulated, and returned as a \code{data.frame}.
+  }
 }
-\details{
-  If \code{rs} has not been extended, it is extended using the supplied \code{seqLen} and then turned into a coverage object. The number of extended reads covering each base pair of the genome is then tabulated, and returned as a \code{data.frame}.
-}
-\value{
-  A \code{data.frame} containing columns \code{coverage} and \code{bases}.
+\section{Value}{
+  \describe{
+    For the \code{GRanges} method, \code{data.frame} containing columns \code{coverage} and \code{bases}.
+    For the \code{GRangesList} and \code{GenomeDataList} methods, a list of such \code{data.frame}s.
+  }
 }
 \author{Aaron Statham}
 \examples{
