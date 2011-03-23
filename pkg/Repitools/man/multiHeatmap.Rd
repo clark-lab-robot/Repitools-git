@@ -5,7 +5,7 @@
 This function takes a list of matrices and plots heatmaps for each one.  There are several features for the spacing (X and Y), colour scales, titles and label sizes.  If a matrix has row and/or column names, these are added to the plot.
 }
 \usage{
-multiHeatmap(dataList, colourList, titles = NULL, main = "", showColour = TRUE, xspace = 1, cwidth = 0.5, ystarts = c(0.05, 0.9, 0.925, 0.95, 0.98), rlabelcex = 1, clabelcex = 1, titlecex = 1.2, maincex = 1.5, scalecex = 0.7)
+multiHeatmap(dataList, colourList, titles = NULL, main = "", showColour = TRUE, xspace = 1, cwidth = 0.5, ystarts = c(0.05, 0.9, 0.925, 0.95, 0.98), rlabelcex = 1, clabelcex = 1, titlecex = 1.2, maincex = 1.5, scalecex = 0.7, offset=.001)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,6 +22,7 @@ multiHeatmap(dataList, colourList, titles = NULL, main = "", showColour = TRUE, 
   \item{titlecex}{character expansion factor for panel titles}
   \item{maincex}{character expansion factor for main title}
   \item{scalecex}{character expansion factor for colour scale labels}
+  \item{offset}{small offset to adjust scales for point beyond the colour scale boundaries}
 }
 \value{
 This function is called for its output, a plot in the current device.

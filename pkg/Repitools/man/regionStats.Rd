@@ -2,6 +2,9 @@
 \Rdversion{1.1}
 \alias{regionStats}
 \alias{regionStats,AffymetrixCelSet-method}
+\alias{show,RegionStats-method}
+\alias{RegionStats-class}
+\alias{class:RegionStats}
 \alias{regionStats,matrix-method}
 \title{Find Regions of significance in microarray data}
 \description{
@@ -29,7 +32,7 @@ The function finds the highest smoothed score cutoff for a pre-specified FDR. Sm
   \item{...}{Arguments passed to internal function for common processing.}
 }
 \value{
-	A list with elements
+	A \code{RegionStats} object (list) with elements
 	\item{regions}{A list of \code{data.frame}. Each \code{data.frame} has columns \code{chr}, \code{start}, \code{end}, \code{score}.}
 	\item{tMeanReal}{Matrix of smoothed scores of intensity data. Each column is an experimental design.}
 	\item{tMeanPerms}{Matrix of smoothed scores of permuted intensity data. Each column is an experimental design.}
@@ -37,6 +40,28 @@ The function finds the highest smoothed score cutoff for a pre-specified FDR. Sm
 }
 \author{Mark Robinson}
 \examples{
-function (cs, design, fdrLevel = 0.05, nPermutations = 5, probeWindow = 600, meanTrim = 0.1, nProbes = 10, verbose = TRUE, ...) 
-UseMethod("regionStats")
+\dontrun{
+library(Repitools)
+library(aroma.affymetrix)
+
+# assumes appropriate files are at annotationData/chipTypes/Hs_PromPR_v02/
+cdf <- AffymetrixCdfFile$byChipType("Hs_PromPR_v02",verbose=-20)
+cdfU <- getUniqueCdf(cdf,verbose=-20)
+
+# assumes appropriate files are at rawData/experiment/Hs_PromPR_v02/
+cs <- AffymetrixCelSet$byName("experiment",cdf=cdf,verbose=-20)
+mn <- MatNormalization(cs)
+csMN <- process(mn,verbose=-50)
+csMNU <- convertToUnique(csMN,verbose=-20)
+
+#> getNames(cs)
+# [1] "samp1"  "samp2"  "samp3"  "samp4"
+
+design <- matrix( c(1,-1,rep(0,length(cs)-2)), ncol=1, dimnames=list(getNames(cs),"elut5_L-P") )
+
+# just get indices of chr7 here
+ind <- getCellIndices(cdfU, unit = indexOf(cdfU, "chr7F"), unlist = TRUE, useNames = FALSE)
+
+regs <- regionStats(csMNU, design, ind = ind, probeWindow = 500, verbose = TRUE)
+}
 }
