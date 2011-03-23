@@ -31,6 +31,7 @@ This function discovers regions of enrichment in ChIP-seq data, using the method
   \item{...}{Arguments passed from the \code{GenomeDataList} method to the \code{GRangesList} method.}
 }
 \value{
-Havent worked out what to return yet
+  A \code{\link{ChromaResults}} object.
 }
 \author{Aaron Statham}
+\seealso{\code{\link{ChromaResults}}}

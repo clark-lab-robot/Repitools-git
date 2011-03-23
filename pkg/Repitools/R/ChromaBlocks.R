@@ -96,6 +96,6 @@ setMethod("ChromaBlocks", c("GRangesList", "GRangesList"), function(rs.ip, rs.in
         if (verbose) cat("Using supplied cutoff of",cutoff,"\n")
         FDRTable <- NULL
     }
-    list(data=IPbins, regions=.callRegions(IPbins, cutoffs=cutoff, blockWidth = blockWidth, ipWidth = ipWidth, minBlocks = minBlocks), FDRTable=FDRTable, cutoff=cutoff)
+    new("ChromaResults", blocks=IPbins, regions=.callRegions(IPbins, cutoffs=cutoff, blockWidth = blockWidth, ipWidth = ipWidth, minBlocks = minBlocks), FDRTable=FDRTable, cutoff=cutoff)
 })
 

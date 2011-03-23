@@ -10,7 +10,7 @@ setClass("CoverageList", representation(
 					))
 
 setMethod("names", "CoverageList", function(x) x@marks)
-setGeneric("tables", function(x) {standardGeneric("tables")})
+setGeneric("tables", function(x) standardGeneric("tables"))
 setMethod("tables", "CoverageList", function(x) x@cvgs)
 setMethod("length", "CoverageList", function(x) length(x@marks))
 
@@ -111,6 +111,30 @@ setMethod("show", "RegionStats",function(object) {
   cat("Names:", paste(names(object),collapse=" "), "\n")
 })
 
+# container for output of ChromaBlocks()
+setClass("ChromaResults",
+    representation(
+        blocks="GRanges", 
+        regions="RangesList",
+        FDRTable="matrix",
+        cutoff="numeric"
+    )
+)
 
+setMethod("show", "ChromaResults", function(object) {
+  cat("Object of class 'ChromaResults'.\n")
+  cat(sum(sapply(object@regions, length)), "regions found with using a cutoff of", object@cutoff)
+})
 
+#ChromaResults Generics
+setGeneric("blocks", function(x) standardGeneric("blocks"))
+setGeneric("regions", function(x) standardGeneric("regions"))
+setGeneric("FDRTable", function(x) standardGeneric("FDRTable"))
+setGeneric("cutoff", function(x) standardGeneric("cutoff"))
+
+#ChromaResults Accessors
+setMethod("blocks", "ChromaResults", function(x) x@blocks)
+setMethod("regions", "ChromaResults", function(x) x@regions)
+setMethod("FDRTable", "ChromaResults", function(x) x@FDRTable)
+setMethod("cutoff", "ChromaResults", function(x) x@cutoff)
 
