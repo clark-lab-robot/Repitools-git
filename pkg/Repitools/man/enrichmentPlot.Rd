@@ -7,7 +7,7 @@
 
 \section{Usage}{
   \describe{
-    \code{enrichmentPlot(x, organism, seq.len, cols=rainbow(length(x)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE, ...)}
+    \code{enrichmentPlot(x, organism, seqLen, cols=rainbow(length(x)), xlim=c(0,20), main="Enrichment Plot", total.lib.size=TRUE, verbose=FALSE, ...)}
   }
 }
 
@@ -15,7 +15,7 @@
   \describe{
   \item{x:}{A \code{GRangesList} or \code{GenomeDataList} object of reads to plot enrichment of.}
   \item{organism:}{The \code{BSgenome} object to calculate enrichment upon - only used to extract chromosome lengths.}
-  \item{seq.len:}{The fragment size to be used for extending the sequencing reads.}
+  \item{seqLen:}{The fragment size to be used for extending the sequencing reads.}
   \item{cols:}{The line colour for each element of \code{x}}
   \item{xlim:}{\code{xlim} parameter passed to \code{plot}, the default is appropriate for \code{linear} \code{cpgDensityCalc} weighting.}
   \item{main:}{\code{main} parameter passed to \code{plot}}

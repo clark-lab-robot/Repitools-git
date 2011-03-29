@@ -8,20 +8,20 @@
 
 \section{Usage}{
   \describe{
-    \code{enrichmentCalc(x, organism, seq.len=NULL)}
+    \code{enrichmentCalc(x, organism, seqLen=NULL)}
   }
 }
 \section{Arguments}{
   \describe{
       \item{x:}{A \code{GRangesList}, \code{GRanges}, or \code{GenomeDataList} object.}
       \item{organism:}{The \code{BSgenome} object to calculate enrichment upon - only used to extract chromosome lengths.}
-      \item{seq.len:}{If sequencing reads need to be extended, the fragment size to be used}
+      \item{seqLen:}{If sequencing reads need to be extended, the fragment size to be used}
   }
 }
 
 \section{Details}{
   \describe{
-    If \code{x} has not been extended, it is extended using the supplied \code{seq.len} and then turned into a coverage object. The number of extended reads covering each base pair of the genome is then tabulated, and returned as a \code{data.frame}.
+    If \code{x} has not been extended, it is extended using the supplied \code{seqLen} and then turned into a coverage object. The number of extended reads covering each base pair of the genome is then tabulated, and returned as a \code{data.frame}.
   }
 }
 \section{Value}{

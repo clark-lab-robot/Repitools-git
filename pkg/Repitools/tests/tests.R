@@ -39,7 +39,7 @@ if(!all(lookupTable == correctLookupTable, na.rm = TRUE))
 	stop("Error in makeWindowLookupTable function")
 cat("makeWindowLookupTable tested fine.\n")
 
-cpgDensity <- cpgDensityCalc(genes, organism = Hsapiens)
+cpgDensity <- cpgDensityCalc(genes, organism = Hsapiens, wFunction="linear")
 if(!isTRUE(all.equal(cpgDensity, c(5.784, 7.620, 5.828, 2.928, 2.080, 1.252, 0.000, 7.404, 3.928, 0.000))))
 	stop("cpgDensityCalc not working for window = 500, scaling = linear")
 cpgDensity <- cpgDensityCalc(genes, window = 100, wFunction = "log", organism = Hsapiens)

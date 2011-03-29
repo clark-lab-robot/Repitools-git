@@ -9,18 +9,18 @@
 }
 \usage{
   \S4method{cpgDensityCalc}{GenomeDataList}(x, ...)
-  \S4method{cpgDensityCalc}{GRangesList}(x, ...)
-  \S4method{cpgDensityCalc}{GRanges}(x, seq.len, ...)
-  \S4method{cpgDensityCalc}{data.frame}(x, window=500, wFunction=c("linear","exp","log","none"), organism, verbose=TRUE)
+  \S4method{cpgDensityCalc}{data.frame}(x, organism, ...)
+  \S4method{cpgDensityCalc}{GRangesList}(x, window=500, wFunction=c("none","linear","exp","log"), organism, verbose=TRUE, seqLen=NULL)
+  \S4method{cpgDensityCalc}{GRanges}(x, window=500, wFunction=c("none","linear","exp","log"), organism, verbose=TRUE, seqLen=NULL)
 }
 \arguments{
   \item{x}{A \code{data.frame}, with columns \code{chr} and \code{position}, a \code{GRangesList} object, \code{GenomeDataList} or \code{GRanges}.}
   \item{window}{Bases around the locations that are in the window. Calculation will consider \code{windowSize/2-1} bases upstream, and \code{windowSize/2} bases downstream.}
   \item{wFunction}{Weighting function to use. Can be \code{none}, \code{linear}, \code{log}, or \code{exp}}
   \item{organism}{The \code{BSgenome} object to calculate CpG density upon.}
-  \item{seq.len}{The fragment size of the sequence reads in \code{x}}
+  \item{seqLen}{The fragment size of the sequence reads in \code{x}}
   \item{verbose}{Print details of processing.}
-  \item{...}{Arguments passed into the \code{data.frame} method}
+  \item{...}{Arguments passed into the \code{GRanges} method}
 }
 \details{
   If the version of the data frame with the start, end, and strand columns is given, the window will be created around the TSS.
@@ -34,5 +34,5 @@
 \examples{
 require(BSgenome.Hsapiens.UCSC.hg18)
 TSSTable <- data.frame(chr=paste("chr",c(1,2),sep=""), position=c(100000,200000))
-cpgDensityCalc(TSSTable, 600, organism=Hsapiens)
+cpgDensityCalc(TSSTable, organism=Hsapiens, window=600)
 }

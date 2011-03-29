@@ -3,10 +3,10 @@ setGeneric("sequenceCalc", function(x, ...) standardGeneric("sequenceCalc"))
 setMethod("sequenceCalc", "GRanges",
     function(x, organism, pattern, fixed=TRUE, positions=FALSE)
 {
-    chrs <- unique(as.character(seqnames(x)))
+    chrs <- levels(seqnames(x))
     names(chrs) <- chrs
     if (!all(chrs %in% seqnames(organism))) stop("Chromosome name mismatch bewteen x and organism")
-    hits <- as(RangesList(lapply(chrs, function(x) IRanges(start(matchPattern(pattern, organism[[x]], fixed=TRUE)), width=1))), "GRanges")
+    hits <- as(RangesList(lapply(chrs, function(x) IRanges(start(matchPattern(pattern, organism[[x]], fixed=fixed)), width=1))), "GRanges")
     if (!positions) return(countOverlaps(x, hits))
     scores <- vector(mode='list', length=length(x))
     temp <- findOverlaps(x, hits)@matchMatrix

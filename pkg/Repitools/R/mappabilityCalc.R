@@ -11,5 +11,5 @@ setMethod("mappabilityCalc", "data.frame", function(x, window=500, organism) {
     if (is.null(x$position)) x$position <- ifelse(x$strand == '+', x$start, x$end)
     x <- GRanges(x$chr, IRanges(x$position, width=1), seqlengths=seqlengths(organism)[unique(x$chr)])
     x <- resize(x, window)
-    gcContentCalc(x, organism)
+    mappabilityContentCalc(x, organism)
 })

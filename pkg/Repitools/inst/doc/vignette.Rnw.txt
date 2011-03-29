@@ -111,7 +111,7 @@ legend("topright", names(samplesList)[c(2, 4)], fill = c("red", "blue"))
 \noindent Epigenomic data is often gathered with other data, such as gene expression. It may be of interest to see the profile of epigenetic mark enrichment at a variety of distances from TSSs, and stratify this into groups by the expression of genes. The \texttt{binPlots} function is a convenient way to look at these interactions.
 
 <<label = binPlotsHeatmap, fig = TRUE>>=
-binPlots(samplesList, geneAnno, design = designMatrix, by = 500, bw = 500, seqLen = 300, ordering = expr, plotType = "heatmap", nbins = 10)
+binPlots(samplesList, geneAnno, design = designMatrix, by = 500, bw = 500, seqLen = 300, ordering = expr, ordLabel = "Expression t-stat", plotType = "heatmap", nbins = 10)
 @
 
 \noindent This example made counts in 500 base non - overlapping windows between -7500 bases upstream and 2500 bases downstream (the default range) for each gene, then split them into categories based on the expression difference value, and averaged over all counts for each particular window and expression category. It is encouraging to see that the lowest level of expression has a rather fine enrichment of DNA methylation about 2000 bases either side of the TSS. Apart from the heatmap visualisation, there are a number of other styles. Details can be found in the documentation of the function. More bins can be used for a nicer-looking heatmap when the full set of genes (genome-wide) is used.
@@ -119,7 +119,7 @@ binPlots(samplesList, geneAnno, design = designMatrix, by = 500, bw = 500, seqLe
 \noindent To demonstrate how similar it is to generate another style of binned plot, the next example shows the same data as a line-plot. Note that the function call is the same, apart from the \texttt{plotType} parameter. Notice the spike in DNA methylation for the set of lowest expressed genes, which form the blue line.
 
 <<label = binPlotsLine, fig = TRUE>>=
-binPlots(samplesList, geneAnno, design = designMatrix, by = 500, bw = 500, seqLen = 300, ordering = expr, plotType = "line", nbins = 10)
+binPlots(samplesList, geneAnno, design = designMatrix, by = 500, bw = 500, seqLen = 300, ordering = expr, ordLabel = "Expression t-stat", plotType = "line", nbins = 10)
 @
 
 Some genes may be of interest to the researcher for some reason. This subset of genes may be known to be strongly marked with another epigenetic mark, or change in expression in the same direction strongly, or many other reasons. No matter what the reason for selecting the subset is, the profile of intensities or counts can be plotted versus the profile of randomly selected gene lists and compared with the \texttt{significancePlots} function. In the following example, it will be checked whether the DNA methylation profile of keratin-associated protein coding genes is any different to that of the other genes.

@@ -123,7 +123,7 @@ setClass("ChromaResults",
 
 setMethod("show", "ChromaResults", function(object) {
   cat("Object of class 'ChromaResults'.\n")
-  cat(sum(sapply(object@regions, length)), "regions found with using a cutoff of", object@cutoff)
+  cat(sum(sapply(object@regions, length)), "regions found with using a cutoff of", object@cutoff, "\n")
 })
 
 #ChromaResults Generics
