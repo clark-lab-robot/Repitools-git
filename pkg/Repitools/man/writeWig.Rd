@@ -6,9 +6,9 @@
 \title{Writes sequencing data out into a wiggle files}
 \description{Writes sequencing data out into a wiggle files}
 \usage{
-  \S4method{writeWig}{AffymetrixCelSet}(rs, design=NULL, log2adjust=TRUE, verbose=TRUE, ...)
-  \S4method{writeWig}{GenomeDataList}(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE, ...)
-  \S4method{writeWig}{GRangesList}(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE, ...)
+  \S4method{writeWig}{AffymetrixCelSet}(rs, design=NULL, log2adjust=TRUE, verbose=TRUE)
+  \S4method{writeWig}{GenomeDataList}(rs, ...)
+  \S4method{writeWig}{GRangesList}(rs, seqLen, design=NULL, sample=20, dropZero=TRUE, normalise=TRUE, verbose=TRUE)
 }
 \arguments{
   \item{rs}{The sequencing or array data.}
@@ -19,7 +19,7 @@
   \item{sample}{At what basepair resolution to sample the genome at}
   \item{dropZero}{Whether to write zero values to the wiggle file - TRUE saves diskspace}
   \item{normalise}{Whether to normalise each lane to its total number of reads, TRUE is suggested}
-  \item{...}{Keeps S3 methods happy}
+  \item{...}{Arguments passed from the \code{GenomeDataList} method to the \code{GRangesList} method}
 }
 \details{
 A wiggle file is created for each column in the design matrix (if design is left as NULL, then a file 
