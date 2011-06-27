@@ -43,7 +43,7 @@ echo $contents; } ?>
 
 <!-- end of project description -->
 
-<p> [27 June 2011] Note that the Repitools projects is now being hosted by Bioconductor, from version <a href="http://www.bioconductor.org/packages/2.9/bioc/html/Repitools.html">2.9 onwards.</p><br>
+<p> [27 June 2011] Note that the Repitools projects is now being hosted by Bioconductor, from version <a href="http://www.bioconductor.org/packages/2.9/bioc/html/Repitools.html">2.9 onwards</a>.</p><br>
 
 <FONT COLOR="gray">
 
