@@ -43,6 +43,10 @@ echo $contents; } ?>
 
 <!-- end of project description -->
 
+<p> [27 June 2011] Note that the Repitools projects is now being hosted by Bioconductor, from version <a href="http://www.bioconductor.org/packages/2.9/bioc/html/Repitools.html">2.9 onwards.</p><br>
+
+<FONT COLOR="gray">
+
 <p> User's guide in PDF format can be downloaded <a href="RepitoolsManual.pdf">here</a>. </p>
 
 <p> 'RepitoolsExamples' package containing example data can be downloaded from <a href="http://129.94.136.7/file_dump/mark/RepitoolsExamples_1.0.10.tar.gz">here</a>. </p>
